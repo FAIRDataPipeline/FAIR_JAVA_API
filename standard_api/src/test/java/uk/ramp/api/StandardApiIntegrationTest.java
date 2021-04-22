@@ -24,6 +24,7 @@ import uk.ramp.distribution.MinMax;
 import uk.ramp.samples.ImmutableSamples;
 import uk.ramp.samples.Samples;
 
+@Ignore
 public class StandardApiIntegrationTest {
   private final Table<Integer, String, Number> mockTable =
       ImmutableTable.<Integer, String, Number>builder()

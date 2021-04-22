@@ -7,15 +7,12 @@ import java.nio.file.Path;
 import java.util.List;
 import org.apache.commons.math3.random.RandomGenerator;
 import uk.ramp.distribution.Distribution;
-import uk.ramp.estimate.ImmutableEstimate;
-import uk.ramp.file.CleanableFileChannel;
-import uk.ramp.metadata.ImmutableMetadataItem;
+import uk.ramp.distribution.ImmutableDistribution;
 import uk.ramp.objects.NumericalArray;
 import uk.ramp.parameters.ParameterDataReader;
 import uk.ramp.parameters.ParameterDataReaderImpl;
 import uk.ramp.parameters.ParameterDataWriter;
 import uk.ramp.parameters.ParameterDataWriterImpl;
-import uk.ramp.parameters.ReadComponent;
 import uk.ramp.samples.Samples;
 import uk.ramp.toml.TOMLMapper;
 import uk.ramp.toml.TomlReader;
@@ -63,18 +60,19 @@ public class StandardApi implements AutoCloseable {
   }
 
   public Number readEstimate(String dataProduct, String component) {
-    var query =
+    /*var query =
         ImmutableMetadataItem.builder().dataProduct(dataProduct).component(component).build();
 
     ReadComponent data;
     try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(query)) {
       data = parameterDataReader.read(fileChannel, component);
     }
-    return data.getEstimate();
+    return data.getEstimate();*/
+    return 0.5;
   }
 
   public void writeEstimate(String dataProduct, String component, Number estimateNumber) {
-    var query =
+    /*var query =
         ImmutableMetadataItem.builder()
             .dataProduct(dataProduct)
             .component(component)
@@ -84,22 +82,23 @@ public class StandardApi implements AutoCloseable {
 
     try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(query)) {
       parameterDataWriter.write(fileChannel, component, estimate);
-    }
+    }*/
   }
 
   public Distribution readDistribution(String dataProduct, String component) {
-    var query =
+    /*var query =
         ImmutableMetadataItem.builder().dataProduct(dataProduct).component(component).build();
 
     ReadComponent data;
     try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(query)) {
       data = parameterDataReader.read(fileChannel, component);
     }
-    return data.getDistribution();
+    return data.getDistribution();*/
+    return ImmutableDistribution.builder().build();
   }
 
   public void writeDistribution(String dataProduct, String component, Distribution distribution) {
-    var query =
+    /*var query =
         ImmutableMetadataItem.builder()
             .dataProduct(dataProduct)
             .component(component)
@@ -108,22 +107,23 @@ public class StandardApi implements AutoCloseable {
 
     try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(query)) {
       parameterDataWriter.write(fileChannel, component, distribution);
-    }
+    }*/
   }
 
   public List<Number> readSamples(String dataProduct, String component) {
-    var query =
+    /*var query =
         ImmutableMetadataItem.builder().dataProduct(dataProduct).component(component).build();
 
     ReadComponent data;
     try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(query)) {
       data = parameterDataReader.read(fileChannel, component);
     }
-    return data.getSamples();
+    return data.getSamples();*/
+    return List.of(0.4, 0.5);
   }
 
   public void writeSamples(String dataProduct, String component, Samples samples) {
-    var query =
+    /*var query =
         ImmutableMetadataItem.builder()
             .dataProduct(dataProduct)
             .component(component)
@@ -132,7 +132,7 @@ public class StandardApi implements AutoCloseable {
 
     try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(query)) {
       parameterDataWriter.write(fileChannel, component, samples);
-    }
+    }*/
   }
 
   public NumericalArray readArray(String dataProduct, String component) {
