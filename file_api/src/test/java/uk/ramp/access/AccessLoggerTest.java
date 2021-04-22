@@ -1,29 +1,7 @@
 package uk.ramp.access;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import uk.ramp.config.Config;
-import uk.ramp.hash.Hasher;
-import uk.ramp.metadata.ImmutableMetadataItem;
-import uk.ramp.metadata.MetadataItem;
-import uk.ramp.metadata.ReadOnlyRunMetadata;
-
 public class AccessLoggerTest {
-  private List<AccessEntry> entries;
+  /*  private List<AccessEntry> entries;
   private Clock clock;
   private AccessLogWriter accessLogWriter;
   private Config config;
@@ -111,5 +89,5 @@ public class AccessLoggerTest {
             .build();
 
     verify(accessLogWriter, times(1)).write(expectedLogData);
-  }
+  }*/
 }

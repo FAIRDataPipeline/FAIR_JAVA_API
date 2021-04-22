@@ -10,7 +10,8 @@ public class ConfigFactory {
       YamlReader yamlReader, Hasher hasher, Instant openTimestamp, Path configFilePath) {
     var config = new ConfigReader(yamlReader, configFilePath).read();
     var freshHash = hasher.fileHash(configFilePath.toString(), openTimestamp);
-    var runId = config.runId().orElse(freshHash);
-    return config.withRunId(runId).withParentPath(configFilePath.getParent().toString());
+    // var runId = config.runId().orElse(freshHash);
+    return config;
+    // .withParentPath(configFilePath.getParent().toString());
   }
 }

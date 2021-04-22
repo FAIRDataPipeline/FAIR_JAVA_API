@@ -1,11 +1,7 @@
 package uk.ramp.metadata;
 
-import static java.util.Comparator.comparing;
-
-import java.util.List;
-
 public class MatchingMetadataSelector implements MetadataSelector {
-  private final List<MetadataItem> metadataItems;
+  /*  private final List<MetadataItem> metadataItems;
 
   MatchingMetadataSelector(List<MetadataItem> metadataItems) {
     this.metadataItems = metadataItems;
@@ -17,5 +13,5 @@ public class MatchingMetadataSelector implements MetadataSelector {
         .filter(i -> i.isSuperSetOf(key))
         .max(comparing(MetadataItem::comparableVersion))
         .orElse(key);
-  }
+  }*/
 }

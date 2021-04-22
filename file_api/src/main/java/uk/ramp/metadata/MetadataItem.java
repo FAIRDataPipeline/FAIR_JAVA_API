@@ -1,22 +1,8 @@
 package uk.ramp.metadata;
 
-import static uk.ramp.file.FileDirectoryNormaliser.normalisePath;
+// import uk.ramp.config.Config.OverrideItem;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.immutables.value.Value.Derived;
-import org.immutables.value.Value.Immutable;
-import uk.ramp.config.Config.OverrideItem;
-
-@Immutable
+/*@Immutable
 @JsonSerialize
 @JsonDeserialize
 public interface MetadataItem {
@@ -227,3 +213,4 @@ public interface MetadataItem {
     return newMetadataItem;
   }
 }
+*/

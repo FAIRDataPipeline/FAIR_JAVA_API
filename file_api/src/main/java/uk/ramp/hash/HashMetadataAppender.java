@@ -1,10 +1,10 @@
 package uk.ramp.hash;
 
-import uk.ramp.metadata.ImmutableMetadataItem;
-import uk.ramp.metadata.MetadataItem;
+// import uk.ramp.metadata.ImmutableMetadataItem;
+// import uk.ramp.metadata.MetadataItem;
 
 public class HashMetadataAppender {
-  private final Hasher hasher;
+  /*  private final Hasher hasher;
 
   public HashMetadataAppender(Hasher hasher) {
     this.hasher = hasher;
@@ -27,5 +27,5 @@ public class HashMetadataAppender {
     }
 
     return ImmutableMetadataItem.copyOf(queryMetaDataItem).withCalculatedHash(calculatedHash);
-  }
+  }*/
 }

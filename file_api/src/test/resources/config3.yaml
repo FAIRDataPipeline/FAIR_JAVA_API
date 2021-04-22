@@ -1,0 +1,97 @@
+run_metadata:
+  description: Register a file in the pipeline
+  local_data_registry_url: https://localhost:8000/api/
+  remote_data_registry_url: https://data.scrc.uk/api/
+  default_input_namespace: SCRC
+  default_output_namespace: johnsmith
+  default_data_store: /datastore/
+  local_repo: /Users/johnsmith/git/myproject/
+  script: # Points to the Python script, below (relative to local_repo)
+    python path/submission_script.py {CONFIG_PATH}
+# `script_path:` can be used instead of `script:`
+
+register:
+  - external_object: raw-mortality-data
+    # Who owns the data?
+    source_name: Scottish Government Open Data Repository
+    source_abbreviation: Scottish Government Open Data Repository
+    source_website: https://statistics.gov.scot/
+    # Where does the data come from?
+    root_name: Scottish Government Open Data Repository
+    root: https://statistics.gov.scot/sparql.csv?query=
+    path: |-
+      PREFIX qb: <http://purl.org/linked-data/cube#>
+      PREFIX data: <http://statistics.gov.scot/data/>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX dim: <http://purl.org/linked-data/sdmx/2009/dimension#>
+      PREFIX sdim: <http://statistics.gov.scot/def/dimension/>
+      PREFIX stat: <http://statistics.data.gov.uk/def/statistical-entity#>
+      PREFIX mp: <http://statistics.gov.scot/def/measure-properties/>
+      SELECT ?featurecode ?featurename ?areatypename ?date ?cause ?location ?gender ?age ?type ?count
+      WHERE {
+       ?indicator qb:dataSet data:deaths-involving-coronavirus-covid-19;
+         mp:count ?count;
+         qb:measureType ?measType;
+         sdim:age ?value;
+         sdim:causeOfDeath ?causeDeath;
+         sdim:locationOfDeath ?locDeath;
+         sdim:sex ?sex;
+         dim:refArea ?featurecode;
+         dim:refPeriod ?period.
+
+         ?measType rdfs:label ?type.
+         ?value rdfs:label ?age.
+         ?causeDeath rdfs:label ?cause.
+         ?locDeath rdfs:label ?location.
+         ?sex rdfs:label ?gender.
+         ?featurecode stat:code ?areatype;
+           rdfs:label ?featurename.
+         ?areatype rdfs:label ?areatypename.
+         ?period rdfs:label ?date.
+      }
+    # Metadata
+    title: Deaths involving COVID19
+    description: Nice description of the dataset
+    unique_name: Scottish deaths involving COVID19  # or doi
+    product_name: records/SARS-CoV-2/scotland/human-mortality
+    file_type: csv
+    release_date: 2021-04-22 09:00:00
+    version: 0.1.0
+    primary: True
+    accessibility: open        # Other option is "closed"
+
+write:
+  - data_product: records/SARS-CoV-2/scotland/human-mortality
+    description: human mortality data
+    components:
+      - component: nhs_health_board/week-covid_related_deaths
+        description: number of covid-related deaths per week per nhs health board
+      - component: council_area/week-covid_related_deaths
+        description: number of covid-related deaths per week per council area
+      - component: age_group/week/gender-country-covid_related_deaths
+        description: number of covid-related deaths per week per age group, by gender
+      - component: age_group/week-persons-country-covid_related_deaths
+        description: number of covid-related deaths per week per age group
+      - component: location_type/week-covid_related_deaths
+        description: number of covid-related deaths per week in care homes, at home, at hospital, and other locations
+      - component: nhs_health_board-covid_related_deaths
+        description: total number of covid-related deaths per health board per year
+      - component: council_area-covid_related_deaths
+        description: total number of covid-related deaths per council area per year
+      - component: nhs_health_board/week-all_deaths
+        description: number of deaths (all causes) per week per nhs health board
+      - component: council_area/week-all_deaths
+        description: number of deaths (all causes) per week per council area
+      - component: age_group/week/gender-country-all_deaths
+        description: number of deaths (all causes) per week per age group, by gender
+      - component: age_group/week-persons-country-all_deaths
+        description: number of deaths (all causes) per week per age group
+      - component: location_type/week-all_deaths
+        description: number of deaths (all causes) per week in care homes, at home, at hospital, and other locations
+      - component: nhs_health_board-all_deaths
+        description: total number of deaths (all causes) per nhs health board per year
+      - component: council_area-all_deaths
+        description: total number of deaths (all causes) per council area per year
+      - component: week-persons-scotland-all_deaths-averaged_over_5years
+        description: number of deaths (all causes) per week, averaged over 5 years
+    version: 1.2.3

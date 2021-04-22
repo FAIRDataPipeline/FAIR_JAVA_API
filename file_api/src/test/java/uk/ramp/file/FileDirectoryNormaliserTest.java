@@ -3,8 +3,10 @@ package uk.ramp.file;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class FileDirectoryNormaliserTest {
   private String parentPath;
 

@@ -1,6 +1,6 @@
 fail_on_hash_mismatch: True
 run_metadata:
-  description: A simple analysis
+  description: A test model
   local_data_registry_url: https://localhost:8000/api/
   remote_data_registry_url: https://data.scrc.uk/api/
   default_input_namespace: SCRC
@@ -8,15 +8,16 @@ run_metadata:
   default_data_store: /datastore/
   always_copy_to_store: False
 
-
 read:
-  - data_product: human/mixing-matrix
-    component: bla
-    use:
-      component: mixing-matrix
-  - data_product: human/commutes
-  - data_product: human/compartment-transition
   - data_product: human/population
     use:
-      version: 0.1.0
+      namespace: eera
+      data_product: scotland/human/population
 
+write:
+  - data_product: human/outbreak-timeseries
+    use:
+      data_product: scotland/human/outbreak-timeseries
+  - data_product: human/outbreak/simulation_run
+    use:
+      data_product: human/outbreak/simulation_run-{run_id}
