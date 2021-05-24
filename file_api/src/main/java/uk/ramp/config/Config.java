@@ -38,12 +38,15 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  interface ConfigItem {
+  public interface ConfigItem {
     @JsonProperty
     Optional<String> data_product();
 
     @JsonProperty
     Optional<String> external_object();
+
+    @JsonProperty
+    Optional<String> doi_or_unique_name();
 
     @JsonProperty
     Optional<String> object();
@@ -106,7 +109,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  interface ConfigUseItem {
+  public interface ConfigUseItem {
     @JsonProperty
     Optional<String> unique_name();
 
@@ -138,7 +141,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  interface ConfigComponent {
+  public interface ConfigComponent {
     @JsonProperty
     Optional<String> component();
 
@@ -149,7 +152,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  interface WriteItem {
+  public interface WriteItem {
     Optional<ImmutableConfigDataProduct> data_product();
 
     Optional<ImmutableConfigExternalObject> external_object();
@@ -160,7 +163,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  interface RegisterItem {
+  public interface RegisterItem {
     Optional<ImmutableConfigDataProduct> data_product();
 
     Optional<ImmutableConfigExternalObject> external_object();
@@ -171,7 +174,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  interface ConfigDataProduct {
+  public interface ConfigDataProduct {
     Optional<String> description();
 
     Optional<String> component();
@@ -180,7 +183,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  interface ConfigExternalObject {
+  public interface ConfigExternalObject {
     Optional<String> description();
 
     Optional<String> component();
@@ -189,7 +192,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  interface ConfigObject {
+  public interface ConfigObject {
     Optional<String> description();
 
     Optional<String> component();

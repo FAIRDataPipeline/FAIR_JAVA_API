@@ -2,6 +2,8 @@ package uk.ramp.api;
 
 import java.nio.file.Path;
 import java.time.Clock;
+
+import uk.ramp.config.Config;
 import uk.ramp.config.ConfigFactory;
 import uk.ramp.dataRegistry.dataRegistry;
 import uk.ramp.hash.Hasher;
@@ -20,6 +22,7 @@ public class FileApi implements AutoCloseable {
   // private static final Cleaner cleaner = Cleaner.create(); // safety net for closing
   // private final Cleanable cleanable;
   // private final OverridesApplier overridesApplier;
+  private Config config;
   private final boolean shouldVerifyHash;
 
   public FileApi(Path configFilePath) {
@@ -34,6 +37,14 @@ public class FileApi implements AutoCloseable {
     var dataregistry = new dataRegistry(config);
     // this.cleanable = cleaner.register(this, accessLoggerWrapper);
     this.shouldVerifyHash = config.failOnHashMisMatch();
+  }
+
+  public void add_to_register(String name) {
+    //
+
+  }
+  public Config getConfig() {
+    return this.config;
   }
 
   /** Close the session and write the access log. */
