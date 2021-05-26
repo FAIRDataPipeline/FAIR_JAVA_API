@@ -1,5 +1,6 @@
 package uk.ramp.dataregistry.restclient;
 
+import jakarta.ws.rs.NotFoundException;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
@@ -21,9 +22,11 @@ import jakarta.ws.rs.client.WebTarget;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -36,42 +39,9 @@ public class RestClient {
     private void init(String registry_url, String token) {
         client = ClientBuilder.newBuilder()
                 .register(FDP_RootObjectReader.class)
+                .register(FDP_RootObjectWriter.class)
                 .register(FDP_ObjectListReader.class)
-                /*.register(AuthorReader.class)
-                .register(AuthorWriter.class)
-                .register(Code_repo_releaseReader.class)
-                .register(Code_repo_releaseWriter.class)
-                .register(Code_runReader.class)
-                .register(Code_runWriter.class)
-                .register(Data_productReader.class)
-                .register(Data_productWriter.class)
-                .register(External_objectReader.class)
-                .register(External_objectWriter.class)
-                .register(FDPObjectReader.class)
-                .register(FDPObjectWriter.class)
-                .register(File_typeWriter.class)
-                .register(File_typeReader.class)
-                .register(IssueReader.class)
-                .register(IssueWriter.class)
-                .register(Key_valueReader.class)
-                .register(Key_valueWriter.class)
-                .register(KeywordReader.class)
-                .register(KeywordWriter.class)
-                .register(NamespaceReader.class)
-                .register(NamespaceWriter.class)
-                .register(Object_componentReader.class)
-                .register(Object_componentWriter.class)
-                .register(SourceReader.class)
-                .register(SourceWriter.class)
-                .register(Storage_locationReader.class)
-                .register(Storage_locationWriter.class)
-                .register(Storage_rootReader.class)
-                .register(Storage_rootWriter.class)
-                .register(Text_fileReader.class)
-                .register(Text_fileWriter.class)
-                .register(UserReader.class)*/
-                .register(new JavaUtilCollectionsDeserializers() {
-                })
+                .register(new JavaUtilCollectionsDeserializers() {})
                 .register(OAuth2ClientSupport.feature(token))
                 .build();
         wt = client.target(registry_url);
@@ -91,70 +61,61 @@ public class RestClient {
     public FDP_RootObject getFirst(Class<?> c, Map<String, String> m) {
         // c = the class contained within the objectlist
         // return the first item found.
-        WebTarget wt2 = wt.path(c.getSimpleName().toLowerCase(Locale.ROOT));
+        WebTarget wt2 = wt.path(FDP_RootObject.get_django_path(c.getSimpleName()));
         System.out.println("RestClient.get(Class, Map) " + wt2.getUri());
         for ( Map.Entry<String, String> e : m.entrySet() ) {
-            wt2.queryParam(e.getKey(), e.getValue());
+            wt2 = wt2.queryParam(e.getKey(), e.getValue());
         }
-        String s = (String) wt2.request(MediaType.APPLICATION_JSON).get(String.class);
-        System.out.println("get("+ c.getName() + ", " + m + ") --> " + s);
         ParameterizedType p =  TypeUtils.parameterize(FDP_ObjectList.class, c);
-        GenericType<?> gt = (GenericType) TypeUtils.parameterize(GenericType.class, p);
-        FDP_ObjectList<?> o =  (FDP_ObjectList) wt2.request(MediaType.APPLICATION_JSON).get(gt);
-
+        FDP_ObjectList<?> o =  (FDP_ObjectList) wt2.request(MediaType.APPLICATION_JSON).get(new GenericType<FDP_ObjectList>(p));
+        if(o.getCount() == 0) {
+            return null;
+        }
         return (FDP_RootObject) o.getResults().get(0);
     }
 
-    public FDP_ObjectList<?> getList(GenericType<FDP_ObjectList<FDP_RootObject>> c, Map<String, String> m) {
-        // c is the parameterized generictype
-        System.out.println("RestClient.getlist() - type = " + c.getClass().getSimpleName() + "; " + c.toString());
-        System.out.println("rawType: " + c.getRawType());
-        System.out.println("class: " + c.getClass());
-        System.out.println("type: " + c.getType());
-        Type MyTypeParameter = ((ParameterizedType) c.getType()).getActualTypeArguments()[0];
-        System.out.println("FDP_ObjectList() - typename: " + MyTypeParameter.getTypeName());
-        String my_path = "";
-        try {
-            my_path = Class.forName(MyTypeParameter.getTypeName()).getSimpleName().toLowerCase(Locale.ROOT);
-        }catch (ClassNotFoundException e) {
-            System.out.println("class not found exception!");
-            return null;
+    public FDP_ObjectList<?> getList(Class<?> c, Map<String, String> m) {
+        // c is the class contained within the ObjectList
+        if(!FDP_RootObject.class.isAssignableFrom(c)){
+            throw new IllegalArgumentException("Given class is not an FDP_RootObject.");
         }
-        WebTarget wt2 = wt.path(my_path + "/");
-        System.out.println("RestClient.getList(" + my_path + ", " + m + ")");
+        WebTarget wt2 = wt.path(FDP_RootObject.get_django_path(c.getSimpleName()));
         System.out.println("RestClient.getList(Class, Map) " + wt2.getUri());
         for ( Map.Entry<String, String> e : m.entrySet() ) {
-            wt2.queryParam(e.getKey(), e.getValue());
+            System.out.println("Adding query param: " + e.getKey() + " -> " + e.getValue());
+            wt2 = wt2.queryParam(e.getKey(), e.getValue());
         }
-        String s = (String) wt2.request(MediaType.APPLICATION_JSON).get(String.class);
-
-        FDP_ObjectList<?> o =  (FDP_ObjectList) wt2.request(MediaType.APPLICATION_JSON).get(c);
+        ParameterizedType p =  TypeUtils.parameterize(FDP_ObjectList.class, c);
+        GenericType<FDP_ObjectList> gt = new GenericType<FDP_ObjectList>(p);
+        FDP_ObjectList<?> o =  (FDP_ObjectList<?>) wt2.request(MediaType.APPLICATION_JSON).get(gt);
         return o;
     }
 
     public FDP_RootObject get(Class<?> c, int i)  {
-        //if(c.getSuperclass() != FDP_Object.class && c.getSuperclass().getSuperclass() != FDP_Object.class){
         if(!FDP_RootObject.class.isAssignableFrom(c)) {
-            throw new IllegalArgumentException("Given class is not an FDP_Object.");
+            throw new IllegalArgumentException("Given class is not an FDP_RootObject.");
         }
-        WebTarget wt2 = wt.path(c.getSimpleName().toLowerCase(Locale.ROOT));
-        WebTarget wt3 = wt2.path(Integer.toString(i));
-        System.out.println("get(Class, Int) URI: " + wt3.getUri());
-        String s = (String) wt.path(c.getSimpleName().toLowerCase(Locale.ROOT)).path(Integer.toString(i)).request(MediaType.APPLICATION_JSON).get(String.class);
-        System.out.println("RestClient.get("+ c.getName() + ", " + i + ") --> " + s);
-
-        FDP_RootObject o =  (FDP_RootObject) wt3.request(MediaType.APPLICATION_JSON).get(c);
-        return o;
+        WebTarget wt2 = wt.path(FDP_RootObject.get_django_path(c.getSimpleName())).path(Integer.toString(i));
+        try {
+            FDP_RootObject o = (FDP_RootObject) wt2.request(MediaType.APPLICATION_JSON).get(c);
+            return o;
+        } catch (NotFoundException e) {
+            return null;
+        }
     }
 
     public Response post(FDP_Updateable o) {
-        Response r = wt.path(o.getClass().getSimpleName().toLowerCase(Locale.ROOT) + "/").request(MediaType.APPLICATION_JSON).post(Entity.entity(o, MediaType.APPLICATION_JSON));
-        ObjectMapper om = new ObjectMapper();
-        om.registerModule(new JavaTimeModule());
-        try {
-            System.out.println("post() " + om.writeValueAsString(o));
-        } catch(JsonProcessingException e) {
-            System.out.println("post() - JsonProcessingException " + e);
+        WebTarget wt2 = wt.path(o.get_django_path());
+        System.out.println("post target: " + wt2.getUri());
+        Response r = wt2.request(MediaType.APPLICATION_JSON).post(Entity.entity(o, MediaType.APPLICATION_JSON));
+        if(r.getStatus() != 201) {
+            InputStream i = (InputStream) r.getEntity();
+            try {
+                String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
+                System.out.println(text);
+            } catch (IOException e) {
+                System.out.println("IOException " + e);
+            }
         }
         return r;
     }

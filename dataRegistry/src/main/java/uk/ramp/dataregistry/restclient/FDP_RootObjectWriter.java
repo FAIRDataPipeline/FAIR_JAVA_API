@@ -2,11 +2,13 @@ package uk.ramp.dataregistry.restclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyWriter;
+import uk.ramp.dataregistry.content.Data_product;
 import uk.ramp.dataregistry.content.FDP_RootObject;
 
 import java.io.IOException;
@@ -15,6 +17,8 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 public class FDP_RootObjectWriter implements MessageBodyWriter<FDP_RootObject> {
@@ -36,10 +40,15 @@ public class FDP_RootObjectWriter implements MessageBodyWriter<FDP_RootObject> {
             throws IOException, WebApplicationException {
 
         try {
+            System.out.println("FDP_RootObjectWriter - writing " + o);
             ObjectMapper om = new ObjectMapper();
-            om.registerModule(new JavaTimeModule());
+            JavaTimeModule jtm = new JavaTimeModule();
+            jtm.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME));
+            om.registerModule(jtm);
             Writer w = new PrintWriter(outStream);
-            w.write(om.writeValueAsString(o));
+            String s = om.writeValueAsString(o);
+            System.out.println(s);
+            w.write(s);
             w.flush();
             w.close();
         } catch (Exception e) {

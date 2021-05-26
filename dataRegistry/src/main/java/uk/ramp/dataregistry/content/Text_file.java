@@ -10,6 +10,8 @@ public class Text_file extends FDP_Updateable{
     @XmlElement
     private String text;
 
+    public Text_file(String t) {this.text = t; }
+
     public Text_file() {}
 
     public String getText() { return this.text; }

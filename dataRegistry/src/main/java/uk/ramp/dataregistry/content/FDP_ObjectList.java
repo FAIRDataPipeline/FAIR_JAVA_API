@@ -26,7 +26,7 @@ public class FDP_ObjectList<T extends FDP_RootObject> {
     public Integer getCount() { return count; }
     public String getNext() { return next; }
     public String getPrevious() { return previous; }
-    public List<T> getResults() { return new ArrayList<>(results); }
+    public List<T> getResults() { return (this.results == null) ? new ArrayList<T>(){} : new ArrayList<T>(results); }
 
     public void setCount(Integer count) { this.count = count;}
     public void setNext(String next) { this.next = next; }

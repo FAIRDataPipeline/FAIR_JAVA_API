@@ -21,8 +21,8 @@ public class Issue extends FDP_Updateable{
 
     public Integer getSeverity() { return this.severity; }
     public String getDescription() { return this.description; }
-    public List<String> getObject_issues() { return new ArrayList<String>(this.object_issues); }
-    public List<String> getComponent_issues() { return new ArrayList<String>(this.component_issues);}
+    public List<String> getObject_issues() { return (this.object_issues == null) ? new ArrayList<String>(){} : new ArrayList<String>(this.object_issues); }
+    public List<String> getComponent_issues() { return (this.component_issues == null) ? new ArrayList<String>(){} : new ArrayList<String>(this.component_issues);}
 
     public void setSeverity(Integer severity) { this.severity = severity; }
     public void setDescription(String description) { this.description = description; }

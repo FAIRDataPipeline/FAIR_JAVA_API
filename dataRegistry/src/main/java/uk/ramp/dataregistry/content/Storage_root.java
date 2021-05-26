@@ -1,5 +1,7 @@
 package uk.ramp.dataregistry.content;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ public class Storage_root extends FDP_Updateable{
     private String root;
 
     @XmlElement
+    @JsonFormat(shape=JsonFormat.Shape.NUMBER)
     private Boolean accessibility;
 
     @XmlElement
@@ -22,7 +25,7 @@ public class Storage_root extends FDP_Updateable{
     public String getName() { return this.name; }
     public String getRoot() { return this.root; }
     public Boolean getAccessibility() { return this.accessibility; }
-    public List<String> getLocations() { return this.locations; }
+    public List<String> getLocations() { return (this.locations==null)?new ArrayList<>(){} : new ArrayList<>(this.locations); }
 
     public void setName(String name) { this.name = name;}
     public void setRoot(String root) { this.root = root;}

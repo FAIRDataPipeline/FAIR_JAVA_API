@@ -26,7 +26,7 @@ public class User extends FDP_RootObject {
     public String getUsername() { return username; }
     public String getFull_name() { return full_name; }
     public String getEmail() { return email; }
-    public List<String> getOrgs() { return new ArrayList<String>(orgs); }
+    public List<String> getOrgs() { return (orgs==null)?new ArrayList<>(){} : new ArrayList<String>(orgs); }
 
     public void setUsername(String username) { this.username = username; }
     public void setFull_name(String full_name) { this.full_name = full_name; }

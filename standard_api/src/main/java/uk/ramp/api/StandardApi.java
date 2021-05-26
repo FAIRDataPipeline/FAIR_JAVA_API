@@ -75,7 +75,7 @@ public class StandardApi implements AutoCloseable {
         m.put("doi_or_unique_name", l.get().doi_or_unique_name().orElse(""));
       }
     }
-    External_object eo = (External_object) restClient.get(External_object.class, m);
+    FDP_ObjectList<External_object> eol = (FDP_ObjectList<External_object>) restClient.getList(External_object.class, m);
 
     return "";
   }

@@ -1,5 +1,7 @@
 package uk.ramp.dataregistry.content;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.LocalDateTime;
@@ -9,6 +11,7 @@ public class External_object extends  FDP_Updateable{
     @XmlElement
     private String doi_or_unique_name;
 
+    @JsonFormat(shape=JsonFormat.Shape.NUMBER)
     @XmlElement
     private Boolean primary_not_supplement;
 
