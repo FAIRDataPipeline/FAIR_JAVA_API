@@ -29,7 +29,9 @@ public class Issue extends FDP_Updateable {
         : new ArrayList<String>(this.component_issues);
   }
 
-  public String getUuid() { return this.uuid;  }
+  public String getUuid() {
+    return this.uuid;
+  }
 
   public void setSeverity(Integer severity) {
     this.severity = severity;

@@ -1,7 +1,10 @@
 package uk.ramp.dataregistry.content;
 
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -58,7 +61,9 @@ public class Code_run extends FDP_Updateable {
     return this.uuid;
   }
 
-  public String getProv_report() { return this.prov_report; }
+  public String getProv_report() {
+    return this.prov_report;
+  }
 
   public void setRun_date(LocalDateTime run_date) {
     this.run_date = run_date;
@@ -89,16 +94,26 @@ public class Code_run extends FDP_Updateable {
   }
 
   public void addOutput(String output) {
-    this.outputs.add(output);
+    if(this.outputs == null) {
+      this.outputs = Collections.singletonList(output);
+    }else {
+      this.outputs.add(output);
+    }
   }
 
   public void addInput(String input) {
-    this.inputs.add(input);
+    if(this.inputs == null) {
+      this.inputs = Collections.singletonList(input);
+    }else {
+      this.inputs.add(input);
+    }
   }
 
   public void setUuid(String uuid) {
     this.uuid = uuid;
   }
 
-  public void setProv_report(String prov_report) { this.prov_report = prov_report; }
+  public void setProv_report(String prov_report) {
+    this.prov_report = prov_report;
+  }
 }

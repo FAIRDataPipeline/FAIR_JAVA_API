@@ -111,7 +111,6 @@ public class populateLocal {
     return al.stream();
   }
 
-
   private boolean keyvalueExists() {
     FDP_ObjectList<?> sr =
         (FDP_ObjectList<?>) lc.getList(Key_value.class, new HashMap<String, String>());

@@ -48,7 +48,9 @@ public class FDPObject extends FDP_Updateable {
     return this.uuid;
   }
 
-  public String getFile_type() { return this.file_type; }
+  public String getFile_type() {
+    return this.file_type;
+  }
 
   public List<String> getComponents() {
     return (this.components == null) ? new ArrayList<>() {} : new ArrayList<String>(components);
@@ -90,7 +92,9 @@ public class FDPObject extends FDP_Updateable {
     this.uuid = uuid;
   }
 
-  public void setFile_type(String file_type) { this.file_type = file_type; }
+  public void setFile_type(String file_type) {
+    this.file_type = file_type;
+  }
 
   public void setComponents(List<String> components) {
     this.components = new ArrayList<>(components);

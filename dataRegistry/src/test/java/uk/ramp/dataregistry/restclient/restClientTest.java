@@ -20,11 +20,10 @@ public class restClientTest {
     lcr = new RestClient(remoteReg);
   }
 
-  @Disabled
   @Test
   @Order(0)
   public void get_namespace() {
-    Namespace n = (Namespace) lc.get(Namespace.class, 1);
+    Namespace n = (Namespace) lc.get(Namespace.class, 98765);
     Assertions.assertNull(n); // i'm expecting NULL cause namespace 1 doesn't exist.
     // Assertions.assertEquals("BramTestNS", n.getName());
   }
@@ -85,7 +84,6 @@ public class restClientTest {
     Assertions.assertEquals(201, r.getStatus());
   }
 
-
   @Disabled
   @Test
   @Order(7)
@@ -111,7 +109,6 @@ public class restClientTest {
     System.out.println("create_data_product: " + r.getStatusInfo());
     Assertions.assertEquals(201, r.getStatus());
   }
-
 
   @Disabled
   @Test
@@ -170,7 +167,6 @@ public class restClientTest {
     System.out.println("create_author: " + r.getStatusInfo());
     Assertions.assertEquals(201, r.getStatus());
   }
-
 
   @Disabled
   @Test
@@ -252,12 +248,5 @@ public class restClientTest {
       System.out.println(f.getUrl());
     }
     Assertions.assertNull(f);
-  }
-
-  @Disabled
-  @Test
-  @Order(21)
-  public void get_NonExistentNamespace() {
-    Assertions.assertNull(lc.get(Namespace.class, 9999));
   }
 }

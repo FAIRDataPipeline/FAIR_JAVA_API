@@ -2,8 +2,6 @@ package uk.ramp.hdf5;
 
 import hdf.object.*;
 import hdf.object.h5.*;
-
-import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
@@ -34,9 +32,9 @@ public class hdf5 {
     }
     try {
       Object o = ((Dataset) ho).getData();
-      if(o instanceof ArrayList) {
+      if (o instanceof ArrayList) {
         return (ArrayList<Object>) o;
-      }else{
+      } else {
         throw (new IllegalArgumentException("getData didn't give me an arraylist.."));
       }
     } catch (Exception e) {
@@ -73,10 +71,10 @@ public class hdf5 {
       ArrayList<Object> ao;
       try {
         Object o = cds.getData();
-        if(o instanceof ArrayList) {
+        if (o instanceof ArrayList) {
           ao = (ArrayList<Object>) o;
-        }else{
-          throw(new IllegalArgumentException("getData didn't give us an ArrayList"));
+        } else {
+          throw (new IllegalArgumentException("getData didn't give us an ArrayList"));
         }
       } catch (Exception e) {
         throw (new IllegalArgumentException("failed to get data from dataset " + e));

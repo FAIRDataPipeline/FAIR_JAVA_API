@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import org.junit.jupiter.api.*;
-import uk.ramp.dataregistry.restclient.RestClient;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class FDPObjectTest {
@@ -16,7 +15,7 @@ public class FDPObjectTest {
   public void setUp() throws Exception {}
 
   @Test
-  @Disabled
+  @Disabled("FDPObject has changed structure.")
   public void testObjectReader1() throws Exception {
     FDPObject o;
     ObjectMapper om = new ObjectMapper();
@@ -43,7 +42,7 @@ public class FDPObjectTest {
   }
 
   @Test
-  @Disabled
+  @Disabled("FDPObject has changed.")
   public void testObjectReader2() throws Exception {
     FDPObject o;
     ObjectMapper om = new ObjectMapper();
@@ -68,18 +67,5 @@ public class FDPObjectTest {
     Assertions.assertEquals(o.getAuthors(), new ArrayList<String>() {});
     Assertions.assertEquals(o.getLicences(), new ArrayList<String>() {});
     Assertions.assertEquals(o.getKeywords(), new ArrayList<String>() {});
-  }
-
-  @Test
-  void testObjectToLocalReg() throws Exception {
-    RestClient c = new RestClient(this.localReg);
-    c.post(new FDPObject());
-  }
-
-  @Disabled
-  @Test
-  public void testObjectFromLocalReg() throws Exception {
-    RestClient c = new RestClient(this.localReg);
-    FDPObject o = (FDPObject) c.get(FDPObject.class, 1);
   }
 }

@@ -21,7 +21,9 @@ public class Keyword extends FDP_Updateable {
     return this.keyphrase;
   }
 
-  public String getIdentifier() { return this.identifier; }
+  public String getIdentifier() {
+    return this.identifier;
+  }
 
   public void setObject(String object) {
     this.object = object;
@@ -31,6 +33,7 @@ public class Keyword extends FDP_Updateable {
     this.keyphrase = keyphrase;
   }
 
-  public void setIdentifier(String identifier) { this.identifier = identifier; }
-
+  public void setIdentifier(String identifier) {
+    this.identifier = identifier;
+  }
 }

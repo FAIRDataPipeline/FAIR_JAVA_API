@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Before;
@@ -22,7 +21,6 @@ import uk.ramp.distribution.ImmutableDistribution;
 import uk.ramp.distribution.ImmutableMinMax;
 import uk.ramp.distribution.MinMax;
 import uk.ramp.samples.Samples;
-
 
 public class StandardApiIntegrationTest {
   private final Table<Integer, String, Number> mockTable =
@@ -61,7 +59,7 @@ public class StandardApiIntegrationTest {
     // rng = mock(RandomGenerator.class);
     // when(rng.nextDouble()).thenReturn(0D);
     // samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
-  rng = new RandomDataGenerator().getRandomGenerator();
+    rng = new RandomDataGenerator().getRandomGenerator();
 
     distribution =
         ImmutableDistribution.builder()
@@ -123,11 +121,11 @@ public class StandardApiIntegrationTest {
 
   @Test
   public void testWriteEstimate() throws IOException {
-    // var stdApi = new StandardApi(Path.of(configPath), rng);
+    var stdApi = new StandardApi(Path.of(configPath), rng);
     String dataProduct = "Initial Data_product";
     String component = "Estimate Component";
-    assertThat(component).isEqualTo("Estimate Component");
-    // stdApi.writeEstimate(dataProduct, component, estimate);
+    // assertThat(component).isEqualTo("Estimate Component");
+    stdApi.writeEstimate(dataProduct, component, estimate);
     // assertThat("bla").isEqualTo("bla");
     // assertEqualFileContents("actualEstimate.toml", "expectedEstimate.toml");
   }

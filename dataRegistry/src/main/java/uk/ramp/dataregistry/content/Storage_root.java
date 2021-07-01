@@ -20,7 +20,9 @@ public class Storage_root extends FDP_Updateable {
     return this.root;
   }
 
-  public Boolean getLocal() { return this.local; }
+  public Boolean getLocal() {
+    return this.local;
+  }
 
   public List<String> getLocations() {
     return (this.locations == null) ? new ArrayList<>() {} : new ArrayList<>(this.locations);

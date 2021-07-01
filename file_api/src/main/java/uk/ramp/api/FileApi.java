@@ -52,7 +52,10 @@ public class FileApi implements AutoCloseable {
     System.out.println(this.config);
     restClient =
         new RestClient(
-            this.config.run_metadata().local_data_registry_url().orElse("http://localhost:8000/api/"));
+            this.config
+                .run_metadata()
+                .local_data_registry_url()
+                .orElse("http://localhost:8000/api/"));
     // this.cleanable = cleaner.register(this, accessLoggerWrapper);
     this.shouldVerifyHash = config.failOnHashMisMatch();
     prepare_code_run();
@@ -93,15 +96,22 @@ public class FileApi implements AutoCloseable {
                 .orElse(null);
       } else {
         namespace_name = config.run_metadata().default_output_namespace().orElse("");
-        config.writeItems().stream().forEach(s -> {System.out.println(s.data_product()); System.out.println("Equals? " + s.data_product().orElse("").equals(dataProduct_name));});
+        config.writeItems().stream()
+            .forEach(
+                s -> {
+                  System.out.println(s.data_product());
+                  System.out.println(
+                      "Equals? " + s.data_product().orElse("").equals(dataProduct_name));
+                });
         configItem =
             config.writeItems().stream()
                 .filter(ci -> ci.data_product().orElse("").equals(dataProduct_name))
                 .findFirst()
                 .orElse(null);
       }
-      if(configItem == null) {
-        throw(new IllegalArgumentException("dataProduct " + dataProduct_name + " not found in config"));
+      if (configItem == null) {
+        throw (new IllegalArgumentException(
+            "dataProduct " + dataProduct_name + " not found in config"));
       }
       if (configItem.use().isPresent()) {
         if (configItem.use().get().namespace().isPresent()) {
@@ -134,7 +144,7 @@ public class FileApi implements AutoCloseable {
       Map<String, String> objcompmap =
           new HashMap<>() {
             {
-              put("object", fdpObject.getUrl());
+              put("object", fdpObject.get_id().toString());
               put("name", actual_component_name);
             }
           };
@@ -236,12 +246,14 @@ public class FileApi implements AutoCloseable {
       throws IOException {
     dp_info dp = new dp_info(dataproduct, component, DP_WRITE);
     String outputUrl = dp.getComponent().getUrl();
+    System.out.println("openForWrite() outputUrl: " + outputUrl);
     if (code_run.getOutputs().contains(outputUrl)) {
       // ERROR: we've already written to this component
       return null;
     }
     code_run.addOutput(outputUrl);
     Runnable onClose = () -> executeOnCloseFileHandleDP(dp);
+    System.out.println("openForWrite() dp.getFilePath: " + dp.getFilePath());
     return new CleanableFileChannel(FileChannel.open(dp.getFilePath(), CREATE, WRITE), onClose);
   }
 
