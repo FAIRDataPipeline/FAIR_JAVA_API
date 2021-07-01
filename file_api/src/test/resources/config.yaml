@@ -11,7 +11,7 @@ run_metadata:
 
 read:
   - data_product: human/mixing-matrix
-    component: bla
+    #component: bla
     use:
       component: mixing-matrix
   - data_product: human/commutes

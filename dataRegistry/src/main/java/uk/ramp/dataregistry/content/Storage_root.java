@@ -1,34 +1,40 @@
 package uk.ramp.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Storage_root extends FDP_Updateable{
-    @XmlElement
-    private String name;
+public class Storage_root extends FDP_Updateable {
+  @XmlElement private String root;
 
-    @XmlElement
-    private String root;
+  @XmlElement
+  @JsonFormat(shape = JsonFormat.Shape.NUMBER)
+  private Boolean local;
 
-    @XmlElement
-    @JsonFormat(shape=JsonFormat.Shape.NUMBER)
-    private Boolean accessibility;
+  @XmlElement private List<String> locations;
 
-    @XmlElement
-    private List<String> locations;
+  public String getRoot() {
+    return this.root;
+  }
 
-    public String getName() { return this.name; }
-    public String getRoot() { return this.root; }
-    public Boolean getAccessibility() { return this.accessibility; }
-    public List<String> getLocations() { return (this.locations==null)?new ArrayList<>(){} : new ArrayList<>(this.locations); }
+  public Boolean getLocal() { return this.local; }
 
-    public void setName(String name) { this.name = name;}
-    public void setRoot(String root) { this.root = root;}
-    public void setAccessibility(Boolean accessibility) { this.accessibility = accessibility; }
-    public void setLocations(List<String> locations) { this.locations = new ArrayList<String>(locations); }
+  public List<String> getLocations() {
+    return (this.locations == null) ? new ArrayList<>() {} : new ArrayList<>(this.locations);
+  }
+
+  public void setRoot(String root) {
+    this.root = root;
+  }
+
+  public void setLocal(Boolean local) {
+    this.local = local;
+  }
+
+  public void setLocations(List<String> locations) {
+    this.locations = new ArrayList<String>(locations);
+  }
 }

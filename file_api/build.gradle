@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id "com.diffplug.gradle.spotless" version "4.4.0"
     id "maven-publish"
-    id "jacoco"
+    //id "jacoco"
 }
 
 group 'uk.ramp'
@@ -12,7 +12,16 @@ repositories {
     mavenCentral()
 }
 
+compileJava {
+    options.compilerArgs += ["-Xlint:unchecked"]
+}
+
+compileTestJava {
+    options.compilerArgs += ["-Xlint:unchecked"]
+}
+
 dependencies {
+    implementation project(':dataRegistry')
     annotationProcessor 'org.immutables:value:2.8.8'
     implementation 'commons-codec:commons-codec:1.14'
     implementation 'commons-io:commons-io:2.7'
@@ -27,6 +36,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.2'
     implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.12.2'
     testAnnotationProcessor 'org.immutables:value:2.8.8'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.28.2'
     testImplementation 'org.assertj:assertj-core:3.16.1'
@@ -57,13 +67,13 @@ publishing {
     }
 }
 
-test {
+/*test {
     finalizedBy jacocoTestReport
-}
-jacocoTestReport {
+}*/
+/*jacocoTestReport {
     dependsOn test
     reports {
         xml.enabled true
         html.enabled false
     }
-}
+}*/

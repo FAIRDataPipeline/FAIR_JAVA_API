@@ -40,19 +40,16 @@ package uk.ramp.dataregistry.oauth2token;
  * holder.
  */
 
-
-import java.io.IOException;
-
+import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.core.HttpHeaders;
-
-import jakarta.annotation.Priority;
+import java.io.IOException;
 
 /**
- * Client filter that adds access token to the {@code Authorization} http header. The filter uses {@code bearer}
- * token specification.
+ * Client filter that adds access token to the {@code Authorization} http header. The filter uses
+ * {@code bearer} token specification.
  *
  * @author Miroslav Fuksa
  * @since 2.3
@@ -60,42 +57,42 @@ import jakarta.annotation.Priority;
 @Priority(Priorities.AUTHENTICATION)
 class OAuth2ClientFilter implements ClientRequestFilter {
 
-    private final String accessToken;
+  private final String accessToken;
 
-    /**
-     * Create a new filter with predefined access token.
-     *
-     * @param accessToken Access token.
-     */
-    public OAuth2ClientFilter(String accessToken) {
-        this.accessToken = accessToken;
+  /**
+   * Create a new filter with predefined access token.
+   *
+   * @param accessToken Access token.
+   */
+  public OAuth2ClientFilter(String accessToken) {
+    this.accessToken = accessToken;
+  }
+
+  /**
+   * Create a new filter with no default access token. The token must be specified with each request
+   * using {@link OAuth2ClientSupport#OAUTH2_PROPERTY_ACCESS_TOKEN}.
+   */
+  public OAuth2ClientFilter() {
+    this.accessToken = null;
+  }
+
+  @Override
+  public void filter(ClientRequestContext request) throws IOException {
+    String token = this.accessToken;
+    final String propertyToken =
+        (String) request.getProperty(OAuth2ClientSupport.OAUTH2_PROPERTY_ACCESS_TOKEN);
+    if (propertyToken != null) {
+      token = propertyToken;
     }
-
-    /**
-     * Create a new filter with no default access token. The token must be specified with
-     * each request using {@link OAuth2ClientSupport#OAUTH2_PROPERTY_ACCESS_TOKEN}.
-     */
-    public OAuth2ClientFilter() {
-        this.accessToken = null;
+    request.removeProperty(OAuth2ClientSupport.OAUTH2_PROPERTY_ACCESS_TOKEN);
+    if (token == null) {
+      return;
     }
+    // String authentication = "Bearer " + token;
+    String authentication = "Token " + token;
 
-    @Override
-    public void filter(ClientRequestContext request) throws IOException {
-        String token = this.accessToken;
-        final String propertyToken = (String) request.getProperty(OAuth2ClientSupport.OAUTH2_PROPERTY_ACCESS_TOKEN);
-        if (propertyToken != null) {
-            token = propertyToken;
-        }
-        request.removeProperty(OAuth2ClientSupport.OAUTH2_PROPERTY_ACCESS_TOKEN);
-        if (token == null) {
-            return;
-        }
-        //String authentication = "Bearer " + token;
-        String authentication = "Token " + token;
-
-        if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-            request.getHeaders().add(HttpHeaders.AUTHORIZATION, authentication);
-        }
-
+    if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+      request.getHeaders().add(HttpHeaders.AUTHORIZATION, authentication);
     }
+  }
 }

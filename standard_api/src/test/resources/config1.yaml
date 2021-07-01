@@ -1,0 +1,13 @@
+fail_on_hash_mismatch: True
+run_metadata:
+  description: A test model
+  local_data_registry_url: http://localhost:8000/api/
+  remote_data_registry_url: https://data.scrc.uk/api/
+  default_input_namespace: test namespace
+  default_output_namespace: test namespace
+  always_copy_to_store: False
+
+write:
+  - data_product: Initial Data_product
+  - external_object: eo1
+    doi_or_unique_name: My very unique name

@@ -12,12 +12,9 @@ run_metadata:
 read:
   - external_object: time-series
     use:
-      unique_name: An exciting time series
-      title: Table 1
+      doi_or_unique_name: An exciting time series
+      #title: Table 1
 
 write:
   - external_object: revised-time-series
-    unique_name: An new, revised, time series
-    title: Table 1
-    file_type: csv
-    primary: True
+    doi_or_unique_name: An new, revised, time series

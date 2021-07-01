@@ -2,28 +2,48 @@ package uk.ramp.dataregistry.content;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlRootElement
-public class Author extends FDP_Updateable{
-    @XmlElement
-    private String family_name;
+public class Author extends FDP_Updateable {
+  @XmlElement private String family_name;
 
-    @XmlElement
-    private String personal_name;
+  @XmlElement private String given_name;
 
-    @XmlElement
-    private String object;
+  @XmlElement private String identifier;
 
-    public Author() {}
+  @XmlElement private String uuid;
 
+  public Author() {}
 
-    public String getFamily_name() { return this.family_name; }
-    public String getPersonal_name() { return this.personal_name; }
-    public String getObject() { return this.object; }
+  public String getFamily_name() {
+    return this.family_name;
+  }
 
-    public void setFamily_name(String family_name) { this.family_name = family_name; }
-    public void setPersonal_name(String personal_name) { this.personal_name = personal_name; }
-    public void setObject(String object) { this.object = object; }
+  public String getGiven_name() {
+    return this.given_name;
+  }
+
+  public String getIdentifier() {
+    return this.identifier;
+  }
+
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  public void setFamily_name(String family_name) {
+    this.family_name = family_name;
+  }
+
+  public void setGiven_name(String given_name) {
+    this.given_name = given_name;
+  }
+
+  public void setIdentifier(String identifier) {
+    this.identifier = identifier;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
 }

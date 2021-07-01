@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id "com.diffplug.gradle.spotless" version "4.4.0"
+    id "maven-publish"
+    id "jacoco"
+}
+
+group 'uk.ramp'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+compileJava {
+    options.compilerArgs += ["-Xlint:unchecked"]
+}
+
+compileTestJava {
+    options.compilerArgs += ["-Xlint:unchecked"]
+}
+
+dependencies {
+    implementation files('libs/hdfobject.jar')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+    }
+}
+
+/*test {
+    useJUnitPlatform()
+}*/
+
+test {
+    finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}

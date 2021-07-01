@@ -12,9 +12,18 @@ repositories {
     mavenCentral()
 }
 
+compileJava {
+    options.compilerArgs += ["-Xlint:unchecked"]
+}
+
+compileTestJava {
+    options.compilerArgs += ["-Xlint:unchecked"]
+}
+
 dependencies {
-    compile project(':file_api')
-    compile project(':dataRegistry')
+    implementation project(':file_api')
+    implementation project(':dataRegistry')
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     implementation 'com.google.guava:guava:29.0-jre'
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava:2.12.2'
@@ -55,6 +64,9 @@ publishing {
 
 test {
     finalizedBy jacocoTestReport
+}
+jacoco {
+    toolVersion = '0.8.7'
 }
 jacocoTestReport {
     dependsOn test

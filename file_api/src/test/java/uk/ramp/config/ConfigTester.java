@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.ramp.hash.Hasher;
 import uk.ramp.yaml.YamlFactory;
@@ -43,6 +44,7 @@ public class ConfigTester {
     System.out.println(config);
   }
 
+  @Ignore // config 3 uses Register; we don't need to be able to parse this.
   @Test
   public void testConfig3() throws URISyntaxException {
     Path cfilepath = Path.of(getClass().getResource("/config3.yaml").toURI());

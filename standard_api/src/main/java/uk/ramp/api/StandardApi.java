@@ -1,27 +1,40 @@
 package uk.ramp.api;
 
 import com.google.common.collect.Table;
+import java.io.IOException;
 import java.lang.ref.Cleaner;
 import java.lang.ref.Cleaner.Cleanable;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Random;
 
+import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
-import uk.ramp.config.ImmutableConfigItem;
+import uk.ramp.dataregistry.content.*;
 import uk.ramp.distribution.Distribution;
-import uk.ramp.distribution.ImmutableDistribution;
+import uk.ramp.estimate.ImmutableEstimate;
+import uk.ramp.file.CleanableFileChannel;
 import uk.ramp.objects.NumericalArray;
 import uk.ramp.parameters.*;
 import uk.ramp.samples.Samples;
 import uk.ramp.toml.TOMLMapper;
 import uk.ramp.toml.TomlReader;
 import uk.ramp.toml.TomlWriter;
-import uk.ramp.dataregistry.restclient.RestClient;
-import uk.ramp.dataregistry.content.*;
 
+/**
+ * Java implementation of Data Pipeline Standard API.
+ *
+ * <p>Standard API knows about Data Pipeline data such as distributions, arrays, parameter.
+ *
+ * <p>It uses File API only for dealing with the YAML config file, and for its Hasher.
+ *
+ * <p>The distinction between File API and Standard API comes from the previous version of the Data
+ * Pipeline API; i'm not sure if we should change this.
+ *
+ * <p>Standard API uses dataregistry.restclient.RestClient for interacting with the local registry.
+ *
+ * <p>Access
+ */
 public class StandardApi implements AutoCloseable {
   private static final Cleaner cleaner = Cleaner.create(); // safety net for closing
   private final Cleanable cleanable;
@@ -29,7 +42,6 @@ public class StandardApi implements AutoCloseable {
   private final ParameterDataReader parameterDataReader;
   private final ParameterDataWriter parameterDataWriter;
   private final RandomGenerator rng;
-  private final RestClient restClient;
 
   public StandardApi(Path configPath, RandomGenerator rng) {
     this(
@@ -49,7 +61,6 @@ public class StandardApi implements AutoCloseable {
     this.parameterDataWriter = parameterDataWriter;
     this.rng = rng;
     this.cleanable = cleaner.register(this, this.fileApi);
-    this.restClient = new RestClient(fileApi.getConfig().run_metadata().local_data_registry_url().orElse("http://localhost:8000/api/"));
   }
 
   private static class CleanableFileApi implements Runnable {
@@ -63,98 +74,74 @@ public class StandardApi implements AutoCloseable {
     public void run() {
       fileApi.close();
     }
-
   }
 
-  public String readLink(String alias) {
-    Optional<ImmutableConfigItem> l =
-            fileApi.fileApi.getConfig().readItems().stream().filter(ci -> ci.external_object().orElse("") == alias).findFirst();
-    Map<String, String> m = new HashMap<String, String>();
-    if(l.isPresent()){
-      if(l.get().doi_or_unique_name().isPresent()) {
-        m.put("doi_or_unique_name", l.get().doi_or_unique_name().orElse(""));
-      }
-    }
-    FDP_ObjectList<External_object> eol = (FDP_ObjectList<External_object>) restClient.getList(External_object.class, m);
-
-    return "";
+  public CleanableFileChannel readExternalObject(String config_identifier) throws IOException {
+    return fileApi.fileApi.readExternalObject(config_identifier);
   }
 
   public Number readEstimate(String dataProduct, String component) {
-    /*ReadComponent data;
-    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(query)) {
+
+    ReadComponent data;
+    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(dataProduct, component)) {
       data = parameterDataReader.read(fileChannel, component);
+    } catch (IOException e) {
+      throw (new IllegalArgumentException("failed to open the file."));
     }
-    return data.getEstimate();*/
-    return 0.5;
+    return data.getEstimate();
   }
 
   public void writeEstimate(String dataProduct, String component, Number estimateNumber) {
-    /*var query =
-        ImmutableMetadataItem.builder()
-            .dataProduct(dataProduct)
-            .component(component)
-            .extension("toml")
-            .build();
     var estimate = ImmutableEstimate.builder().internalValue(estimateNumber).rng(rng).build();
 
-    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(query)) {
+    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(dataProduct, component)) {
       parameterDataWriter.write(fileChannel, component, estimate);
-    }*/
+    } catch (IOException e) {
+      throw (new IllegalArgumentException("failed to open file" + e.toString()));
+    }
   }
 
   public Distribution readDistribution(String dataProduct, String component) {
-    /*var query =
-        ImmutableMetadataItem.builder().dataProduct(dataProduct).component(component).build();
-
     ReadComponent data;
-    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(query)) {
+    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(dataProduct, component)) {
       data = parameterDataReader.read(fileChannel, component);
+    } catch (IOException e) {
+      throw (new IllegalArgumentException("failed to open file for read " + e.toString()));
     }
-    return data.getDistribution();*/
-    return ImmutableDistribution.builder().build();
+    return data.getDistribution();
   }
 
   public void writeDistribution(String dataProduct, String component, Distribution distribution) {
-    /*var query =
-        ImmutableMetadataItem.builder()
-            .dataProduct(dataProduct)
-            .component(component)
-            .extension("toml")
-            .build();
-
-    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(query)) {
+    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(dataProduct, component)) {
       parameterDataWriter.write(fileChannel, component, distribution);
-    }*/
+    } catch (IOException e) {
+      throw (new IllegalArgumentException("failed to open file for write " + e.toString()));
+    }
   }
 
   public List<Number> readSamples(String dataProduct, String component) {
-    /*var query =
-        ImmutableMetadataItem.builder().dataProduct(dataProduct).component(component).build();
-
     ReadComponent data;
-    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(query)) {
+    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(dataProduct, component)) {
       data = parameterDataReader.read(fileChannel, component);
+    } catch (IOException e) {
+      throw (new IllegalArgumentException("failed to open file for read " + e.toString()));
     }
-    return data.getSamples();*/
-    return List.of(0.4, 0.5);
+    return data.getSamples();
   }
 
   public void writeSamples(String dataProduct, String component, Samples samples) {
-    /*var query =
-        ImmutableMetadataItem.builder()
-            .dataProduct(dataProduct)
-            .component(component)
-            .extension("toml")
-            .build();
-
-    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(query)) {
+    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(dataProduct, component)) {
       parameterDataWriter.write(fileChannel, component, samples);
-    }*/
+    } catch (IOException e) {
+      throw (new IllegalArgumentException("failed to open file for write " + e.toString()));
+    }
   }
 
   public NumericalArray readArray(String dataProduct, String component) {
-    throw new UnsupportedOperationException();
+    Path filepath = fileApi.fileApi.getFilepathForRead(dataProduct, component);
+    /*HDF5 hdf5 = new HDF5(filepath);
+    return hdf5.read(component);*/
+    return null;
   }
 
   public void writeTable(
@@ -167,7 +154,9 @@ public class StandardApi implements AutoCloseable {
   }
 
   public void writeArray(String dataProduct, String component, Number[] arr) {
-    throw new UnsupportedOperationException();
+    Path filepath = fileApi.fileApi.getFilepathForWrite(dataProduct, component);
+    /*HDF5 hdf5 = new HDF5(filepath);
+    hdf5.write(component, arr);*/
   }
 
   public void add_to_register(String name) {

@@ -32,8 +32,8 @@ public interface Config {
   @JsonProperty("write")
   List<ImmutableConfigItem> writeItems();
 
-  @JsonProperty("register")
-  List<ImmutableConfigItem> registerItems();
+  // @JsonProperty("register")
+  // List<ImmutableConfigItem> registerItems();
 
   @Immutable
   @JsonSerialize
@@ -46,8 +46,14 @@ public interface Config {
     Optional<String> external_object();
 
     @JsonProperty
-    Optional<String> doi_or_unique_name();
+    Optional<ImmutableConfigUseItem> use();
 
+    // @JsonProperty
+    // List<ImmutableConfigComponent> components();
+
+    @JsonProperty
+    Optional<String> doi_or_unique_name();
+    /*
     @JsonProperty
     Optional<String> object();
 
@@ -97,13 +103,8 @@ public interface Config {
     Optional<Boolean> primary();
 
     @JsonProperty
-    Optional<String> accessibility();
+    Optional<String> accessibility();*/
 
-    @JsonProperty
-    Optional<ImmutableConfigUseItem> use();
-
-    @JsonProperty
-    List<ImmutableConfigComponent> components();
   }
 
   @Immutable
@@ -111,10 +112,21 @@ public interface Config {
   @JsonDeserialize
   public interface ConfigUseItem {
     @JsonProperty
-    Optional<String> unique_name();
+    Optional<String> namespace();
+
+    @JsonProperty
+    Optional<String> data_product();
+
+    @JsonProperty
+    Optional<String> component();
 
     @JsonProperty
     Optional<String> version();
+
+    @JsonProperty
+    Optional<String> doi_or_unique_name();
+
+  /*
 
     @JsonProperty
     Optional<String> cache();
@@ -126,16 +138,8 @@ public interface Config {
     Optional<String> title();
 
     @JsonProperty
-    Optional<String> hash();
+    Optional<String> hash();*/
 
-    @JsonProperty
-    Optional<String> namespace();
-
-    @JsonProperty
-    Optional<String> data_product();
-
-    @JsonProperty
-    Optional<String> component();
   }
 
   @Immutable

@@ -15,27 +15,27 @@ read:
       version: 1.0
   # Read human/health from the cache
   - data_product: human/health
-    use:
-      cache: /local/file.h5
+    #use:
+    #  cache: /local/file.h5
   # Read crummy_table with specific doi and title
   - external_object: crummy_table
     use:
-      doi: 10.1111/ddi.12887
-      title: Supplementary Table 2
+      doi_or_unique_name: 10.1111/ddi.12887
+      #title: Supplementary Table 2
   # Read secret_data with specific doi and title from the cache
   - external_object: secret_data
     use:
-      doi: 10.1111/ddi.12887
-      title: Supplementary Table 3
-      cache: /local/secret.csv
+      doi_or_unique_name: 10.1111/ddi.12887
+      #title: Supplementary Table 3
+      #cache: /local/secret.csv
   # Read weird_lost_file (which perhaps has no metadata) with specific hash
-  - object: weird_lost_file
-    use:
-      hash: b5a514810b4cb6dc795848464572771f
+  #- object: weird_lost_file
+  #  use:
+  #    hash: b5a514810b4cb6dc795848464572771f
 
 write:
   # Write beautiful_figure and increment version number
   - external_object: beautiful_figure
     use:
-      unique_name: My amazing figure
+      doi_or_unique_name: My amazing figure
       version: minor

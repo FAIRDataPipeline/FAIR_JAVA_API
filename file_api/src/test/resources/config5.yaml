@@ -10,4 +10,4 @@ read:
 
 write:
   - data_product: human/infection/SARS-CoV-2/doubled
-    component: doubled-infectious-period
+    #component: doubled-infectious-period
