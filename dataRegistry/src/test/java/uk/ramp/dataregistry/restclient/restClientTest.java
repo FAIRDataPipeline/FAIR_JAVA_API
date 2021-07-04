@@ -20,6 +20,7 @@ public class restClientTest {
     lcr = new RestClient(remoteReg);
   }
 
+  @Disabled
   @Test
   @Order(0)
   public void get_namespace() {
@@ -84,12 +85,12 @@ public class restClientTest {
     Assertions.assertEquals(201, r.getStatus());
   }
 
-  @Disabled
+
   @Test
   @Order(7)
   public void create_object() {
     FDPObject o = new FDPObject();
-    o.setDescription("my new object description");
+    o.setDescription("my second object description");
     o.setStorage_location(localReg + "storage_location/1/");
     Response r = lc.post(o);
     System.out.println("create_object: " + r.getStatusInfo());

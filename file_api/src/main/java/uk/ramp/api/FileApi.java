@@ -2,6 +2,7 @@ package uk.ramp.api;
 
 import static java.nio.file.StandardOpenOption.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
@@ -254,6 +255,16 @@ public class FileApi implements AutoCloseable {
     code_run.addOutput(outputUrl);
     Runnable onClose = () -> executeOnCloseFileHandleDP(dp);
     System.out.println("openForWrite() dp.getFilePath: " + dp.getFilePath());
+    File dir = new File(String.valueOf(dp.getFilePath().getParent()));
+    if(!dir.exists()){
+      dir.mkdirs();
+    }else{
+      File file = new File(String.valueOf(dp.getFilePath()));
+      if(file.exists()) {
+        // what do we do if the file already exists?
+
+      }
+    }
     return new CleanableFileChannel(FileChannel.open(dp.getFilePath(), CREATE, WRITE), onClose);
   }
 
@@ -304,8 +315,10 @@ public class FileApi implements AutoCloseable {
   }
 
   /**
-   * @param dataProduct
+   *
+   * @param config_identifier
    * @return
+   * @throws IOException
    */
   public CleanableFileChannel readExternalObject(String config_identifier) throws IOException {
     eo_info eo = new eo_info(config_identifier, DP_READ);

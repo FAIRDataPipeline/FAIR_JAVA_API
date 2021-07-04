@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import uk.ramp.dataregistry.content.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class test_registry {
+public class test_read_from_populated_registry {
   String registry = "http://localhost:8000/api/";
   RestClient lc;
   Map<String, String> m;

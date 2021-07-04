@@ -42,7 +42,7 @@ public class populateLocal {
     i.setSeverity(1);
     al.add(i);
     Storage_root sr = new Storage_root();
-    sr.setRoot("StorageRoot");
+    sr.setRoot("D:\\Datastore");
     sr.setLocal(true);
     sr.setLocations(new ArrayList<>() {});
     al.add(sr);
