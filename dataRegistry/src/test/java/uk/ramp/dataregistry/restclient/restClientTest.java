@@ -85,12 +85,12 @@ public class restClientTest {
     Assertions.assertEquals(201, r.getStatus());
   }
 
-
+  @Disabled
   @Test
   @Order(7)
   public void create_object() {
     FDPObject o = new FDPObject();
-    o.setDescription("my second object description");
+    o.setDescription("my new object description");
     o.setStorage_location(localReg + "storage_location/1/");
     Response r = lc.post(o);
     System.out.println("create_object: " + r.getStatusInfo());
@@ -103,8 +103,8 @@ public class restClientTest {
   public void create_data_product() {
     Data_product dp = new Data_product();
     dp.setName("Initial Data_product");
-    dp.setObject(localReg + "object/1/");
-    dp.setVersion("1.0.0");
+    dp.setObject(localReg + "object/4/");
+    dp.setVersion("1.bla.piep");
     dp.setNamespace(localReg + "namespace/1/");
     Response r = lc.post(dp);
     System.out.println("create_data_product: " + r.getStatusInfo());

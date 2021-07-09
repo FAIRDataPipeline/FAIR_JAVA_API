@@ -2,18 +2,21 @@ package uk.ramp.api;
 
 import static java.nio.file.StandardOpenOption.*;
 
+import com.vdurmont.semver4j.Semver;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.*;
 import uk.ramp.config.Config;
 import uk.ramp.config.ConfigFactory;
+import uk.ramp.config.ImmutableConfig;
 import uk.ramp.config.ImmutableConfigItem;
 import uk.ramp.dataregistry.content.*;
-import uk.ramp.dataregistry.restclient.RestClient;
+import uk.ramp.dataregistry.restclient.*;
 import uk.ramp.file.CleanableFileChannel;
 import uk.ramp.hash.Hasher;
 import uk.ramp.yaml.YamlFactory;
@@ -31,12 +34,14 @@ public class FileApi implements AutoCloseable {
   // private static final Cleaner cleaner = Cleaner.create(); // safety net for closing
   // private final Cleanable cleanable;
   // private final OverridesApplier overridesApplier;
-  private Config config;
-  private static boolean DP_READ = true;
-  private static boolean DP_WRITE = false;
+  private final Config config;
+  private static final boolean DP_READ = true;
+  private static final boolean DP_WRITE = false;
   private final boolean shouldVerifyHash;
-  private RestClient restClient;
+  private final RestClient restClient;
   private Code_run code_run;
+  private Map<String, dp_info> dp_info_map;
+  private final String DEFAULT_VERSION_INCREMENT = "${{CLI.PATCH}}";
 
   public FileApi(Path configFilePath) {
     this(Clock.systemUTC(), configFilePath);
@@ -60,35 +65,81 @@ public class FileApi implements AutoCloseable {
     // this.cleanable = cleaner.register(this, accessLoggerWrapper);
     this.shouldVerifyHash = config.failOnHashMisMatch();
     prepare_code_run();
+    dp_info_map = new HashMap<String, dp_info>();
   }
 
-  private void prepare_code_run() {
-    code_run = new Code_run();
-    System.out.print("FileApi.prepare_code_run(); config: ");
-    System.out.println(this.config);
-    code_run.setSubmission_script(this.config.run_metadata().script().orElse(""));
-    code_run.setRun_date(LocalDateTime.now()); // or should this be config.openTimestamp??
-    code_run.setDescription(this.config.run_metadata().description().orElse(""));
+  private class Code_run_objects_to_create {
+    Code_run code_run;
+    FDPObject[] fdpObjects;
+    Data_product[] data_products;
+    RestClient restClient;
+    ImmutableConfig config;
+
+    Code_run_objects_to_create(RestClient restClient, ImmutableConfig config){
+      this.config = config;
+      this.restClient = restClient;
+      this.code_run = new Code_run();
+      System.out.print("FileApi.prepare_code_run(); config: ");
+      System.out.println(this.config);
+      code_run.setSubmission_script(this.config.run_metadata().script().orElse(""));
+      code_run.setRun_date(LocalDateTime.now()); // or should this be config.openTimestamp??
+      code_run.setDescription(this.config.run_metadata().description().orElse(""));
+    }
+
+  }
+
+  private class dp_component {
+    dp_info dp;
+    String component_name;
+    Object_component object_component;
+
+    dp_component(dp_info dp, String component_name) {
+      this.dp = dp;
+      this.component_name = component_name;
+      Map<String, String> objcompmap =
+          new HashMap<>() {
+            {
+              put("object", dp.getFdpObject().get_id().toString());
+              put("name", component_name);
+            }
+          };
+      this.object_component =
+          (Object_component) restClient.getFirst(Object_component.class, objcompmap);
+      if (this.object_component == null) {
+        Object_component oc = new Object_component();
+        oc.setName(component_name);
+        oc.setObject(dp.getFdpObject().get_id().toString());
+        restClient.post(oc);
+        this.object_component =
+            (Object_component) restClient.getFirst(Object_component.class, objcompmap);
+      }
+    }
+
+    Object_component getObject_component() {
+      return this.object_component;
+    }
   }
 
   /**
-   * retrieving and storing the dataRegistry details for a dataproduct/component; as requested from
-   * the API user, and possibly amended by the config.
+   * retrieving and storing the dataRegistry details for a dataproduct; as requested from the API
+   * user, and possibly amended by the config.
    */
   private class dp_info {
     private Namespace namespace;
     private Data_product data_product;
     private FDPObject fdpObject;
-    private Object_component object_component;
     private Storage_location storage_location;
     private Storage_root storage_root;
     private Path filePath;
+    private CleanableFileChannel filechannel;
+    private StandardOpenOption read_or_write;
 
-    dp_info(String dataProduct_name, String component_name, boolean readOrWrite) {
-      String namespace_name, actual_dataProduct_name = dataProduct_name;
+    dp_info(String dataProduct_name, boolean readOrWrite) {
+      String version = null, namespace_name, actual_dataProduct_name = dataProduct_name;
       ImmutableConfigItem configItem;
 
       if (readOrWrite == DP_READ) {
+        this.read_or_write = READ;
         namespace_name = config.run_metadata().default_input_namespace().orElse("");
         configItem =
             config.readItems().stream()
@@ -96,14 +147,8 @@ public class FileApi implements AutoCloseable {
                 .findFirst()
                 .orElse(null);
       } else {
+        this.read_or_write = WRITE;
         namespace_name = config.run_metadata().default_output_namespace().orElse("");
-        config.writeItems().stream()
-            .forEach(
-                s -> {
-                  System.out.println(s.data_product());
-                  System.out.println(
-                      "Equals? " + s.data_product().orElse("").equals(dataProduct_name));
-                });
         configItem =
             config.writeItems().stream()
                 .filter(ci -> ci.data_product().orElse("").equals(dataProduct_name))
@@ -118,11 +163,11 @@ public class FileApi implements AutoCloseable {
         if (configItem.use().get().namespace().isPresent()) {
           namespace_name = configItem.use().get().namespace().get();
         }
-        if (configItem.use().get().component().isPresent()) {
-          component_name = configItem.use().get().component().get();
-        }
         if (configItem.use().get().data_product().isPresent()) {
           actual_dataProduct_name = configItem.use().get().data_product().get();
+        }
+        if (configItem.use().get().version().isPresent()) {
+          version = configItem.use().get().version().get();
         }
       }
       System.out.println("namespace: " + namespace_name);
@@ -130,6 +175,64 @@ public class FileApi implements AutoCloseable {
           (Namespace)
               restClient.getFirst(
                   Namespace.class, Collections.singletonMap("name", namespace_name));
+      Map<String, String> dp_map =
+          Map.of("name", actual_dataProduct_name, "namespace", this.namespace.get_id().toString());
+      if (readOrWrite == DP_READ) {
+        // we either read a specific VERSION or the latest.
+        if (version == null) {
+          this.data_product = (Data_product) restClient.getLatestDataProduct(dp_map);
+          // TODO and we (for now) assume that this exists and succeeds..
+        } else {
+          Map<String, String> dp_map_with_version = new HashMap<>(dp_map);
+          dp_map_with_version.put("version", version);
+          this.data_product =
+              (Data_product) restClient.getFirst(Data_product.class, dp_map_with_version);
+          // TODO and we (for now) assume that this exists and succeeds..
+        }
+      } else {
+        // we either write a specific VERSION or the latest + increment
+        Semver create_version, found_version;
+        if(version == null) version = DEFAULT_VERSION_INCREMENT;
+        if (version.startsWith("${{CLI.")) {
+          Data_product lpd = (Data_product) restClient.getLatestDataProduct(dp_map);
+          if (lpd == null) {
+            found_version = new Semver("0.0.0");
+          } else {
+            found_version = new Semver(lpd.getVersion());
+          }
+          switch(version) {
+            case "${{CLI.MAJOR}}":
+              create_version = found_version.nextMajor();
+              break;
+            case "${{CLI.MINOR}}":
+              create_version = found_version.nextMinor();
+              break;
+            case "${{CLI.PATCH}}":
+              create_version = found_version.nextPatch();
+              break;
+            default:
+              throw(new IllegalArgumentException("CLI.xxx version should be MAJOR, MINOR, or PATCH; not: " + version));
+          }
+
+          // CREATION OF STOLO/OBJ/DP happens after the code_run as we store the hash of the file with the stolo
+
+
+          //Map<String, String> dp_map_with_version = new HashMap<>(dp_map);
+          //dp_map_with_version.put("version", version);
+          /*Storage_location stolo_to_post = new Storage_location();
+          stolo_to_post.set
+          FDPObject object_to_post = new FDPObject();
+          object_to_post.setStorage_location();
+          Data_product dp_to_post = new Data_product();
+          dp_to_post.setVersion(create_version.toString());
+          dp_to_post.setNamespace(this.namespace.getUrl());
+          dp_to_post.setName(actual_dataProduct_name);
+          dp_to_post.setObject();
+          restClient.post()
+          this.data_product =
+                  (Data_product) restClient.getFirst(Data_product.class, dp_map_with_version);*/
+        }
+      }
       this.data_product =
           (Data_product)
               restClient.getFirst(
@@ -141,34 +244,34 @@ public class FileApi implements AutoCloseable {
       this.storage_root =
           (Storage_root)
               restClient.get(Storage_root.class, this.storage_location.getStorage_root());
-      String actual_component_name = component_name;
-      Map<String, String> objcompmap =
-          new HashMap<>() {
-            {
-              put("object", fdpObject.get_id().toString());
-              put("name", actual_component_name);
-            }
-          };
-      this.object_component =
-          (Object_component) restClient.getFirst(Object_component.class, objcompmap);
-      if (this.object_component == null) {
-        Object_component oc = new Object_component();
-        oc.setName(actual_component_name);
-        oc.setObject(fdpObject.getUrl());
-        restClient.post(oc);
-        this.object_component =
-            (Object_component) restClient.getFirst(Object_component.class, objcompmap);
-      }
       this.filePath =
           Path.of(this.storage_root.getRoot()).resolve(Path.of(this.storage_location.getPath()));
     }
 
-    public Path getFilePath() {
-      return this.filePath;
+    public CleanableFileChannel getFilechannel() throws IOException {
+      if (this.filechannel == null) {
+        Runnable onClose = () -> executeOnCloseFileHandleDP(this);
+        // try {
+        this.filechannel =
+            new CleanableFileChannel(
+                FileChannel.open(this.getFilePath(), CREATE, this.read_or_write), onClose);
+        // } catch (IOException e) {
+        //  throw (new IllegalArgumentException("Failed to create file " + this.getFilePath()));
+        // }
+      }
+      return this.filechannel;
     }
 
-    public Object_component getComponent() {
-      return this.object_component;
+    public FDPObject getFdpObject() {
+      return this.fdpObject;
+    }
+
+    public Data_product getData_product() {
+      return this.data_product;
+    }
+
+    public Path getFilePath() {
+      return this.filePath;
     }
   }
 
@@ -243,40 +346,41 @@ public class FileApi implements AutoCloseable {
     }
   }
 
-  public CleanableFileChannel openForWrite(String dataproduct, String component)
+  public CleanableFileChannel openForWrite(String dataproduct, String component_name)
       throws IOException {
-    dp_info dp = new dp_info(dataproduct, component, DP_WRITE);
-    String outputUrl = dp.getComponent().getUrl();
-    System.out.println("openForWrite() outputUrl: " + outputUrl);
-    if (code_run.getOutputs().contains(outputUrl)) {
+    dp_info dp = new dp_info(dataproduct, DP_WRITE);
+    dp_component dc = new dp_component(dp, component_name);
+
+    String componentUrl = dc.getObject_component().getUrl();
+    String DP_Url = dp.getData_product().getUrl();
+    System.out.println("openForWrite() componentUrl: " + componentUrl);
+    if (code_run.getOutputs().contains(componentUrl)) {
       // ERROR: we've already written to this component
       return null;
     }
-    code_run.addOutput(outputUrl);
-    Runnable onClose = () -> executeOnCloseFileHandleDP(dp);
-    System.out.println("openForWrite() dp.getFilePath: " + dp.getFilePath());
-    File dir = new File(String.valueOf(dp.getFilePath().getParent()));
-    if(!dir.exists()){
-      dir.mkdirs();
-    }else{
-      File file = new File(String.valueOf(dp.getFilePath()));
-      if(file.exists()) {
-        // what do we do if the file already exists?
-
+    code_run.addOutput(componentUrl);
+    if (!this.dp_info_map.containsKey(dataproduct)) {
+      // only open the file if we haven't already opened (and stored in dp_file_map) previously
+      System.out.println("openForWrite() dp.getFilePath: " + dp.getFilePath());
+      File dir = new File(String.valueOf(dp.getFilePath().getParent()));
+      if (!dir.exists()) {
+        dir.mkdirs();
       }
+      this.dp_info_map.put(dataproduct, dp);
     }
-    return new CleanableFileChannel(FileChannel.open(dp.getFilePath(), CREATE, WRITE), onClose);
+    return this.dp_info_map.get(dataproduct).getFilechannel();
   }
 
   public CleanableFileChannel openForRead(String dataproduct, String component) throws IOException {
-    dp_info dp = new dp_info(dataproduct, component, DP_READ);
+    /*dp_info dp = new dp_info(dataproduct, component, DP_READ);
     String outputUrl = dp.getComponent().getUrl();
     if (code_run.getOutputs().contains(outputUrl)) {
       // ERROR: we've already written to this component
       return null;
     }
     code_run.addOutput(outputUrl);
-    return new CleanableFileChannel(FileChannel.open(dp.getFilePath(), READ), () -> {});
+    return new CleanableFileChannel(FileChannel.open(dp.getFilePath(), READ), () -> {});*/
+    return null;
   }
 
   private void executeOnCloseFileHandleDP(dp_info dp) {
@@ -288,25 +392,27 @@ public class FileApi implements AutoCloseable {
   }
 
   public Path getFilepathForWrite(String dataproduct, String component) {
-    dp_info dp = new dp_info(dataproduct, component, DP_WRITE);
-    String outputUrl = dp.getComponent().getUrl();
+    dp_info dp = new dp_info(dataproduct, DP_WRITE);
+    /*String outputUrl = dp.getComponent().getUrl();
     if (code_run.getOutputs().contains(outputUrl)) {
       // ERROR: we've already written to this component
       return null;
     }
     code_run.addOutput(outputUrl);
-    return dp.getFilePath();
+    return dp.getFilePath();*/
+    return null;
   }
 
   public Path getFilepathForRead(String dataproduct, String component) {
-    dp_info dp = new dp_info(dataproduct, component, DP_READ);
-    String inputUrl = dp.getComponent().getUrl();
+    dp_info dp = new dp_info(dataproduct, DP_READ);
+    /*String inputUrl = dp.getComponent().getUrl();
     if (code_run.getInputs().contains(inputUrl)) {
       // ERROR: we've already written to this component
       return null;
     }
     code_run.addInput(inputUrl);
-    return dp.getFilePath();
+    return dp.getFilePath();*/
+    return null;
   }
 
   public void closeFile(String filename) {
@@ -315,7 +421,6 @@ public class FileApi implements AutoCloseable {
   }
 
   /**
-   *
    * @param config_identifier
    * @return
    * @throws IOException

@@ -15,6 +15,9 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -82,6 +85,18 @@ public class RestClient {
     GenericType<FDP_ObjectList> gt = new GenericType<FDP_ObjectList>(p);
     FDP_ObjectList<?> o = (FDP_ObjectList<?>) wt2.request(MediaType.APPLICATION_JSON).get(gt);
     return o;
+  }
+
+  class SortByVersion implements Comparator<Data_product> {
+    public int compare(Data_product a, Data_product b) {
+      return 1; // a.getVersion() < b.getVersion();
+    }
+  }
+
+  public Data_product getLatestDataProduct(Map<String, String> m) {
+    List<Data_product> l = (List<Data_product>) getList(Data_product.class, m).getResults();
+    Collections.sort(l, new SortByVersion());
+    return l.get(0);
   }
 
   public FDP_RootObject get(Class<?> c, int i) {

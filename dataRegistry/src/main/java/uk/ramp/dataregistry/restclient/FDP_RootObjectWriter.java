@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import uk.ramp.dataregistry.content.FDP_RootObject;
 
-public class FDP_RootObjectWriter implements MessageBodyWriter<FDP_RootObject> {
+class FDP_RootObjectWriter implements MessageBodyWriter<FDP_RootObject> {
 
   @Override
   public boolean isWriteable(

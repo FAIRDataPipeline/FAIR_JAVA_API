@@ -13,7 +13,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import uk.ramp.dataregistry.content.FDP_RootObject;
 
-public class FDP_RootObjectReader implements MessageBodyReader<FDP_RootObject> {
+class FDP_RootObjectReader implements MessageBodyReader<FDP_RootObject> {
 
   @Override
   public boolean isReadable(

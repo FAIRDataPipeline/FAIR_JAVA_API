@@ -15,7 +15,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import uk.ramp.dataregistry.content.FDP_ObjectList;
 
-public class FDP_ObjectListReader implements MessageBodyReader<FDP_ObjectList> {
+class FDP_ObjectListReader implements MessageBodyReader<FDP_ObjectList> {
 
   @Override
   public boolean isReadable(

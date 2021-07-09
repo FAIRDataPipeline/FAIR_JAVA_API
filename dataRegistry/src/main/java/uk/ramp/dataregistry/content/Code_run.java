@@ -1,9 +1,7 @@
 package uk.ramp.dataregistry.content;
 
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -94,17 +92,17 @@ public class Code_run extends FDP_Updateable {
   }
 
   public void addOutput(String output) {
-    if(this.outputs == null) {
+    if (this.outputs == null) {
       this.outputs = Collections.singletonList(output);
-    }else {
+    } else {
       this.outputs.add(output);
     }
   }
 
   public void addInput(String input) {
-    if(this.inputs == null) {
+    if (this.inputs == null) {
       this.inputs = Collections.singletonList(input);
-    }else {
+    } else {
       this.inputs.add(input);
     }
   }

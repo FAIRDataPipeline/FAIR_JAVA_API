@@ -25,6 +25,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation 'com.vdurmont:semver4j:3.1.0'
     implementation 'org.glassfish.jersey.core:jersey-client:3.0.1'
     implementation 'org.glassfish.jersey.inject:jersey-hk2:3.0.1'
     implementation 'org.glassfish.jersey:jersey-bom:3.0.1'
