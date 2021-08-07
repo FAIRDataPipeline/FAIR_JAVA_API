@@ -1,22 +1,14 @@
 fail_on_hash_mismatch: True
 run_metadata:
   description: A simple analysis
-  local_data_registry_url: https://localhost:8000/api/
-  remote_data_registry_url: https://data.scrc.uk/api/
-  default_input_namespace: SCRC
-  default_output_namespace: johnsmith
-  default_data_store: /datastore/
-  always_copy_to_store: False
+  local_data_registry_url: http://localhost:8000/api/
+  default_input_namespace: inputNS
+  default_output_namespace: outputNS
+  write_data_store: D:\datastore
 
-
-read:
-  - data_product: human/mixing-matrix
-    #component: bla
+write:
+  - data_product: human/example
+    description: example write data file
     use:
-      component: mixing-matrix
-  - data_product: human/commutes
-  - data_product: human/compartment-transition
-  - data_product: human/population
-    use:
-      version: 0.1.0
+      version: 0.0.14
 

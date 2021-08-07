@@ -32,78 +32,20 @@ public interface Config {
   @JsonProperty("write")
   List<ImmutableConfigItem> writeItems();
 
-  // @JsonProperty("register")
-  // List<ImmutableConfigItem> registerItems();
-
   @Immutable
   @JsonSerialize
   @JsonDeserialize
   public interface ConfigItem {
     @JsonProperty
-    Optional<String> data_product();
+    String data_product();
 
-    @JsonProperty
-    Optional<String> external_object();
-
-    @JsonProperty
-    Optional<ImmutableConfigUseItem> use();
-
-    // @JsonProperty
-    // List<ImmutableConfigComponent> components();
-
-    @JsonProperty
-    Optional<String> doi_or_unique_name();
-    /*
-    @JsonProperty
-    Optional<String> object();
-
-    @JsonProperty
     Optional<String> description();
 
     @JsonProperty
-    Optional<String> component();
-
-    @JsonProperty
-    Optional<String> source_name();
-
-    @JsonProperty
-    Optional<String> source_abbreviation();
-
-    @JsonProperty
-    Optional<String> source_website();
-
-    @JsonProperty
-    Optional<String> root_name();
-
-    @JsonProperty
-    Optional<String> root();
-
-    @JsonProperty
-    Optional<String> path();
-
-    @JsonProperty
-    Optional<String> title();
-
-    @JsonProperty
-    Optional<String> unique_name();
-
-    @JsonProperty
-    Optional<String> product_name();
+    ImmutableConfigUseItem use();
 
     @JsonProperty
     Optional<String> file_type();
-
-    @JsonProperty
-    Optional<String> release_date();
-
-    @JsonProperty
-    Optional<String> version();
-
-    @JsonProperty
-    Optional<Boolean> primary();
-
-    @JsonProperty
-    Optional<String> accessibility();*/
 
   }
 
@@ -118,88 +60,7 @@ public interface Config {
     Optional<String> data_product();
 
     @JsonProperty
-    Optional<String> component();
-
-    @JsonProperty
-    Optional<String> version();
-
-    @JsonProperty
-    Optional<String> doi_or_unique_name();
-
-    /*
-
-    @JsonProperty
-    Optional<String> cache();
-
-    @JsonProperty
-    Optional<String> doi();
-
-    @JsonProperty
-    Optional<String> title();
-
-    @JsonProperty
-    Optional<String> hash();*/
-
-  }
-
-  @Immutable
-  @JsonSerialize
-  @JsonDeserialize
-  public interface ConfigComponent {
-    @JsonProperty
-    Optional<String> component();
-
-    @JsonProperty
-    Optional<String> description();
-  }
-
-  @Immutable
-  @JsonSerialize
-  @JsonDeserialize
-  public interface WriteItem {
-    Optional<ImmutableConfigDataProduct> data_product();
-
-    Optional<ImmutableConfigExternalObject> external_object();
-
-    Optional<ImmutableConfigObject> object();
-  }
-
-  @Immutable
-  @JsonSerialize
-  @JsonDeserialize
-  public interface RegisterItem {
-    Optional<ImmutableConfigDataProduct> data_product();
-
-    Optional<ImmutableConfigExternalObject> external_object();
-
-    Optional<ImmutableConfigObject> object();
-  }
-
-  @Immutable
-  @JsonSerialize
-  @JsonDeserialize
-  public interface ConfigDataProduct {
-    Optional<String> description();
-
-    Optional<String> component();
-  }
-
-  @Immutable
-  @JsonSerialize
-  @JsonDeserialize
-  public interface ConfigExternalObject {
-    Optional<String> description();
-
-    Optional<String> component();
-  }
-
-  @Immutable
-  @JsonSerialize
-  @JsonDeserialize
-  public interface ConfigObject {
-    Optional<String> description();
-
-    Optional<String> component();
+    String version();
   }
 
   @Immutable
@@ -222,15 +83,12 @@ public interface Config {
     Optional<String> default_output_namespace();
 
     @JsonProperty
-    Optional<String> default_data_store();
-
-    @JsonProperty
-    Optional<Boolean> always_copy_to_store();
+    Optional<String> write_data_store();
 
     @JsonProperty
     Optional<String> local_repo();
 
     @JsonProperty
-    Optional<String> script();
+    Optional<String> script_path();
   }
 }

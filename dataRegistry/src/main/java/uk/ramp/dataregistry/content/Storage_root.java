@@ -1,6 +1,9 @@
 package uk.ramp.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -16,9 +19,16 @@ public class Storage_root extends FDP_Updateable {
 
   @XmlElement private List<String> locations;
 
+  public Storage_root() {}
+
+  public Storage_root(String root) {
+    this.root = root;
+  }
+
   public String getRoot() {
     return this.root;
   }
+  public Path getPath() { return Paths.get(this.root); }
 
   public Boolean getLocal() {
     return this.local;

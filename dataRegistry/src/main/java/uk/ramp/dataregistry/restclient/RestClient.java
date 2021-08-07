@@ -56,10 +56,12 @@ public class RestClient {
     // c = the class contained within the objectlist
     // return the first item found.
     WebTarget wt2 = wt.path(FDP_RootObject.get_django_path(c.getSimpleName()));
+
     System.out.println("RestClient.get(Class, Map) " + wt2.getUri());
     for (Map.Entry<String, String> e : m.entrySet()) {
       wt2 = wt2.queryParam(e.getKey(), e.getValue());
     }
+    wt2 = wt2.queryParam("page_size", 1);
     ParameterizedType p = TypeUtils.parameterize(FDP_ObjectList.class, c);
     FDP_ObjectList<?> o =
         (FDP_ObjectList)
@@ -85,18 +87,6 @@ public class RestClient {
     GenericType<FDP_ObjectList> gt = new GenericType<FDP_ObjectList>(p);
     FDP_ObjectList<?> o = (FDP_ObjectList<?>) wt2.request(MediaType.APPLICATION_JSON).get(gt);
     return o;
-  }
-
-  class SortByVersion implements Comparator<Data_product> {
-    public int compare(Data_product a, Data_product b) {
-      return 1; // a.getVersion() < b.getVersion();
-    }
-  }
-
-  public Data_product getLatestDataProduct(Map<String, String> m) {
-    List<Data_product> l = (List<Data_product>) getList(Data_product.class, m).getResults();
-    Collections.sort(l, new SortByVersion());
-    return l.get(0);
   }
 
   public FDP_RootObject get(Class<?> c, int i) {
@@ -126,9 +116,11 @@ public class RestClient {
     }
   }
 
-  public Response post(FDP_Updateable o) {
+  public FDP_Updateable post(FDP_Updateable o) {
     WebTarget wt2 = wt.path(o.get_django_path());
     System.out.println("post target: " + wt2.getUri());
+    if(o.getUrl() != null)
+      throw (new IllegalArgumentException("trying to post an already existing object " + o.get_django_path() + " (object already has an URL entry)"));
     Response r =
         wt2.request(MediaType.APPLICATION_JSON).post(Entity.entity(o, MediaType.APPLICATION_JSON));
     if (r.getStatus() != 201) {
@@ -139,8 +131,25 @@ public class RestClient {
       } catch (IOException e) {
         System.out.println("IOException " + e);
       }
+      return null;
+    }else{
+      return  (FDP_Updateable) r.readEntity(o.getClass());
     }
-    return r;
+  }
+
+
+  public FDP_Updateable post2(FDP_Updateable o) {
+    WebTarget wt2 = wt.path(o.get_django_path());
+    System.out.println("post target: " + wt2.getUri());
+    Response r =
+            wt2.request(MediaType.APPLICATION_JSON).post(Entity.entity(o, MediaType.APPLICATION_JSON));
+    if (r.getStatus() != 201) {
+      Object i = (Object) r.getEntity();
+      System.out.println(i.getClass());
+      FDP_Updateable f = (FDP_Updateable) i;
+      System.out.println("URL: " + f.getUrl());
+    }
+    return null;
   }
 
   /* put is not allowed

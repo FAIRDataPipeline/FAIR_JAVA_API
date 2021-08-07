@@ -28,9 +28,9 @@ public class populateLocal {
   @MethodSource("objectsToBeCreated")
   @DisabledIf("keyvalueExists")
   public void createObjects(FDP_Updateable o) {
-    Response r = lc.post(o);
-    System.out.println("createObj.. statusinfo: " + r.getStatusInfo());
-    Assertions.assertEquals(201, r.getStatus());
+    FDP_Updateable r = lc.post(o);
+    System.out.println("createObj.. statusinfo: " + r);
+    Assertions.assertNotNull(r);
   }
 
   private Stream<FDP_Updateable> objectsToBeCreated() {
