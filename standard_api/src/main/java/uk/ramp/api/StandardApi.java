@@ -106,7 +106,8 @@ public class StandardApi implements AutoCloseable {
   public void writeEstimate(String dataProduct, String component, Number estimateNumber) {
     var estimate = ImmutableEstimate.builder().internalValue(estimateNumber).rng(rng).build();
 
-    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(dataProduct, component, "toml")) {
+    try (CleanableFileChannel fileChannel =
+        fileApi.fileApi.openForWrite(dataProduct, component, "toml")) {
       parameterDataWriter.write(fileChannel, component, estimate);
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file" + e.toString()));
@@ -124,7 +125,8 @@ public class StandardApi implements AutoCloseable {
   }
 
   public void writeDistribution(String dataProduct, String component, Distribution distribution) {
-    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(dataProduct, component, "toml")) {
+    try (CleanableFileChannel fileChannel =
+        fileApi.fileApi.openForWrite(dataProduct, component, "toml")) {
       parameterDataWriter.write(fileChannel, component, distribution);
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file for write " + e.toString()));
@@ -142,7 +144,8 @@ public class StandardApi implements AutoCloseable {
   }
 
   public void writeSamples(String dataProduct, String component, Samples samples) {
-    try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(dataProduct, component, "toml")) {
+    try (CleanableFileChannel fileChannel =
+        fileApi.fileApi.openForWrite(dataProduct, component, "toml")) {
       parameterDataWriter.write(fileChannel, component, samples);
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file for write " + e.toString()));
@@ -150,9 +153,9 @@ public class StandardApi implements AutoCloseable {
   }
 
   public NumericalArray readArray(String dataProduct, String component) {
-    Path filepath = fileApi.fileApi.getFilepathForRead(dataProduct, component);
-    //HDF5 hdf5 = new HDF5(filepath);
-    return null;//hdf5.read(component);
+    Path filepath = fileApi.fileApi.getFilePathForRead(dataProduct, component);
+    // HDF5 hdf5 = new HDF5(filepath);
+    return null; // hdf5.read(component);
   }
 
   public void writeTable(
@@ -165,9 +168,9 @@ public class StandardApi implements AutoCloseable {
   }
 
   public void writeArray(String dataProduct, String component, Number[] arr) {
-    Path filepath = fileApi.fileApi.getFilepathForWrite(dataProduct, component, "h5");
-    //HDF5 hdf5 = new HDF5(filepath);
-    //hdf5.write(component, arr);
+    Path filepath = fileApi.fileApi.getFilePathForWrite(dataProduct, component, "h5");
+    // HDF5 hdf5 = new HDF5(filepath);
+    // hdf5.write(component, arr);
   }
 
   public void add_to_register(String name) {

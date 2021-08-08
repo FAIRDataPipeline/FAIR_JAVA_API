@@ -21,8 +21,6 @@ public class Object_component extends FDP_Updateable {
 
   @XmlElement private List<String> outputs_of;
 
-
-
   public String getObject() {
     return this.object;
   }

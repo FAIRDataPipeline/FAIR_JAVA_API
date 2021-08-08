@@ -46,7 +46,6 @@ public interface Config {
 
     @JsonProperty
     Optional<String> file_type();
-
   }
 
   @Immutable

@@ -1,6 +1,5 @@
 package uk.ramp.dataregistry.restclient;
 
-import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +27,6 @@ public class restClientTest {
     Assertions.assertNull(n); // i'm expecting NULL cause namespace 1 doesn't exist.
     // Assertions.assertEquals("BramTestNS", n.getName());
   }
-
 
   @Test
   @Order(1)
@@ -90,7 +88,7 @@ public class restClientTest {
     sl.setStorage_root(stroot);
     sl.setPath(path);
     sl.setHash(hash); // hash is not allowed to be empty!
-    Storage_location r = (Storage_location)  lc.post(sl);
+    Storage_location r = (Storage_location) lc.post(sl);
     System.out.println("create_storageLocation: " + r);
     Assertions.assertEquals(stroot, r.getStorage_root());
   }
@@ -102,9 +100,9 @@ public class restClientTest {
     FDPObject o = new FDPObject();
     o.setDescription("my new object description");
     o.setStorage_location(localReg + "storage_location/1/");
-    //Response r = lc.post(o);
-    //System.out.println("create_object: " + r.getStatusInfo());
-    //Assertions.assertEquals(201, r.getStatus());
+    // Response r = lc.post(o);
+    // System.out.println("create_object: " + r.getStatusInfo());
+    // Assertions.assertEquals(201, r.getStatus());
   }
 
   @Disabled
@@ -116,9 +114,9 @@ public class restClientTest {
     dp.setObject(localReg + "object/4/");
     dp.setVersion("1.bla.piep");
     dp.setNamespace(localReg + "namespace/1/");
-    //Response r = lc.post(dp);
-    //System.out.println("create_data_product: " + r.getStatusInfo());
-    //Assertions.assertEquals(201, r.getStatus());
+    // Response r = lc.post(dp);
+    // System.out.println("create_data_product: " + r.getStatusInfo());
+    // Assertions.assertEquals(201, r.getStatus());
   }
 
   @Disabled
@@ -135,9 +133,9 @@ public class restClientTest {
     eo.setTitle("Initial External Object");
     eo.setData_product(localReg + "data_product/1/");
     eo.setPrimary_not_supplement(true);
-    //Response r = lc.post(eo);
-    //System.out.println("create_externalObject: " + r.getStatusInfo());
-    //Assertions.assertEquals(201, r.getStatus());
+    // Response r = lc.post(eo);
+    // System.out.println("create_externalObject: " + r.getStatusInfo());
+    // Assertions.assertEquals(201, r.getStatus());
   }
 
   @Disabled
@@ -148,9 +146,9 @@ public class restClientTest {
     oc.setName("Initial object component");
     oc.setObject(localReg + "object/1/");
     oc.setDescription("My test object component");
-    //Response r = lc.post(oc);
-    //System.out.println("create_objectComponent: " + r.getStatusInfo());
-    //Assertions.assertEquals(201, r.getStatus());
+    // Response r = lc.post(oc);
+    // System.out.println("create_objectComponent: " + r.getStatusInfo());
+    // Assertions.assertEquals(201, r.getStatus());
   }
 
   @Disabled
@@ -162,9 +160,9 @@ public class restClientTest {
     cr.setRun_date(LocalDateTime.of(2021, 3, 3, 3, 3, 3, 3));
     cr.setCode_repo(localReg + "object/1/");
     cr.setSubmission_script(localReg + "object/1/");
-    //Response r = lc.post(cr);
-    //System.out.println("create_codeRun: " + r.getStatusInfo());
-    //Assertions.assertEquals(201, r.getStatus());
+    // Response r = lc.post(cr);
+    // System.out.println("create_codeRun: " + r.getStatusInfo());
+    // Assertions.assertEquals(201, r.getStatus());
   }
 
   @Disabled
@@ -174,9 +172,9 @@ public class restClientTest {
     Author a = new Author();
     a.setFamily_name("Boskamp");
     a.setGiven_name("Bram");
-    //Response r = lc.post(a);
-    //System.out.println("create_author: " + r.getStatusInfo());
-    //Assertions.assertEquals(201, r.getStatus());
+    // Response r = lc.post(a);
+    // System.out.println("create_author: " + r.getStatusInfo());
+    // Assertions.assertEquals(201, r.getStatus());
   }
 
   @Disabled
@@ -186,9 +184,9 @@ public class restClientTest {
     Keyword k = new Keyword();
     k.setObject(localReg + "object/1/");
     k.setKeyphrase("huh");
-    //Response r = lc.post(k);
-    //System.out.println("create_keyword: " + r.getStatusInfo());
-    //Assertions.assertEquals(201, r.getStatus());
+    // Response r = lc.post(k);
+    // System.out.println("create_keyword: " + r.getStatusInfo());
+    // Assertions.assertEquals(201, r.getStatus());
   }
 
   @Disabled
@@ -200,9 +198,9 @@ public class restClientTest {
     crr.setObject(localReg + "object/1/");
     crr.setVersion("1.0.0");
     crr.setWebsite("http://github.com/blabla");
-    //Response r = lc.post(crr);
-    //System.out.println("create_code_repo_release: " + r.getStatusInfo());
-    //Assertions.assertEquals(201, r.getStatus());
+    // Response r = lc.post(crr);
+    // System.out.println("create_code_repo_release: " + r.getStatusInfo());
+    // Assertions.assertEquals(201, r.getStatus());
   }
 
   @Disabled
@@ -213,9 +211,9 @@ public class restClientTest {
     kv.setObject(localReg + "object/1/");
     kv.setKey("the key");
     kv.setValue("the value");
-    //Response r = lc.post(kv);
-    //System.out.println("create_key_value: " + r.getStatusInfo());
-    //Assertions.assertEquals(201, r.getStatus());
+    // Response r = lc.post(kv);
+    // System.out.println("create_key_value: " + r.getStatusInfo());
+    // Assertions.assertEquals(201, r.getStatus());
   }
 
   @Disabled

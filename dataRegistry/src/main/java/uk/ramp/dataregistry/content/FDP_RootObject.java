@@ -37,16 +37,14 @@ public abstract class FDP_RootObject {
   }
 
   @JsonIgnore
-  public static Integer get_id(String url){
+  public static Integer get_id(String url) {
     String id_part;
     try {
       id_part = Paths.get(new URL(url).getPath()).getFileName().toString();
     } catch (MalformedURLException e) {
-      throw (new IllegalArgumentException(
-              "Trying to parse a bad URL " + url + " (" + e + ")"));
+      throw (new IllegalArgumentException("Trying to parse a bad URL " + url + " (" + e + ")"));
     }
     return Integer.parseInt(id_part);
-
   }
 
   @JsonIgnore

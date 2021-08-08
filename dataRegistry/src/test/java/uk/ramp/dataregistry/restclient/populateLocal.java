@@ -1,6 +1,5 @@
 package uk.ramp.dataregistry.restclient;
 
-import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;

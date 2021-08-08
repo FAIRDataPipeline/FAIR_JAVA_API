@@ -15,9 +15,6 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -119,8 +116,11 @@ public class RestClient {
   public FDP_Updateable post(FDP_Updateable o) {
     WebTarget wt2 = wt.path(o.get_django_path());
     System.out.println("post target: " + wt2.getUri());
-    if(o.getUrl() != null)
-      throw (new IllegalArgumentException("trying to post an already existing object " + o.get_django_path() + " (object already has an URL entry)"));
+    if (o.getUrl() != null)
+      throw (new IllegalArgumentException(
+          "trying to post an already existing object "
+              + o.get_django_path()
+              + " (object already has an URL entry)"));
     Response r =
         wt2.request(MediaType.APPLICATION_JSON).post(Entity.entity(o, MediaType.APPLICATION_JSON));
     if (r.getStatus() != 201) {
@@ -132,17 +132,16 @@ public class RestClient {
         System.out.println("IOException " + e);
       }
       return null;
-    }else{
-      return  (FDP_Updateable) r.readEntity(o.getClass());
+    } else {
+      return (FDP_Updateable) r.readEntity(o.getClass());
     }
   }
-
 
   public FDP_Updateable post2(FDP_Updateable o) {
     WebTarget wt2 = wt.path(o.get_django_path());
     System.out.println("post target: " + wt2.getUri());
     Response r =
-            wt2.request(MediaType.APPLICATION_JSON).post(Entity.entity(o, MediaType.APPLICATION_JSON));
+        wt2.request(MediaType.APPLICATION_JSON).post(Entity.entity(o, MediaType.APPLICATION_JSON));
     if (r.getStatus() != 201) {
       Object i = (Object) r.getEntity();
       System.out.println(i.getClass());

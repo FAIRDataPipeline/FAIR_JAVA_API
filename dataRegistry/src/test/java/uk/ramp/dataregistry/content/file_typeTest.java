@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.*;
 import uk.ramp.dataregistry.restclient.RestClient;
 
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class file_typeTest {
   String localReg = "http://localhost:8000/api/";
