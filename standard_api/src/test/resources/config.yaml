@@ -1,30 +1,18 @@
 fail_on_hash_mismatch: True
 run_metadata:
-  description: A test model
-  local_data_registry_url: https://localhost:8000/api/
-  remote_data_registry_url: https://data.scrc.uk/api/
-  default_input_namespace: test namespace
-  default_output_namespace: test namespace
-  default_data_store: /datastore/
-  always_copy_to_store: False
+  description: StandardApi Integration test
+  local_data_registry_url: http://localhost:8000/api/
+  default_input_namespace: standardAPItest
+  default_output_namespace: standardAPItest
+  write_data_store: D:\datastore
 
 read:
   - data_product: human/population
     use:
-      namespace: eera
-      data_product: scotland/human/population
-  - external_object: records/SARS-CoV-2/scotland/cases-and-management
-    doi_or_unique_name: COVID-19 management information
-    title: Data associated with COVID-19
-    version: 0.20210414.0
+      version: 0.0.1
 
 write:
-  - data_product: human/outbreak-timeseries
+  - data_product: human/population
+    description: StandardApi Integration test
     use:
-      data_product: scotland/human/outbreak-timeseries
-  - data_product: human/outbreak/simulation_run
-    use:
-      data_product: human/outbreak/simulation_run-{RUN_ID}
-  - external_object: records/SARS-CoV-2/scotland/cases-and-management
-    doi_or_unique_name: COVID-19 management information
-    title: Data associated with COVID-19
+      version: 0.0.1

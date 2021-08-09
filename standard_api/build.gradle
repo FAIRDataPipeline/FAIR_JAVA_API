@@ -24,6 +24,7 @@ dependencies {
     implementation project(':file_api')
     implementation project(':dataRegistry')
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation 'commons-io:commons-io:2.7'
     implementation 'com.google.guava:guava:29.0-jre'
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-guava:2.12.2'
@@ -35,6 +36,9 @@ dependencies {
     testImplementation 'org.assertj:assertj-guava:3.2.0'
     testImplementation 'org.mockito:mockito-core:2.28.2'
     testImplementation 'org.skyscreamer:jsonassert:1.5.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     annotationProcessor "org.immutables:value:2.8.8"
 }
 

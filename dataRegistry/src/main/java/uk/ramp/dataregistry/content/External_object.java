@@ -7,7 +7,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class External_object extends FDP_Updateable {
-  @XmlElement private String doi_or_unique_name;
+  @XmlElement private String identifier;
+
+  @XmlElement private String alternate_identifier;
+
+  @XmlElement private String alternate_identifier_type;
 
   @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   @XmlElement
@@ -23,10 +27,20 @@ public class External_object extends FDP_Updateable {
 
   @XmlElement private String original_store;
 
+  @XmlElement private String version;
+
   public External_object() {};
 
-  public String getDoi_or_unique_name() {
-    return doi_or_unique_name;
+  public String getIdentifier() {
+    return identifier;
+  }
+
+  public String getAlternate_identifier() {
+    return alternate_identifier;
+  }
+
+  public String getAlternate_identifier_type() {
+    return alternate_identifier_type;
   }
 
   public Boolean isPrimary_not_supplement() {
@@ -53,8 +67,20 @@ public class External_object extends FDP_Updateable {
     return original_store;
   }
 
-  public void setDoi_or_unique_name(String doi_or_unique_name) {
-    this.doi_or_unique_name = doi_or_unique_name;
+  public String getVersion() {
+    return version;
+  }
+
+  public void setIdentifier(String identifier) {
+    this.identifier = identifier;
+  }
+
+  public void setAlternate_identifier(String alternate_identifier) {
+    this.alternate_identifier = alternate_identifier;
+  }
+
+  public void setAlternate_identifier_type(String alternate_identifier_type) {
+    this.alternate_identifier_type = alternate_identifier_type;
   }
 
   public void setPrimary_not_supplement(Boolean primary_not_supplement) {
@@ -79,5 +105,9 @@ public class External_object extends FDP_Updateable {
 
   public void setOriginal_store(String original_store) {
     this.original_store = original_store;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
   }
 }

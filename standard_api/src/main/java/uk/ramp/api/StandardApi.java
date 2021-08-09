@@ -40,9 +40,9 @@ public class StandardApi implements AutoCloseable {
   private final ParameterDataWriter parameterDataWriter;
   private final RandomGenerator rng;
 
-  public StandardApi(Path configPath, RandomGenerator rng) {
+  public StandardApi(Path configPath, Path scriptPath, RandomGenerator rng) {
     this(
-        new FileApi(configPath),
+        new FileApi(configPath, scriptPath),
         new ParameterDataReaderImpl(new TomlReader(new TOMLMapper(rng))),
         new ParameterDataWriterImpl(new TomlWriter(new TOMLMapper(rng))),
         rng);

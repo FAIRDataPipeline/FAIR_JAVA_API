@@ -83,10 +83,9 @@ public class FileApi implements AutoCloseable {
     if (this.storage_root == null) {
       System.out.println("creating new storage root: " + Storage_root_path);
       this.storage_root = (Storage_root) restClient.post(new Storage_root(Storage_root_path));
-    }else{
+    } else {
       System.out.println("found existing storage root: " + this.storage_root.get_id());
     }
-
 
     this.shouldVerifyHash = config.failOnHashMisMatch();
     if (this.scriptPath == null && config.run_metadata().script_path().isPresent()) {
@@ -170,7 +169,7 @@ public class FileApi implements AutoCloseable {
       ImmutableConfigItem configItem;
 
       this.givenDataProduct_name = dataProduct_name;
-        this.actualDataProduct_name = dataProduct_name;
+      this.actualDataProduct_name = dataProduct_name;
 
       if (readOrWrite == DP_READ) {
         this.read_or_write = READ;
@@ -219,8 +218,12 @@ public class FileApi implements AutoCloseable {
               restClient.getFirst(
                   Namespace.class, Collections.singletonMap("name", namespace_name));
       if (this.namespace == null) {
-        throw (new IllegalArgumentException(
-            "can't find namespace '" + namespace_name + "' in the registry."));
+        this.namespace = (Namespace) restClient.post(new Namespace(namespace_name));
+        if (namespace == null) {
+          throw (new IllegalArgumentException(
+              "failed to create namespace '" + namespace_name + "' in the registry."));
+        }
+        System.out.println("created the namespace");
       }
       System.out.println("found namespace");
       System.out.println(this.namespace.getName());
@@ -293,21 +296,36 @@ public class FileApi implements AutoCloseable {
         // read_or_write is READ and data product exists
         System.out.println("READ and DP exists");
         this.fdpObject = (FDPObject) restClient.get(FDPObject.class, this.data_product.getObject());
-        if(this.fdpObject == null) {
-          throw(new IllegalArgumentException("couldn't retrieve the fdpObject for this READ dp " + this.givenDataProduct_name + " (" + this.actualDataProduct_name + ")"));
+        if (this.fdpObject == null) {
+          throw (new IllegalArgumentException(
+              "couldn't retrieve the fdpObject for this READ dp "
+                  + this.givenDataProduct_name
+                  + " ("
+                  + this.actualDataProduct_name
+                  + ")"));
         }
         System.out.println("retrieved the fdpObj for this DP");
         this.storage_location =
             (Storage_location)
                 restClient.get(Storage_location.class, this.fdpObject.getStorage_location());
-        if(this.storage_location == null) {
-          throw(new IllegalArgumentException("couldn't retrieve the StorageLocation for this READ dp " + this.givenDataProduct_name + " (" + this.actualDataProduct_name + ")"));
+        if (this.storage_location == null) {
+          throw (new IllegalArgumentException(
+              "couldn't retrieve the StorageLocation for this READ dp "
+                  + this.givenDataProduct_name
+                  + " ("
+                  + this.actualDataProduct_name
+                  + ")"));
         }
         this.storage_root =
             (Storage_root)
                 restClient.get(Storage_root.class, this.storage_location.getStorage_root());
-        if(this.storage_root == null) {
-          throw(new IllegalArgumentException("couldn't retrieve the StorageRoot for this READ dp " + this.givenDataProduct_name + " (" + this.actualDataProduct_name + ")"));
+        if (this.storage_root == null) {
+          throw (new IllegalArgumentException(
+              "couldn't retrieve the StorageRoot for this READ dp "
+                  + this.givenDataProduct_name
+                  + " ("
+                  + this.actualDataProduct_name
+                  + ")"));
         }
         this.filePath =
             Path.of(this.storage_root.getRoot()).resolve(Path.of(this.storage_location.getPath()));
@@ -320,19 +338,19 @@ public class FileApi implements AutoCloseable {
     }
 
     private void do_hash() {
-      if(this.is_hashed) return;
-      if(this.read_or_write == READ) return;
+      if (this.is_hashed) return;
+      if (this.read_or_write == READ) return;
       String hash = hasher.fileHash(this.getFilePath().toString());
       Map<String, String> find_identical =
-              Map.of(
-                      "storage_root",
-                      FDP_RootObject.get_id(this.storage_location.getStorage_root()).toString(),
-                      "hash",
-                      hash,
-                      "public",
-                      this.storage_location.isIs_public() ? "true" : "false");
+          Map.of(
+              "storage_root",
+              FDP_RootObject.get_id(this.storage_location.getStorage_root()).toString(),
+              "hash",
+              hash,
+              "public",
+              this.storage_location.isIs_public() ? "true" : "false");
       Storage_location sl =
-              (Storage_location) restClient.getFirst(Storage_location.class, find_identical);
+          (Storage_location) restClient.getFirst(Storage_location.class, find_identical);
       if (sl != null) {
         // we've found an existing stolo with matching hash.. delete this one.
         this.getFilePath().toFile().delete();
@@ -361,7 +379,7 @@ public class FileApi implements AutoCloseable {
 
     void ensureHashed() {
       this.closeFileChannel();
-      if(!this.is_hashed) {
+      if (!this.is_hashed) {
         this.do_hash();
       }
     }
@@ -424,7 +442,7 @@ public class FileApi implements AutoCloseable {
       CleanableFileChannel f = d.getFilechannel();
       System.out.println("got the filechannel");
       return f;
-      //return this.dp_info_map.get(dataProduct_name).getFilechannel();
+      // return this.dp_info_map.get(dataProduct_name).getFilechannel();
     } else {
       System.out.println("openForRead returning NULL");
       return null;
@@ -483,7 +501,8 @@ public class FileApi implements AutoCloseable {
     // hash the dp.getFileName() and put this hash into updatedObjects
   }*/
 
-  private boolean prepare_dp_forWrite(String dataProduct_name, String component_name, String extension) {
+  private boolean prepare_dp_forWrite(
+      String dataProduct_name, String component_name, String extension) {
     dp_info dp = new dp_info(dataProduct_name, DP_WRITE, extension);
     // TODO: need a better solution to allow an actual component to be called 'whole_object'
     if (component_name == null) {
@@ -510,7 +529,9 @@ public class FileApi implements AutoCloseable {
   public Path getFilePathForWrite(String dataProduct_name) {
     return this.getFilePathForWrite(dataProduct_name, null, null);
   }
-  public Path getFilePathForWrite(String dataProduct_name, String component_name, String extension) {
+
+  public Path getFilePathForWrite(
+      String dataProduct_name, String component_name, String extension) {
     if (prepare_dp_forWrite(dataProduct_name, component_name, extension)) {
       return this.dp_info_map.get(dataProduct_name).getFilePath();
     } else {

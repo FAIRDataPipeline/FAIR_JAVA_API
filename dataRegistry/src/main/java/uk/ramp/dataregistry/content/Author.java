@@ -5,9 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Author extends FDP_Updateable {
-  @XmlElement private String family_name;
-
-  @XmlElement private String given_name;
+  @XmlElement private String name;
 
   @XmlElement private String identifier;
 
@@ -15,12 +13,8 @@ public class Author extends FDP_Updateable {
 
   public Author() {}
 
-  public String getFamily_name() {
-    return this.family_name;
-  }
-
-  public String getGiven_name() {
-    return this.given_name;
+  public String getName() {
+    return this.name;
   }
 
   public String getIdentifier() {
@@ -31,12 +25,8 @@ public class Author extends FDP_Updateable {
     return this.uuid;
   }
 
-  public void setFamily_name(String family_name) {
-    this.family_name = family_name;
-  }
-
-  public void setGiven_name(String given_name) {
-    this.given_name = given_name;
+  public void setName(String name) {
+    this.name = name;
   }
 
   public void setIdentifier(String identifier) {

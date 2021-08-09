@@ -67,7 +67,7 @@ public class populateLocal {
     al.add(dp);
     External_object eo = new External_object();
     eo.setDescription("My test external object");
-    eo.setDoi_or_unique_name("My very unique name");
+    eo.setIdentifier("http://www.bbc.co.uk/");
     eo.setRelease_date(LocalDateTime.of(2021, 4, 4, 4, 4, 4, 4));
     eo.setTitle("Initial External Object");
     eo.setData_product(localReg + "data_product/1/");
@@ -85,8 +85,7 @@ public class populateLocal {
     cr.setSubmission_script(localReg + "object/1/");
     al.add(cr);
     Author a = new Author();
-    a.setFamily_name("Boskamp");
-    a.setGiven_name("Bram");
+    a.setName("Bram Boskamp");
     al.add(a);
     Keyword k = new Keyword();
     k.setObject(localReg + "object/1/");

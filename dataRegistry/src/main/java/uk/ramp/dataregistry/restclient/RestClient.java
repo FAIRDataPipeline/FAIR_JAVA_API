@@ -58,7 +58,7 @@ public class RestClient {
     for (Map.Entry<String, String> e : m.entrySet()) {
       wt2 = wt2.queryParam(e.getKey(), e.getValue());
     }
-    wt2 = wt2.queryParam("page_size", 1);
+    // wt2 = wt2.queryParam("page_size", 1);
     ParameterizedType p = TypeUtils.parameterize(FDP_ObjectList.class, c);
     FDP_ObjectList<?> o =
         (FDP_ObjectList)

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.junit.jupiter.api.*;
 import uk.ramp.dataregistry.content.*;
 
+@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class restClientTest {
@@ -128,7 +129,7 @@ public class restClientTest {
     // obj & source must be supplied. original_store is optional
     External_object eo = new External_object();
     eo.setDescription("My test external object");
-    eo.setDoi_or_unique_name("My very unique name");
+    eo.setIdentifier("http://www.xs4all.nl/");
     eo.setRelease_date(LocalDateTime.of(2021, 4, 4, 4, 4, 4, 4));
     eo.setTitle("Initial External Object");
     eo.setData_product(localReg + "data_product/1/");
@@ -170,8 +171,7 @@ public class restClientTest {
   @Order(12)
   public void create_author() {
     Author a = new Author();
-    a.setFamily_name("Boskamp");
-    a.setGiven_name("Bram");
+    a.setName("Bram Boskamp");
     // Response r = lc.post(a);
     // System.out.println("create_author: " + r.getStatusInfo());
     // Assertions.assertEquals(201, r.getStatus());

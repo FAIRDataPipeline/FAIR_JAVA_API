@@ -73,7 +73,7 @@ public class Code_run_session {
     if (config_filetype == null) {
       System.out.println("creating a new filetype for YAML");
       config_filetype = (File_type) restClient.post(new File_type("yaml", "yaml"));
-    }else{
+    } else {
       System.out.println("filetype already existed");
     }
     FDPObject config_object = new FDPObject();
@@ -124,7 +124,7 @@ public class Code_run_session {
     if (script_filetype == null) {
       System.out.println("creating new filetype for SH");
       script_filetype = (File_type) restClient.post(new File_type("sh", "sh"));
-    }else{
+    } else {
       System.out.println("found filetype for SH");
     }
     FDPObject script_object = new FDPObject();

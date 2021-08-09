@@ -1,6 +1,7 @@
 package uk.ramp.api;
 
-import java.io.BufferedReader;
+import static java.nio.file.StandardOpenOption.READ;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -10,14 +11,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import uk.ramp.file.CleanableFileChannel;
-
-import static java.nio.file.StandardOpenOption.READ;
 
 public class FileApiIntegrationTest {
   private Path ori_configPath, configPath, ori_scriptPath, scriptPath;
@@ -79,7 +77,7 @@ public class FileApiIntegrationTest {
    * Not sure what checks to run on this test. probably should test that the output
    * file has been created, and that all the objects have been created in the registry.
    */
-  public void testWrite2() throws IOException{
+  public void testWrite2() throws IOException {
     try (FileApi api = new FileApi(configPath, scriptPath)) {
       Path p = api.getFilePathForWrite("human/example");
       BufferedWriter w;
@@ -98,8 +96,8 @@ public class FileApiIntegrationTest {
     try (FileApi api = new FileApi(configPath, scriptPath)) {
       System.out.println("start");
       CleanableFileChannel f = api.openForRead("human/example");
-      if(f == null) {
-        throw(new IllegalArgumentException("failed to open the DataProduct for read"));
+      if (f == null) {
+        throw (new IllegalArgumentException("failed to open the DataProduct for read"));
       }
       String a = "bla die bla";
       System.out.println("size: " + f.size());
@@ -120,8 +118,8 @@ public class FileApiIntegrationTest {
     try (FileApi api = new FileApi(configPath, scriptPath)) {
       System.out.println("start");
       Path p = api.getFilePathForRead("human/example");
-      if(p == null) {
-          throw(new IllegalArgumentException("failed to get the dataProduct Path for read"));
+      if (p == null) {
+        throw (new IllegalArgumentException("failed to get the dataProduct Path for read"));
       }
       FileChannel f = FileChannel.open(p, READ);
       String a = "bla die bla";
@@ -137,7 +135,4 @@ public class FileApiIntegrationTest {
       System.out.println(e);
     }
   }
-
-
-
 }
