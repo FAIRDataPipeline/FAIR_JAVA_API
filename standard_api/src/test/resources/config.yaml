@@ -10,9 +10,37 @@ read:
   - data_product: human/population
     use:
       version: 0.0.1
+  - data_product: human/distribution
+    use:
+      version: 0.0.1
+  - data_product: human/cdistribution
+    use:
+      version: 0.0.1
+  - data_product: human/samples
+    use:
+      version: 0.0.1
+  - data_product: human/multicomp
+    use:
+      version: 0.0.1
 
 write:
   - data_product: human/population
     description: StandardApi Integration test
     use:
       version: 0.0.1
+  - data_product: human/distribution
+    description: StandardApi Integration test for distribution
+    use:
+      version: 0.0.1
+  - data_product: human/cdistribution
+    description: StandardApi Integration test for cdistribution
+    use:
+      version: 0.0.1
+  - data_product: human/samples
+    description: StandardApi Integration test for samples
+    use:
+      version: 0.0.1
+  - data_product: human/multicomp
+    description: StandardApi Integration test for samples multiple components
+    use:
+      version: 0.0.3

@@ -33,7 +33,8 @@ public class TomlReaderPairwiseIntegrationTest {
     var estimate = ImmutableEstimate.builder().internalValue(1.0).rng(rng).build();
     Components components =
         ImmutableComponents.builder().putComponents("example-estimate", estimate).build();
+    Components components_read = tomlReader.read(reader, new TypeReference<Components>() {});
 
-    assertThat(tomlReader.read(reader, new TypeReference<Components>() {})).isEqualTo(components);
+    assertThat(components_read).isEqualTo(components);
   }
 }

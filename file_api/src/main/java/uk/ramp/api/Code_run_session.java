@@ -50,11 +50,12 @@ public class Code_run_session {
       // there is an already existing StorageLocation for the config; we need to delete the config
       // file.
       System.out.println("there was an existing stolo for config");
-      try {
-        Files.delete(configPath);
-      } catch (IOException e) {
+      //try {
+        //Files.delete(configPath);
+        // TODO: if we want to be able to run multi-coderun scripts, things are much easier without deleting the startup files.
+      //} catch (IOException e) {
         // logger - log failure to delete configFile
-      }
+      //}
     } else {
       System.out.println("creating a new stolo");
       config_stolo = new Storage_location();
@@ -100,12 +101,13 @@ public class Code_run_session {
     Storage_location script_stolo =
         (Storage_location) restClient.getFirst(Storage_location.class, find_script_stolo);
     if (script_stolo != null) {
-      System.out.println("found existing script with the same hash; deleting the script");
-      try {
-        Files.delete(scriptPath);
-      } catch (IOException e) {
+      System.out.println("found existing script with the same hash; NOT?! deleting the script");
+      //try {
+        //Files.delete(scriptPath);
+        // TODO: if we want to be able to run multi-coderun scripts, things are much easier without deleting the startup files.
+      //} catch (IOException e) {
         // logger - log failure to delete scriptPath
-      }
+      //}
     } else {
       System.out.println("registering the script stolo");
       script_stolo = new Storage_location();
@@ -143,6 +145,10 @@ public class Code_run_session {
     code_run.setDescription(this.config.run_metadata().description().orElse(""));
   }
 
+  public Storage_location getStolo(String dataproduct_name) {
+    return this.data_products_to_create.get(dataproduct_name).sl;
+  }
+
   public String make_identifier(String dataproduct_name, String component_name) {
     return Path.of(dataproduct_name).resolve(component_name).toString();
   }
@@ -172,19 +178,47 @@ public class Code_run_session {
   public void setStorageLocation(String dataProduct_name, Storage_location sl) {
     this.data_products_to_create.get(dataProduct_name).sl = sl;
   }
+  public void setFilePath(String dataProduct_name, Path filePath) {
+    this.data_products_to_create.get(dataProduct_name).filePath = filePath;
+  }
 
   private void create_stuff(data_product_objects data_product_to_create) {
+    System.out.println("create_stuff() - " + data_product_to_create.dp_name);
     System.out.println("create_stuff() - " + data_product_to_create.fdpObject.getDescription());
-    Storage_location sl;
-    if (data_product_to_create.sl.getUrl() == null) {
-      sl = (Storage_location) restClient.post(data_product_to_create.sl);
-      if (sl == null)
-        throw (new IllegalArgumentException(
-            "Failed to create storage location " + data_product_to_create.sl.getStorage_root()));
-    } else {
-      sl = data_product_to_create.sl;
+    Storage_location sl = data_product_to_create.sl;
+    if (sl.getUrl() == null) {
+      String storageRoot = sl.getStorage_root();
+      System.out.println(storageRoot);
+      String storoId = FDP_RootObject.get_id(storageRoot).toString();
+      System.out.println(storoId);
+      String hash = sl.getHash();
+      System.out.println("STOLO from dp_to_create: " + sl);
+      System.out.println(hash);
+      Map<String, String> find_identical =
+              Map.of(
+                      "storage_root",
+                      storoId,
+                      "hash",
+                      hash,
+                      "public",
+                      sl.isIs_public() ? "true" : "false");
+      Storage_location identical_sl =
+              (Storage_location) restClient.getFirst(Storage_location.class, find_identical);
+      if (identical_sl != null) {
+        // we've found an existing stolo with matching hash.. delete this one.
+        data_product_to_create.filePath.toFile().delete();
+        data_product_to_create.sl = identical_sl;
+        // TODO is it a problem that filePath on dp_to_create is now WRONG?
+      } else {
+        sl = (Storage_location) restClient.post(data_product_to_create.sl);
+        if (sl == null) {
+          throw (new IllegalArgumentException(
+                  "Failed to create storage location " + data_product_to_create.sl.getStorage_root()));
+        } else {
+          sl = data_product_to_create.sl;
+        }
+      }
     }
-
     data_product_to_create.fdpObject.setStorage_location(sl.getUrl());
     final FDPObject o = (FDPObject) restClient.post(data_product_to_create.fdpObject);
     if (o == null)
@@ -242,7 +276,7 @@ public class Code_run_session {
   }
 
   public void addstuff(String dataproduct_name, Storage_location sl, FDPObject o, Data_product dp) {
-    data_products_to_create.put(dataproduct_name, new data_product_objects(sl, o, dp));
+    data_products_to_create.put(dataproduct_name, new data_product_objects(sl, o, dp, dataproduct_name));
   }
 
   public void finish() {
@@ -260,11 +294,14 @@ public class Code_run_session {
     private FDPObject fdpObject;
     private Data_product dp;
     private List<String> components;
+    private Path filePath;
+    private String dp_name;
 
-    public data_product_objects(Storage_location sl, FDPObject fdpObject, Data_product dp) {
+    public data_product_objects(Storage_location sl, FDPObject fdpObject, Data_product dp, String dp_name) {
       this.sl = sl;
       this.fdpObject = fdpObject;
       this.dp = dp;
+      this.dp_name = dp_name;
       this.components = new ArrayList<String>();
     }
   }

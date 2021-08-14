@@ -20,7 +20,7 @@ import uk.ramp.samples.ImmutableSamples;
 
 public class TomlWriterPairwiseIntegrationTest {
   private final String expectedToml =
-      "[example-estimate]\n"
+      "[\"example estimate\"]\n"
           + "type = \"point-estimate\"\n"
           + "value = 1.0\n"
           + "\n"
@@ -58,7 +58,7 @@ public class TomlWriterPairwiseIntegrationTest {
 
     Components components =
         ImmutableComponents.builder()
-            .putComponents("example-estimate", estimate)
+            .putComponents("example estimate", estimate)
             .putComponents("example-distribution", distribution)
             .putComponents("example-samples", samples)
             .build();

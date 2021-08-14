@@ -87,18 +87,22 @@ public class StandardApi implements AutoCloseable {
   public CleanableFileChannel writeLink(String dataProduct) {
     try (CleanableFileChannel fileChannel = fileApi.fileApi.openForWrite(dataProduct)) {
       return fileChannel;
-    } catch (IOException e) {
+    }/* catch (IOException e) {
       throw (new IllegalArgumentException("failed to open the file."));
-    }
+    }*/
   }
 
   public Number readEstimate(String dataProduct, String component) {
-
+    System.out.println("standardApi.readEstimate(" + dataProduct + ", " + component + ")");
     ReadComponent data;
     try (CleanableFileChannel fileChannel = fileApi.fileApi.openForRead(dataProduct, component)) {
+      System.out.println("\n\nreadEstimate\n\nopened the fileChannel - trying to read component");
       data = parameterDataReader.read(fileChannel, component);
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open the file."));
+    }
+    if(data == null) {
+      System.out.println("parameterDataReader.read() returned NULL");
     }
     return data.getEstimate();
   }
@@ -109,9 +113,9 @@ public class StandardApi implements AutoCloseable {
     try (CleanableFileChannel fileChannel =
         fileApi.fileApi.openForWrite(dataProduct, component, "toml")) {
       parameterDataWriter.write(fileChannel, component, estimate);
-    } catch (IOException e) {
+    }/* catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file" + e.toString()));
-    }
+    }*/
   }
 
   public Distribution readDistribution(String dataProduct, String component) {
@@ -128,9 +132,9 @@ public class StandardApi implements AutoCloseable {
     try (CleanableFileChannel fileChannel =
         fileApi.fileApi.openForWrite(dataProduct, component, "toml")) {
       parameterDataWriter.write(fileChannel, component, distribution);
-    } catch (IOException e) {
+    }/* catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file for write " + e.toString()));
-    }
+    }*/
   }
 
   public List<Number> readSamples(String dataProduct, String component) {
@@ -143,13 +147,25 @@ public class StandardApi implements AutoCloseable {
     return data.getSamples();
   }
 
-  public void writeSamples(String dataProduct, String component, Samples samples) {
+  /*public void writeSamples(String dataProduct, String component, Samples samples) {
     try (CleanableFileChannel fileChannel =
         fileApi.fileApi.openForWrite(dataProduct, component, "toml")) {
       parameterDataWriter.write(fileChannel, component, samples);
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file for write " + e.toString()));
     }
+  }*/
+
+  public void writeSamples(String dataProduct, String component, Samples samples) {
+    CleanableFileChannel fileChannel =
+                 fileApi.fileApi.openForWrite(dataProduct, component, "toml");
+    System.out.println("about to write to filechannel");
+    if(fileChannel == null) System.out.println("filechannel is NULL!!");
+    else {
+      parameterDataWriter.write(fileChannel, component, samples);
+      System.out.println("written to filechannel");
+    }
+
   }
 
   public NumericalArray readArray(String dataProduct, String component) {

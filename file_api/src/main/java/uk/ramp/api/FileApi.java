@@ -289,8 +289,8 @@ public class FileApi implements AutoCloseable {
               this.givenDataProduct_name,
               this.storage_location,
               this.fdpObject,
-              this.data_product); // make sl, o, dp findable by dataProduct_name? (as given by user,
-          // not the actual dp altered by config
+              this.data_product);
+          code_run_session.setFilePath(this.givenDataProduct_name, this.filePath);
         }
       } else {
         // read_or_write is READ and data product exists
@@ -329,6 +329,9 @@ public class FileApi implements AutoCloseable {
         }
         this.filePath =
             Path.of(this.storage_root.getRoot()).resolve(Path.of(this.storage_location.getPath()));
+        System.out.println("setting filepath on code_run_session to: " + this.filePath.toString());
+        System.out.println("data_product_to_create for " + this.givenDataProduct_name + ": " + code_run_session.data_products_to_create.get(this.givenDataProduct_name));
+        code_run_session.setFilePath(this.givenDataProduct_name, this.filePath);// or not?
       }
     }
 
@@ -338,10 +341,21 @@ public class FileApi implements AutoCloseable {
     }
 
     private void do_hash() {
-      if (this.is_hashed) return;
+      if (this.is_hashed) {
+        System.out.println("it was already hashed!");
+        return;
+      }
+      System.out.println("It wasn't hashed yet");
       if (this.read_or_write == READ) return;
-      String hash = hasher.fileHash(this.getFilePath().toString());
-      Map<String, String> find_identical =
+      String hash =hasher.fileHash(this.getFilePath().toString());
+      System.out.println("setting hash to: " + hash);
+      this.storage_location.setHash(hash);
+
+      System.out.println("hash from stolo: " + this.storage_location.getHash());
+      System.out.println("stolo from code_run: " + code_run_session.getStolo(givenDataProduct_name));
+      System.out.println("hash from code_run stolo: " + code_run_session.getStolo(this.givenDataProduct_name).getHash());
+
+      /*Map<String, String> find_identical =
           Map.of(
               "storage_root",
               FDP_RootObject.get_id(this.storage_location.getStorage_root()).toString(),
@@ -358,29 +372,43 @@ public class FileApi implements AutoCloseable {
         code_run_session.setStorageLocation(this.givenDataProduct_name, sl);
       } else {
         this.storage_location.setHash(hash);
-      }
+      }*/
       this.is_hashed = true;
       // hash the dp.getFileName() and put this hash into updatedObjects
     }
 
     public CleanableFileChannel getFilechannel() throws IOException {
+      Runnable onClose = this::executeOnCloseFileHandleDP;
       if (this.filechannel == null) {
-        Runnable onClose = this::executeOnCloseFileHandleDP;
+
         // try {
         this.filechannel =
             new CleanableFileChannel(
-                FileChannel.open(this.getFilePath(), CREATE, this.read_or_write), onClose);
+                FileChannel.open(this.getFilePath(), CREATE_NEW, this.read_or_write), onClose);
         // } catch (IOException e) {
         //  throw (new IllegalArgumentException("Failed to create file " + this.getFilePath()));
         // }
+      }else{
+        if(!this.filechannel.isOpen()){
+          System.out.println("re-opening the filechannel");
+          this.filechannel =
+                  new CleanableFileChannel(
+                          FileChannel.open(this.getFilePath(), APPEND, this.read_or_write), onClose);
+        }
       }
+      this.is_hashed = false;
       return this.filechannel;
     }
 
     void ensureHashed() {
+      System.out.println("ensureHashed()");
       this.closeFileChannel();
+      System.out.println("closed the fileChannel");
       if (!this.is_hashed) {
+        System.out.println("do_hash()");
         this.do_hash();
+      }else{
+          System.out.println("was already hashed");
       }
     }
 
@@ -405,8 +433,27 @@ public class FileApi implements AutoCloseable {
     }
   }
 
-  public CleanableFileChannel openForWrite(String dataProduct_name) throws IOException {
+  /*public CleanableFileChannel openForWrite(String dataProduct_name) throws IOException {
     return openForWrite(dataProduct_name, null, null);
+  }*/
+
+  /*
+   * openForWrite - used in these different ways:
+   * writeLink: fileApi.fileApi.openForWrite(dataProduct) - extension will be in config
+   * writeEstimate/writeArray/writeDistribution: fileApi.fileApi.openForWrite(dataProduct, component, extension)
+   */
+  /*
+  public CleanableFileChannel openForWrite(
+      String dataProduct_name, String component_name, String extension) throws IOException {
+    if (prepare_dp_forWrite(dataProduct_name, component_name, extension)) {
+      return this.dp_info_map.get(dataProduct_name).getFilechannel();
+    } else {
+      return null;
+    }
+  }*/
+
+  public CleanableFileChannel openForWrite(String dataProduct_name)  {
+      return openForWrite(dataProduct_name, null, null);
   }
 
   /*
@@ -415,9 +462,15 @@ public class FileApi implements AutoCloseable {
    * writeEstimate/writeArray/writeDistribution: fileApi.fileApi.openForWrite(dataProduct, component, extension)
    */
   public CleanableFileChannel openForWrite(
-      String dataProduct_name, String component_name, String extension) throws IOException {
+          String dataProduct_name, String component_name, String extension)  {
     if (prepare_dp_forWrite(dataProduct_name, component_name, extension)) {
-      return this.dp_info_map.get(dataProduct_name).getFilechannel();
+      try {
+        return this.dp_info_map.get(dataProduct_name).getFilechannel();
+      }catch(IOException e) {
+        System.out.println("openForWrite() - exception: " + e);
+        e.printStackTrace();
+        return null;
+      }
     } else {
       return null;
     }
@@ -503,26 +556,30 @@ public class FileApi implements AutoCloseable {
 
   private boolean prepare_dp_forWrite(
       String dataProduct_name, String component_name, String extension) {
-    dp_info dp = new dp_info(dataProduct_name, DP_WRITE, extension);
-    // TODO: need a better solution to allow an actual component to be called 'whole_object'
     if (component_name == null) {
       component_name = "whole_object";
     }
 
     if (code_run_session.contains_output_dp_component(dataProduct_name, component_name)) {
+      System.out.println("ERROR: we've already written to this component");
       // ERROR: we've already written to this component
       return false;
     }
-    code_run_session.addOutput(dataProduct_name, component_name);
+
     if (!this.dp_info_map.containsKey(dataProduct_name)) {
+      System.out.println("dp_info_map did not contain an entry for " + dataProduct_name);
       // only open the file if we haven't already opened (and stored in dp_file_map) previously
+      dp_info dp = new dp_info(dataProduct_name, DP_WRITE, extension);
       System.out.println("openForWrite() dp.getFilePath: " + dp.getFilePath());
       File dir = new File(String.valueOf(dp.getFilePath().getParent()));
       if (!dir.exists()) {
         dir.mkdirs();
       }
       this.dp_info_map.put(dataProduct_name, dp);
+    }else{
+      System.out.println("dp_info_map ALREADY HAD ENTRY FOR " + dataProduct_name);
     }
+    code_run_session.addOutput(dataProduct_name, component_name);
     return true;
   }
 

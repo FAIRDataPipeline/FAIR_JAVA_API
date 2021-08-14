@@ -93,18 +93,16 @@ public class Code_run extends FDP_Updateable {
 
   public void addOutput(String output) {
     if (this.outputs == null) {
-      this.outputs = Collections.singletonList(output);
-    } else {
-      this.outputs.add(output);
+      this.outputs = new ArrayList<>();
     }
+    this.outputs.add(output);
   }
 
   public void addInput(String input) {
     if (this.inputs == null) {
-      this.inputs = Collections.singletonList(input);
-    } else {
-      this.inputs.add(input);
+      this.inputs = new ArrayList<>();
     }
+    this.inputs.add(input);
   }
 
   public void setUuid(String uuid) {

@@ -13,18 +13,13 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import uk.ramp.distribution.Distribution;
 import uk.ramp.distribution.Distribution.DistributionType;
 import uk.ramp.distribution.ImmutableDistribution;
 import uk.ramp.distribution.ImmutableMinMax;
 import uk.ramp.distribution.MinMax;
+import uk.ramp.samples.ImmutableSamples;
 import uk.ramp.samples.Samples;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -46,36 +41,28 @@ public class StandardApiIntegrationTest {
   private Distribution distribution;
   private Distribution categoricalDistribution;
   private Number estimate = 1.0;
-  private Path configPath;
-  private Path scriptPath;
+  private Path datastorePath = Path.of("D:\\Datastore");
+  private String coderun_ts = "20210808T123456";
+  private Path coderunPath = datastorePath.resolve("coderun");
+  private Path coderunTSpath = coderunPath.resolve(coderun_ts);
+  private String ns = "standardAPItest";
+  private Path nsPath = datastorePath.resolve(ns);
+  private Path ori_configPath;
+  private Path ori_scriptPath;
   private RandomGenerator rng;
+  private Path configPath = coderunTSpath.resolve("config.yaml");
+  private Path scriptPath = coderunTSpath.resolve("script.sh");
 
-  @Before
+
+  @BeforeAll
   public void setUp() throws Exception {
-    Path ori_configPath = Paths.get(getClass().getResource("/config.yaml").toURI());
-    Path ori_scriptPath = Paths.get(getClass().getResource("/script.sh").toURI());
-    Path datastore = Path.of("D:\\Datastore");
-    String coderun_ts = "20210808T123456";
-    Path coderun = datastore.resolve("coderun");
-    FileUtils.deleteDirectory(coderun.toFile());
-    coderun = coderun.resolve(coderun_ts);
-
-    FileUtils.deleteDirectory(
-        datastore
-            .resolve("standardAPItest")
-            .toFile()); // remove the whole namespace in the local datastore.
-
-    Files.createDirectories(coderun);
-    configPath = coderun.resolve("config.yaml");
-    scriptPath = coderun.resolve("script.sh");
-    Files.copy(ori_configPath, configPath);
-    Files.copy(ori_scriptPath, scriptPath);
-
-    System.out.println(configPath);
+    ori_configPath = Paths.get(getClass().getResource("/config.yaml").toURI());
+    ori_scriptPath = Paths.get(getClass().getResource("/script.sh").toURI());
+    //System.out.println(configPath);
     // rng = mock(RandomGenerator.class);
     // when(rng.nextDouble()).thenReturn(0D);
-    // samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
     rng = new RandomDataGenerator().getRandomGenerator();
+    samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
 
     distribution =
         ImmutableDistribution.builder()
@@ -128,10 +115,22 @@ public class StandardApiIntegrationTest {
 
   @Test
   @Order(0)
+  public void cleanup_datastore() throws IOException {
+    System.out.println("test 0 - cleanup_datastore: removing all outputs from datastore and copying the config & script files to coderun area");
+    FileUtils.deleteDirectory(coderunTSpath.toFile());
+    FileUtils.deleteDirectory(nsPath.toFile()); // remove the whole namespace in the local datastore.
+    Files.createDirectories(coderunTSpath);
+    Files.copy(ori_configPath, configPath);
+    Files.copy(ori_scriptPath, scriptPath);
+  }
+
+  @Test
+  @Order(1)
   public void testWriteEstimate() throws IOException {
+    System.out.println("\n\ntestWriteEstimate\n\n");
     try (StandardApi stdApi = new StandardApi(configPath, scriptPath, rng)) {
       String dataProduct = "human/population";
-      String component = "Estimate Component";
+      String component = "estimate-component";
       stdApi.writeEstimate(dataProduct, component, estimate);
       // assertThat("bla").isEqualTo("bla");
       // assertEqualFileContents("actualEstimate.toml", "expectedEstimate.toml");
@@ -139,99 +138,162 @@ public class StandardApiIntegrationTest {
       System.out.println("Exception");
       System.out.println(e);
     }
-  }
+    System.out.println("\n\nend of testWriteEstimate\n\n");
+   }
 
   @Test
-  @Order(1)
+  @Order(2)
   public void testReadEstimate() {
+    System.out.println("\n\ntestReadEstimate\n\n");
     try (var stdApi = new StandardApi(configPath, scriptPath, rng)) {
       String dataProduct = "human/population";
-      String component = "Estimate Component";
+      String component = "estimate-component";
       assertThat(stdApi.readEstimate(dataProduct, component)).isEqualTo(estimate);
     } catch (Exception e) {
       System.out.println("Exception");
       System.out.println(e);
     }
+    System.out.println("\n\nend of testReadEstimate\n\n");
   }
 
-  @Ignore
   @Test
-  public void testReadDistribution() {
-    var stdApi = new StandardApi(configPath, scriptPath, rng);
-    String dataProduct = "parameter";
-    String component = "example-distribution";
-
-    assertThat(stdApi.readDistribution(dataProduct, component)).isEqualTo(distribution);
-  }
-
-  @Ignore
-  @Test
-  public void testReadCategoricalDistribution() {
-    var stdApi = new StandardApi(configPath, scriptPath, rng);
-    String dataProduct = "parameter";
-    String component = "example-distribution-categorical";
-
-    assertThat(stdApi.readDistribution(dataProduct, component)).isEqualTo(categoricalDistribution);
-  }
-
-  @Ignore
-  @Test
+  @Order(3)
   public void testWriteDistribution() throws IOException {
-    var stdApi = new StandardApi(configPath, scriptPath, rng);
-    String dataProduct = "Initial Data_product";
-    String component = "Distribution component";
-    stdApi.writeDistribution(dataProduct, component, distribution);
-
-    // assertEqualFileContents("actualDistribution.toml", "expectedDistribution.toml");
+    System.out.println("\n\ntestWriteDistribution\n\n");
+    try (var stdApi = new StandardApi(configPath, scriptPath, rng)) {
+      String dataProduct = "human/distribution";
+      String component = "distribution-component";
+      stdApi.writeDistribution(dataProduct, component, distribution);
+    }catch (Exception e){
+      System.out.println("Exception");
+      System.out.println(e);
+    }
+    System.out.println("\n\nend of testWriteDistribution\n\n");
   }
 
-  @Ignore
+
   @Test
+  @Order(4)
+  public void testReadDistribution() {
+    System.out.println("\n\ntestReadDistribution\n\n");
+    try(var stdApi = new StandardApi(configPath, scriptPath, rng)) {
+      String dataProduct = "human/distribution";
+      String component = "distribution-component";
+      assertThat(stdApi.readDistribution(dataProduct, component)).isEqualTo(distribution);
+    }catch (Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+    }
+    System.out.println("\n\nend of testReadDistribution\n\n");
+  }
+
+  @Test
+  @Order(5)
   public void testWriteCategoricalDistribution() throws IOException {
-    var stdApi = new StandardApi(configPath, scriptPath, rng);
-    String dataProduct = "Initial Data_product";
-    String component = "CDistribution component";
-    stdApi.writeDistribution(dataProduct, component, categoricalDistribution);
-
-    /*assertEqualFileContents(
-    "actualDistributionCategorical.toml", "expectedDistributionCategorical.toml");*/
+    System.out.println("\n\ntestWriteCategorialDistribution\n\n");
+    try(var stdApi = new StandardApi(configPath, scriptPath, rng)) {
+      String dataProduct = "human/cdistribution";
+      String component = "cdistribution-component";
+      stdApi.writeDistribution(dataProduct, component, categoricalDistribution);
+    }catch(Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+    }
+    System.out.println("\n\nend of testCategorialDistribution\n\n");
   }
 
-  @Ignore
+
   @Test
-  public void testReadSample() {
-    var stdApi = new StandardApi(configPath, scriptPath, rng);
-    String dataProduct = "parameter";
-    String component = "example-samples";
-    assertThat(stdApi.readSamples(dataProduct, component)).containsExactly(1, 2, 3);
+  @Order(6)
+  public void testReadCategoricalDistribution() {
+    System.out.println("\n\ntestReadCategorialDistribution\n\n");
+    try(var stdApi = new StandardApi(configPath, scriptPath, rng)) {
+      String dataProduct = "human/cdistribution";
+      String component = "cdistribution-component";
+
+      assertThat(stdApi.readDistribution(dataProduct, component)).isEqualTo(categoricalDistribution);
+    }catch(Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+    }
+    System.out.println("\n\nend of testCategorialDistribution\n\n");
   }
 
-  @Ignore
   @Test
+  @Order(7)
   public void testWriteSamples() throws IOException {
-    var stdApi = new StandardApi(configPath, scriptPath, rng);
-    String dataProduct = "Initial Data_product";
-    String component = "example-samples-w";
-    stdApi.writeSamples(dataProduct, component, samples);
-
+    System.out.println("\n\ntestWriteSamples\n\n");
+    try(var stdApi = new StandardApi(configPath, scriptPath, rng)) {
+      String dataProduct = "human/samples";
+      String component = "example-samples-w";
+      stdApi.writeSamples(dataProduct, component, samples);
+    }catch(Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+    }
+    System.out.println("\n\nend of testWriteSamples\n\n");
     // assertEqualFileContents("actualSamples.toml", "expectedSamples.toml");
   }
 
-  @Ignore
-  @Test
-  public void testWriteSamplesMultipleComponents() throws IOException {
-    var stdApi = new StandardApi(configPath, scriptPath, rng);
-    String dataProduct = "parameter";
-    String component1 = "example-samples-w1";
-    String component2 = "example-samples-w2";
-    stdApi.writeSamples(dataProduct, component1, samples);
-    stdApi.writeSamples(dataProduct, component2, samples);
 
+  @Test
+  @Order(8)
+  public void testReadSamples() {
+    System.out.println("\n\ntestReadSamples\n\n");
+    try(var stdApi = new StandardApi(configPath, scriptPath, rng)) {
+      String dataProduct = "human/samples";
+      String component = "example-samples-w";
+      assertThat(stdApi.readSamples(dataProduct, component)).containsExactly(1, 2, 3);
+      //assertThat(stdApi.readSamples(dataProduct, component)).isEqualTo(samples);
+    }catch(Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+    }
+    System.out.println("\n\nend of testReadSamples\n\n");
+  }
+
+
+  @Test
+  @Order(9)
+  public void testWriteSamplesMultipleComponents() throws IOException {
+    System.out.println("\n\ntestWriteSamplesMultipleComponents\n\n");
+    try(var stdApi = new StandardApi(configPath, scriptPath, rng)) {
+      String dataProduct = "human/multicomp";
+      String component1 = "example-samples-w1";
+      String component2 = "example-samples-w2";
+      stdApi.writeSamples(dataProduct, component1, samples);
+      stdApi.writeSamples(dataProduct, component2, samples);
+    }catch(Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+      e.printStackTrace();
+    }
+    System.out.println("end of testWriteSamplesMultipleComponents");
     // assertEqualFileContents("actualSamplesMultiple.toml", "expectedSamplesMultiple.toml");
   }
 
   @Test
-  @Ignore // Not implemented yet
+  @Order(10)
+  public void testReadSamplesMultipleComponents() {
+    System.out.println("\n\ntestReadSamplesMultipleComponents\n\n");
+    try(var stdApi = new StandardApi(configPath, scriptPath, rng)) {
+      String dataProduct = "human/multicomp";
+      String component1 = "example-samples-w1";
+      String component2 = "example-samples-w2";
+
+      //assertThat(stdApi.readSamples(dataProduct, component)).containsExactly(1, 2, 3);
+      assertThat(stdApi.readSamples(dataProduct, component1)).isEqualTo(samples);
+      assertThat(stdApi.readSamples(dataProduct, component2)).isEqualTo(samples);
+    }catch(Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+    }
+    System.out.println("\n\nend of testReadSamplesMultipleComponents\n\n");
+  }
+
+
+  @Test
+  @Disabled // Not implemented yet
   public void testReadArray() {
     var stdApi = new StandardApi(configPath, scriptPath, rng);
     String dataProduct = "object";
@@ -241,7 +303,7 @@ public class StandardApiIntegrationTest {
   }
 
   @Test
-  @Ignore // Not implemented yet
+  @Disabled // Not implemented yet
   public void testWriteArray() throws IOException {
     var stdApi = new StandardApi(configPath, scriptPath, rng);
     String dataProduct = "object";
@@ -252,7 +314,7 @@ public class StandardApiIntegrationTest {
   }
 
   @Test
-  @Ignore // Not implemented yet
+  @Disabled // Not implemented yet
   public void testReadTable() {
     var stdApi = new StandardApi(configPath, scriptPath, rng);
     String dataProduct = "object";
@@ -262,7 +324,7 @@ public class StandardApiIntegrationTest {
   }
 
   @Test
-  @Ignore // Not implemented yet
+  @Disabled // Not implemented yet
   public void testWriteTable() throws IOException {
     var stdApi = new StandardApi(configPath, scriptPath, rng);
     String dataProduct = "object";
