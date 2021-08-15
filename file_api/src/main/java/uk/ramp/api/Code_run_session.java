@@ -1,7 +1,5 @@
 package uk.ramp.api;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -50,12 +48,13 @@ public class Code_run_session {
       // there is an already existing StorageLocation for the config; we need to delete the config
       // file.
       System.out.println("there was an existing stolo for config");
-      //try {
-        //Files.delete(configPath);
-        // TODO: if we want to be able to run multi-coderun scripts, things are much easier without deleting the startup files.
-      //} catch (IOException e) {
-        // logger - log failure to delete configFile
-      //}
+      // try {
+      // Files.delete(configPath);
+      // TODO: if we want to be able to run multi-coderun scripts, things are much easier without
+      // deleting the startup files.
+      // } catch (IOException e) {
+      // logger - log failure to delete configFile
+      // }
     } else {
       System.out.println("creating a new stolo");
       config_stolo = new Storage_location();
@@ -102,12 +101,13 @@ public class Code_run_session {
         (Storage_location) restClient.getFirst(Storage_location.class, find_script_stolo);
     if (script_stolo != null) {
       System.out.println("found existing script with the same hash; NOT?! deleting the script");
-      //try {
-        //Files.delete(scriptPath);
-        // TODO: if we want to be able to run multi-coderun scripts, things are much easier without deleting the startup files.
-      //} catch (IOException e) {
-        // logger - log failure to delete scriptPath
-      //}
+      // try {
+      // Files.delete(scriptPath);
+      // TODO: if we want to be able to run multi-coderun scripts, things are much easier without
+      // deleting the startup files.
+      // } catch (IOException e) {
+      // logger - log failure to delete scriptPath
+      // }
     } else {
       System.out.println("registering the script stolo");
       script_stolo = new Storage_location();
@@ -178,6 +178,7 @@ public class Code_run_session {
   public void setStorageLocation(String dataProduct_name, Storage_location sl) {
     this.data_products_to_create.get(dataProduct_name).sl = sl;
   }
+
   public void setFilePath(String dataProduct_name, Path filePath) {
     this.data_products_to_create.get(dataProduct_name).filePath = filePath;
   }
@@ -195,15 +196,10 @@ public class Code_run_session {
       System.out.println("STOLO from dp_to_create: " + sl);
       System.out.println(hash);
       Map<String, String> find_identical =
-              Map.of(
-                      "storage_root",
-                      storoId,
-                      "hash",
-                      hash,
-                      "public",
-                      sl.isIs_public() ? "true" : "false");
+          Map.of(
+              "storage_root", storoId, "hash", hash, "public", sl.isIs_public() ? "true" : "false");
       Storage_location identical_sl =
-              (Storage_location) restClient.getFirst(Storage_location.class, find_identical);
+          (Storage_location) restClient.getFirst(Storage_location.class, find_identical);
       if (identical_sl != null) {
         // we've found an existing stolo with matching hash.. delete this one.
         data_product_to_create.filePath.toFile().delete();
@@ -213,7 +209,7 @@ public class Code_run_session {
         sl = (Storage_location) restClient.post(data_product_to_create.sl);
         if (sl == null) {
           throw (new IllegalArgumentException(
-                  "Failed to create storage location " + data_product_to_create.sl.getStorage_root()));
+              "Failed to create storage location " + data_product_to_create.sl.getStorage_root()));
         } else {
           sl = data_product_to_create.sl;
         }
@@ -276,7 +272,8 @@ public class Code_run_session {
   }
 
   public void addstuff(String dataproduct_name, Storage_location sl, FDPObject o, Data_product dp) {
-    data_products_to_create.put(dataproduct_name, new data_product_objects(sl, o, dp, dataproduct_name));
+    data_products_to_create.put(
+        dataproduct_name, new data_product_objects(sl, o, dp, dataproduct_name));
   }
 
   public void finish() {
@@ -294,10 +291,12 @@ public class Code_run_session {
     private FDPObject fdpObject;
     private Data_product dp;
     private List<String> components;
+    private HashMap<String, Issue> component_issues = new HashMap<>();
     private Path filePath;
     private String dp_name;
 
-    public data_product_objects(Storage_location sl, FDPObject fdpObject, Data_product dp, String dp_name) {
+    public data_product_objects(
+        Storage_location sl, FDPObject fdpObject, Data_product dp, String dp_name) {
       this.sl = sl;
       this.fdpObject = fdpObject;
       this.dp = dp;

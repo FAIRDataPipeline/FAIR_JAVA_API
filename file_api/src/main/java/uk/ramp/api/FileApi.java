@@ -286,10 +286,7 @@ public class FileApi implements AutoCloseable {
           this.data_product.setNamespace(this.namespace.getUrl());
           this.data_product.setVersion(version);
           code_run_session.addstuff(
-              this.givenDataProduct_name,
-              this.storage_location,
-              this.fdpObject,
-              this.data_product);
+              this.givenDataProduct_name, this.storage_location, this.fdpObject, this.data_product);
           code_run_session.setFilePath(this.givenDataProduct_name, this.filePath);
         }
       } else {
@@ -330,8 +327,12 @@ public class FileApi implements AutoCloseable {
         this.filePath =
             Path.of(this.storage_root.getRoot()).resolve(Path.of(this.storage_location.getPath()));
         System.out.println("setting filepath on code_run_session to: " + this.filePath.toString());
-        System.out.println("data_product_to_create for " + this.givenDataProduct_name + ": " + code_run_session.data_products_to_create.get(this.givenDataProduct_name));
-        code_run_session.setFilePath(this.givenDataProduct_name, this.filePath);// or not?
+        System.out.println(
+            "data_product_to_create for "
+                + this.givenDataProduct_name
+                + ": "
+                + code_run_session.data_products_to_create.get(this.givenDataProduct_name));
+        code_run_session.setFilePath(this.givenDataProduct_name, this.filePath); // or not?
       }
     }
 
@@ -347,13 +348,16 @@ public class FileApi implements AutoCloseable {
       }
       System.out.println("It wasn't hashed yet");
       if (this.read_or_write == READ) return;
-      String hash =hasher.fileHash(this.getFilePath().toString());
+      String hash = hasher.fileHash(this.getFilePath().toString());
       System.out.println("setting hash to: " + hash);
       this.storage_location.setHash(hash);
 
       System.out.println("hash from stolo: " + this.storage_location.getHash());
-      System.out.println("stolo from code_run: " + code_run_session.getStolo(givenDataProduct_name));
-      System.out.println("hash from code_run stolo: " + code_run_session.getStolo(this.givenDataProduct_name).getHash());
+      System.out.println(
+          "stolo from code_run: " + code_run_session.getStolo(givenDataProduct_name));
+      System.out.println(
+          "hash from code_run stolo: "
+              + code_run_session.getStolo(this.givenDataProduct_name).getHash());
 
       /*Map<String, String> find_identical =
           Map.of(
@@ -388,12 +392,12 @@ public class FileApi implements AutoCloseable {
         // } catch (IOException e) {
         //  throw (new IllegalArgumentException("Failed to create file " + this.getFilePath()));
         // }
-      }else{
-        if(!this.filechannel.isOpen()){
+      } else {
+        if (!this.filechannel.isOpen()) {
           System.out.println("re-opening the filechannel");
           this.filechannel =
-                  new CleanableFileChannel(
-                          FileChannel.open(this.getFilePath(), APPEND, this.read_or_write), onClose);
+              new CleanableFileChannel(
+                  FileChannel.open(this.getFilePath(), APPEND, this.read_or_write), onClose);
         }
       }
       this.is_hashed = false;
@@ -407,8 +411,8 @@ public class FileApi implements AutoCloseable {
       if (!this.is_hashed) {
         System.out.println("do_hash()");
         this.do_hash();
-      }else{
-          System.out.println("was already hashed");
+      } else {
+        System.out.println("was already hashed");
       }
     }
 
@@ -452,8 +456,8 @@ public class FileApi implements AutoCloseable {
     }
   }*/
 
-  public CleanableFileChannel openForWrite(String dataProduct_name)  {
-      return openForWrite(dataProduct_name, null, null);
+  public CleanableFileChannel openForWrite(String dataProduct_name) {
+    return openForWrite(dataProduct_name, null, null);
   }
 
   /*
@@ -462,11 +466,11 @@ public class FileApi implements AutoCloseable {
    * writeEstimate/writeArray/writeDistribution: fileApi.fileApi.openForWrite(dataProduct, component, extension)
    */
   public CleanableFileChannel openForWrite(
-          String dataProduct_name, String component_name, String extension)  {
+      String dataProduct_name, String component_name, String extension) {
     if (prepare_dp_forWrite(dataProduct_name, component_name, extension)) {
       try {
         return this.dp_info_map.get(dataProduct_name).getFilechannel();
-      }catch(IOException e) {
+      } catch (IOException e) {
         System.out.println("openForWrite() - exception: " + e);
         e.printStackTrace();
         return null;
@@ -576,7 +580,7 @@ public class FileApi implements AutoCloseable {
         dir.mkdirs();
       }
       this.dp_info_map.put(dataProduct_name, dp);
-    }else{
+    } else {
       System.out.println("dp_info_map ALREADY HAD ENTRY FOR " + dataProduct_name);
     }
     code_run_session.addOutput(dataProduct_name, component_name);
