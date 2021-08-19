@@ -13,8 +13,7 @@ import java.nio.channels.NonWritableChannelException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 public class CleanableFileChannelIntegrationTest {
 
@@ -22,7 +21,7 @@ public class CleanableFileChannelIntegrationTest {
   private FileChannel fileChannelWritable;
   private AtomicBoolean runnableExecuted;
 
-  @Before
+  @BeforeAll
   public void setUp() throws Exception {
     String parentPath =
         Paths.get(getClass().getResource("/config.yaml").toURI()).getParent().toString();

@@ -5,8 +5,7 @@ run_metadata:
   remote_data_registry_url: https://data.scrc.uk/api/
   default_input_namespace: SCRC
   default_output_namespace: johnsmith
-  default_data_store: /datastore/
-  always_copy_to_store: False
+  write_data_store: /datastore/
 
 read:
   # Read version 1.0 of human/commutes
@@ -15,17 +14,18 @@ read:
       version: 1.0
   # Read human/health from the cache
   - data_product: human/health
-    #use:
+    use:
+      version: 1.0
     #  cache: /local/file.h5
   # Read crummy_table with specific doi and title
-  - external_object: crummy_table
+  - data_product: crummy_table
     use:
-      doi_or_unique_name: 10.1111/ddi.12887
+      version: 1.0
       #title: Supplementary Table 2
   # Read secret_data with specific doi and title from the cache
-  - external_object: secret_data
+  - data_product: secret_data
     use:
-      doi_or_unique_name: 10.1111/ddi.12887
+      version: 1.0
       #title: Supplementary Table 3
       #cache: /local/secret.csv
   # Read weird_lost_file (which perhaps has no metadata) with specific hash
@@ -35,7 +35,6 @@ read:
 
 write:
   # Write beautiful_figure and increment version number
-  - external_object: beautiful_figure
+  - data_product: beautiful_figure
     use:
-      doi_or_unique_name: My amazing figure
       version: minor

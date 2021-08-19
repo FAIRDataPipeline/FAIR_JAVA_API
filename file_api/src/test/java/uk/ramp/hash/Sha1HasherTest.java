@@ -2,7 +2,7 @@ package uk.ramp.hash;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 public class Sha1HasherTest {
 

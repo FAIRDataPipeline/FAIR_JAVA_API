@@ -21,6 +21,26 @@ public class Object_component extends FDP_Updateable {
 
   @XmlElement private List<String> outputs_of;
 
+  public Object_component() {};
+
+  public Object_component(String name) {
+    this.name = name;
+  }
+
+  public Object_component(boolean whole_object) {
+    this.whole_object = whole_object;
+  }
+
+  public Object_component(String object, String name) {
+    this.object = object;
+    this.name = name;
+  }
+
+  public Object_component(String object, boolean whole_object) {
+    this.object = object;
+    this.whole_object = whole_object;
+  }
+
   public String getObject() {
     return this.object;
   }

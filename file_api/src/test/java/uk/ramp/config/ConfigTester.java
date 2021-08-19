@@ -4,19 +4,18 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 import uk.ramp.hash.Hasher;
 import uk.ramp.yaml.YamlFactory;
 import uk.ramp.yaml.YamlReader;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ConfigTester {
   Hasher hasher;
   YamlReader yamlReader;
   Instant openTimestamp;
 
-  @Before
+  @BeforeAll
   public void setUp() {
     hasher = new Hasher();
     yamlReader = new YamlFactory().yamlReader();
@@ -26,6 +25,8 @@ public class ConfigTester {
   @Test
   public void testConfig() throws URISyntaxException {
     Path cfilepath = Path.of(getClass().getResource("/config.yaml").toURI());
+    System.out.println("path: " + cfilepath.toString());
+    System.out.println("yamlReader: " + yamlReader);
     var config = new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
     System.out.println(config);
   }
@@ -44,7 +45,7 @@ public class ConfigTester {
     System.out.println(config);
   }
 
-  @Ignore // config 3 uses Register; we don't need to be able to parse this.
+  @Disabled // config 3 uses Register; we don't need to be able to parse this.
   @Test
   public void testConfig3() throws URISyntaxException {
     Path cfilepath = Path.of(getClass().getResource("/config3.yaml").toURI());
@@ -53,16 +54,10 @@ public class ConfigTester {
   }
 
   @Test
-  public void testConfig4() throws URISyntaxException {
-    Path cfilepath = Path.of(getClass().getResource("/config4.yaml").toURI());
+  public void testConfigStdApi() throws URISyntaxException {
+    Path cfilepath = Path.of(getClass().getResource("/config-stdapi.yaml").toURI());
     var config = new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
     System.out.println(config);
   }
 
-  @Test
-  public void testConfig5() throws URISyntaxException {
-    Path cfilepath = Path.of(getClass().getResource("/config5.yaml").toURI());
-    var config = new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
-    System.out.println(config);
-  }
 }

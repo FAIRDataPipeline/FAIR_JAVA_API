@@ -29,10 +29,11 @@ public class restClientTest {
     // Assertions.assertEquals("BramTestNS", n.getName());
   }
 
+  @Disabled
   @Test
   @Order(1)
   public void create_namespace() {
-    String name = "test namespace8";
+    String name = "test namespace8x";
     Namespace n = new Namespace(name);
     Namespace r = (Namespace) lc.post(n);
     System.out.println("create_namespace: " + r);

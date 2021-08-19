@@ -10,7 +10,6 @@ import uk.ramp.hash.Hasher;
 
 public class Code_run_session {
   Code_run code_run;
-  Map<String, data_product_objects> data_products_to_create;
   RestClient restClient;
   Config config;
   List<String> outputComponentIdentifiers;
@@ -26,10 +25,6 @@ public class Code_run_session {
     this.hasher = new Hasher();
     this.restClient = restClient;
     this.code_run = new Code_run();
-    this.data_products_to_create = new HashMap<String, data_product_objects>();
-    this.outputComponentIdentifiers = new ArrayList<String>();
-    System.out.print("FileApi.prepare_code_run(); config: ");
-    System.out.println(this.config);
 
     // make configPath and scriptPath objects
     // config
@@ -50,8 +45,6 @@ public class Code_run_session {
       System.out.println("there was an existing stolo for config");
       // try {
       // Files.delete(configPath);
-      // TODO: if we want to be able to run multi-coderun scripts, things are much easier without
-      // deleting the startup files.
       // } catch (IOException e) {
       // logger - log failure to delete configFile
       // }
@@ -103,8 +96,6 @@ public class Code_run_session {
       System.out.println("found existing script with the same hash; NOT?! deleting the script");
       // try {
       // Files.delete(scriptPath);
-      // TODO: if we want to be able to run multi-coderun scripts, things are much easier without
-      // deleting the startup files.
       // } catch (IOException e) {
       // logger - log failure to delete scriptPath
       // }
@@ -145,163 +136,17 @@ public class Code_run_session {
     code_run.setDescription(this.config.run_metadata().description().orElse(""));
   }
 
-  public Storage_location getStolo(String dataproduct_name) {
-    return this.data_products_to_create.get(dataproduct_name).sl;
+  protected void addInput(String url) {
+    this.code_run.addInput(url);
   }
 
-  public String make_identifier(String dataproduct_name, String component_name) {
-    return Path.of(dataproduct_name).resolve(component_name).toString();
+  protected void addOutput(String url) {
+    this.code_run.addOutput(url);
   }
 
-  public void addOutput(String dataproduct_name, String component_name) {
-    this.outputComponentIdentifiers.add(make_identifier(dataproduct_name, component_name));
-    this.data_products_to_create.get(dataproduct_name).components.add(component_name);
-  }
-
-  public List<String> getOutputComponentIdentifiers() {
-    return this.outputComponentIdentifiers;
-  }
-
-  public boolean contains_output_dp_component(String dataproduct_name, String component_name) {
-    return this.outputComponentIdentifiers.contains(
-        make_identifier(dataproduct_name, component_name));
-  }
-
-  public void addInput(String inputComponentUrl) {
-    this.code_run.addInput(inputComponentUrl);
-  }
-
-  public List<String> getInputs() {
-    return this.code_run.getInputs();
-  }
-
-  public void setStorageLocation(String dataProduct_name, Storage_location sl) {
-    this.data_products_to_create.get(dataProduct_name).sl = sl;
-  }
-
-  public void setFilePath(String dataProduct_name, Path filePath) {
-    this.data_products_to_create.get(dataProduct_name).filePath = filePath;
-  }
-
-  private void create_stuff(data_product_objects data_product_to_create) {
-    System.out.println("create_stuff() - " + data_product_to_create.dp_name);
-    System.out.println("create_stuff() - " + data_product_to_create.fdpObject.getDescription());
-    Storage_location sl = data_product_to_create.sl;
-    if (sl.getUrl() == null) {
-      String storageRoot = sl.getStorage_root();
-      System.out.println(storageRoot);
-      String storoId = FDP_RootObject.get_id(storageRoot).toString();
-      System.out.println(storoId);
-      String hash = sl.getHash();
-      System.out.println("STOLO from dp_to_create: " + sl);
-      System.out.println(hash);
-      Map<String, String> find_identical =
-          Map.of(
-              "storage_root", storoId, "hash", hash, "public", sl.isIs_public() ? "true" : "false");
-      Storage_location identical_sl =
-          (Storage_location) restClient.getFirst(Storage_location.class, find_identical);
-      if (identical_sl != null) {
-        // we've found an existing stolo with matching hash.. delete this one.
-        data_product_to_create.filePath.toFile().delete();
-        data_product_to_create.sl = identical_sl;
-        // TODO is it a problem that filePath on dp_to_create is now WRONG?
-      } else {
-        sl = (Storage_location) restClient.post(data_product_to_create.sl);
-        if (sl == null) {
-          throw (new IllegalArgumentException(
-              "Failed to create storage location " + data_product_to_create.sl.getStorage_root()));
-        } else {
-          sl = data_product_to_create.sl;
-        }
-      }
-    }
-    data_product_to_create.fdpObject.setStorage_location(sl.getUrl());
-    final FDPObject o = (FDPObject) restClient.post(data_product_to_create.fdpObject);
-    if (o == null)
-      throw (new IllegalArgumentException(
-          "Failed to create Object " + data_product_to_create.fdpObject.getDescription()));
-    data_product_to_create.dp.setObject(o.getUrl());
-    if (restClient.post(data_product_to_create.dp) == null) {
-      throw (new IllegalArgumentException(
-          "Failed to create Data_product " + data_product_to_create.dp.getName()));
-    }
-    data_product_to_create.components.stream()
-        .forEach(
-            component_name -> {
-              System.out.println("\n COMPONENT \n");
-              System.out.println("for obj " + o.getUrl());
-              System.out.println(component_name);
-              System.out.println("\n");
-              if (component_name != "whole_object") {
-                // whole_object is created automatically
-                Object_component objComponent = new Object_component();
-                // TODO: is there a way to create OC description?
-                objComponent.setName(component_name);
-                objComponent.setObject(o.getUrl());
-                objComponent = (Object_component) restClient.post(objComponent);
-                if (objComponent == null) {
-                  System.out.println(
-                      "CREATE COMPONENT ("
-                          + component_name
-                          + " under obj id "
-                          + o.get_id().toString()
-                          + ") FAILED\n\n");
-                } else {
-                  code_run.addOutput(objComponent.getUrl());
-                }
-              } else {
-                // component == whole_object
-                Map<String, String> find_whole_object =
-                    new HashMap<>() {
-                      {
-                        put("object", o.get_id().toString());
-                        put("whole_object", "true");
-                      }
-                    };
-                Object_component objComponent =
-                    (Object_component)
-                        restClient.getFirst(Object_component.class, find_whole_object);
-
-                if (objComponent == null) {
-                  throw (new IllegalArgumentException(
-                      "can't find the 'whole_object' component for obj " + o.get_id().toString()));
-                }
-                code_run.addOutput(objComponent.getUrl());
-              }
-            });
-  }
-
-  public void addstuff(String dataproduct_name, Storage_location sl, FDPObject o, Data_product dp) {
-    data_products_to_create.put(
-        dataproduct_name, new data_product_objects(sl, o, dp, dataproduct_name));
-  }
-
-  public void finish() {
-    // create all objects
-    System.out.println("Code_run_session.finish()");
-    System.out.println("size of dp_to_create: " + data_products_to_create.size());
-    data_products_to_create.entrySet().stream().forEach(li -> create_stuff(li.getValue()));
-    if (restClient.post(code_run) == null) {
-      throw (new IllegalArgumentException("failed to create code run"));
-    }
-  }
-
-  private class data_product_objects {
-    public Storage_location sl;
-    private FDPObject fdpObject;
-    private Data_product dp;
-    private List<String> components;
-    private HashMap<String, Issue> component_issues = new HashMap<>();
-    private Path filePath;
-    private String dp_name;
-
-    public data_product_objects(
-        Storage_location sl, FDPObject fdpObject, Data_product dp, String dp_name) {
-      this.sl = sl;
-      this.fdpObject = fdpObject;
-      this.dp = dp;
-      this.dp_name = dp_name;
-      this.components = new ArrayList<String>();
+  protected void finish() {
+    if (restClient.post(this.code_run) == null) {
+      throw (new IllegalArgumentException("failed to create in registry: " + this.code_run));
     }
   }
 }

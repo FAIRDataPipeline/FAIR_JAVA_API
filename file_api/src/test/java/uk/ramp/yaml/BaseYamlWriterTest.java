@@ -4,13 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.StringWriter;
 import java.io.Writer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 public class BaseYamlWriterTest {
   private Writer underlyingWriter;
 
-  @Before
+  @BeforeAll
   public void setUp() throws Exception {
     underlyingWriter = new StringWriter();
   }
