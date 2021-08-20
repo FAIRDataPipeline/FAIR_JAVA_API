@@ -40,7 +40,6 @@ public abstract class Data_product_RW implements AutoCloseable {
   }
 
   Data_product_RW(String dataProduct_name, FileApi fileApi, String extension) {
-    System.out.println("Data_product_RW() constructor");
     this.extension = extension;
     this.fileApi = fileApi;
     this.givenDataProduct_name = dataProduct_name;
@@ -65,13 +64,13 @@ public abstract class Data_product_RW implements AutoCloseable {
    * for READ: by reading these from the registry
    * for WRITE: by preparing empty ones that can later by posted to registry
    */
-  public abstract void populate_dataproduct();
+  abstract void populate_dataproduct();
 
-  public abstract List<ImmutableConfigItem> getConfigItems();
+  abstract List<ImmutableConfigItem> getConfigItems();
 
-  public abstract String getDefaultNamespace_name();
+  abstract String getDefaultNamespace_name();
 
-  public Namespace getNamespace(String namespace_name) {
+  Namespace getNamespace(String namespace_name) {
     return (Namespace)
         fileApi.restClient.getFirst(
             Namespace.class, Collections.singletonMap("name", namespace_name));
@@ -89,7 +88,7 @@ public abstract class Data_product_RW implements AutoCloseable {
     return (Data_product) fileApi.restClient.getFirst(Data_product.class, dp_map);
   }
 
-  public ImmutableConfigItem getConfigItem(String dataProduct_name) {
+  ImmutableConfigItem getConfigItem(String dataProduct_name) {
     ImmutableConfigItem configItem =
         this.getConfigItems().stream()
             .filter(ci -> ci.data_product().equals(dataProduct_name))
@@ -102,11 +101,10 @@ public abstract class Data_product_RW implements AutoCloseable {
   /*
    * please make sure the implementation set been_used = true;
    */
-  protected abstract CleanableFileChannel getFilechannel() throws IOException;
+  abstract CleanableFileChannel getFilechannel() throws IOException;
 
   void closeFileChannel() {
     if (this.filechannel != null) {
-      System.out.println("closing the filechannel for dp " + this.filePath);
       this.filechannel.close();
       this.filechannel = null;
     }
@@ -114,9 +112,9 @@ public abstract class Data_product_RW implements AutoCloseable {
 
   // public abstract Object_component_write getComponent(String component_name);
 
-  protected abstract void objects_to_registry();
+  abstract void objects_to_registry();
 
-  protected void InputsOutputsToCoderun() {
+  void InputsOutputsToCoderun() {
     this.componentMap.entrySet().stream()
         .filter(obj_comp -> obj_comp.getValue().been_used)
         .forEach(

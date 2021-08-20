@@ -33,18 +33,12 @@ public class Object_component_read extends Object_component_RW {
   }
 
   public Number readEstimate() {
-    System.out.println(".readEstimate()");
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      System.out.println("\n\nreadEstimate\n\nopened the fileChannel - trying to read component");
-      System.out.println("component_name: " + this.object_component.getName());
       data =
           dp.fileApi.stdApi.parameterDataReader.read(fileChannel, this.object_component.getName());
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open the file."));
-    }
-    if (data == null) {
-      System.out.println("parameterDataReader.read() returned NULL");
     }
     return data.getEstimate();
   }
@@ -78,6 +72,12 @@ public class Object_component_read extends Object_component_RW {
   public Table<Integer, String, Number> readTable(String dataProduct, String component) {
       throw new UnsupportedOperationException();
   }*/
+
+  protected void register_me_in_registry() {
+    // i am a read component, so i am already registered.
+    // do need to register any new issues:
+    this.register_my_issues();
+  }
 
   protected void register_me_in_code_run_session(Code_run_session crs) {
     crs.addInput(this.object_component.getUrl());

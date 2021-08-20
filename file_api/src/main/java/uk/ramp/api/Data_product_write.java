@@ -32,7 +32,7 @@ public class Data_product_write extends Data_product_RW {
     super(dataProduct_name, fileApi, extension);
   }
 
-  public void populate_dataproduct() {
+  void populate_dataproduct() {
     // called from the constructor
     if (this.getDataProduct() != null) {
       throw (new IllegalArgumentException(
@@ -61,15 +61,15 @@ public class Data_product_write extends Data_product_RW {
     this.data_product.setVersion(this.version);
   }
 
-  public List<ImmutableConfigItem> getConfigItems() {
+  List<ImmutableConfigItem> getConfigItems() {
     return fileApi.config.writeItems();
   }
 
-  public String getDefaultNamespace_name() {
+  String getDefaultNamespace_name() {
     return this.fileApi.config.run_metadata().default_output_namespace().orElse("");
   }
 
-  public Namespace getNamespace(String namespace_name) {
+  Namespace getNamespace(String namespace_name) {
     Namespace ns = super.getNamespace(namespace_name);
     if (ns == null) {
       ns = (Namespace) fileApi.restClient.post(new Namespace(namespace_name));
@@ -77,7 +77,6 @@ public class Data_product_write extends Data_product_RW {
         throw (new IllegalArgumentException(
             "failed to create in registry: namespace '" + namespace_name + "'"));
       }
-      System.out.println("created the namespace");
     }
     return ns;
   }
@@ -104,7 +103,7 @@ public class Data_product_write extends Data_product_RW {
     return pattern.equals(dataProduct_name);
   }
 
-  public ImmutableConfigItem getConfigItem(String dataProduct_name) {
+  ImmutableConfigItem getConfigItem(String dataProduct_name) {
     ImmutableConfigItem configItem = super.getConfigItem(dataProduct_name);
     if (configItem == null) {
       // for WRITING dp's; we allow /* globbing if there is no exact match we look for a /* match
@@ -123,7 +122,6 @@ public class Data_product_write extends Data_product_RW {
   }
 
   private void executeOnCloseFileHandleDP() {
-    System.out.println("executeOnCloseFileHandleDP() (WRITE).. " + this.actualDataProduct_name);
     this.do_hash();
   }
 
@@ -134,7 +132,7 @@ public class Data_product_write extends Data_product_RW {
     this.is_hashed = true;
   }
 
-  protected CleanableFileChannel getFilechannel() throws IOException {
+  CleanableFileChannel getFilechannel() throws IOException {
     this.been_used = true;
     Runnable onClose = this::executeOnCloseFileHandleDP;
     if (this.filechannel == null) {
@@ -145,7 +143,6 @@ public class Data_product_write extends Data_product_RW {
           new CleanableFileChannel(FileChannel.open(this.filePath, CREATE_NEW, WRITE), onClose);
     } else {
       if (!this.filechannel.isOpen()) {
-        System.out.println("re-opening the filechannel");
         this.filechannel =
             new CleanableFileChannel(FileChannel.open(this.filePath, APPEND, WRITE), onClose);
       }
@@ -156,14 +153,12 @@ public class Data_product_write extends Data_product_RW {
 
   void closeFileChannel() {
     if (this.filechannel != null) {
-      System.out.println("closing the filechannel for dp " + this.filePath);
       this.filechannel.close();
       this.filechannel = null;
     }
   }
 
   public Object_component_write getComponent(String component_name) {
-    System.out.println("getComponent()");
     if (componentMap.containsKey(component_name))
       return (Object_component_write) componentMap.get(component_name);
     Object_component_write dc;
@@ -172,12 +167,11 @@ public class Data_product_write extends Data_product_RW {
     } else {
       dc = new Object_component_write(this, component_name);
     }
-    System.out.println("getComponent() after creating dc");
     componentMap.put(component_name, dc);
     return dc;
   }
 
-  private void stolo_obj_and_dp_to_registry() {
+  void stolo_obj_and_dp_to_registry() {
     // Storage_location sl = this.storage_location;
     if (this.storage_location.getUrl() == null) {
       // String storageRoot = this.storage_location.getStorage_root();
@@ -225,53 +219,15 @@ public class Data_product_write extends Data_product_RW {
     this.data_product = dp;
   }
 
-  private void components_to_registry() {
+  void components_to_registry() {
     this.componentMap.entrySet().stream().filter(c -> c.getValue().been_used)
         .forEach(
             component -> {
-              if (component.getValue().whole_object) {
-                Map<String, String> find_whole_object =
-                    new HashMap<>() {
-                      {
-                        put("object", fdpObject.get_id().toString());
-                        put("whole_object", "true");
-                      }
-                    };
-                Object_component objComponent =
-                    (Object_component)
-                        fileApi.restClient.getFirst(Object_component.class, find_whole_object);
-                if (objComponent == null) {
-                  throw (new IllegalArgumentException(
-                      "can't find the 'whole_object' component for obj "
-                          + fdpObject.get_id().toString()));
-                }
-                component.getValue().object_component = objComponent;
-                // we store the found 'whole obj' component as the object_component of
-                // the referenced Object_component_write so that this can later be stored as a
-                // code_run output.
-              } else {
-                // component != whole_object
-                System.out.println("fdpObj.getUrl() : " + this.fdpObject.getUrl());
-                component.getValue().getObject_component().setObject(this.fdpObject.getUrl());
-                Object_component objComponent =
-                    (Object_component)
-                        fileApi.restClient.post(component.getValue().getObject_component());
-                if (objComponent == null) {
-                  throw (new IllegalArgumentException(
-                      "failed to create in registry: object component "
-                          + component.getValue().component_name
-                          + " ("
-                          + fdpObject.get_id()
-                          + ")"));
-                }
-                component.getValue().object_component = objComponent;
-                // store the created object component so that this can later be stored as a code_run
-                // output
-              }
+              component.getValue().register_me_in_registry();
             });
   }
 
-  public Storage_root getStorageRoot() {
+  Storage_root getStorageRoot() {
     String storage_root_path = fileApi.config.run_metadata().write_data_store().orElse("");
     if (storage_root_path == "") {
       throw (new IllegalArgumentException("No write_data_store given in config."));
@@ -290,7 +246,7 @@ public class Data_product_write extends Data_product_RW {
     return sr;
   }
 
-  protected void objects_to_registry() {
+  void objects_to_registry() {
     this.do_hash();
     this.stolo_obj_and_dp_to_registry();
     this.components_to_registry();

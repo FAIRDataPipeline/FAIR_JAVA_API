@@ -20,9 +20,7 @@ class FDP_ObjectListReader implements MessageBodyReader<FDP_ObjectList> {
   @Override
   public boolean isReadable(
       Class type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    System.out.println("OLR isReadable.. type: " + type.getName());
-    System.out.println("OLR isReadable.. generictype: " + genericType.getTypeName());
-    return true;
+    return type == FDP_ObjectList.class;
   }
 
   @Override
@@ -34,7 +32,6 @@ class FDP_ObjectListReader implements MessageBodyReader<FDP_ObjectList> {
       MultivaluedMap<String, String> httpHeaders,
       InputStream entityStream)
       throws IOException, WebApplicationException {
-    System.out.println("OLR readFrom.. generictype: " + genericType.getTypeName());
 
     try {
       ObjectMapper om = new ObjectMapper();

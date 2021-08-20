@@ -391,6 +391,64 @@ public class FileApiIntegrationTest2 {
   }
 
   @Test
+  @Order(14)
+  public void testWriteSamplesMultipleComponentsAndIssues() throws IOException {
+    System.out.println("\n\ntestWriteSamplesMultipleComponentsAndIssues\n\n");
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "human/multicomp";
+      String component1 = "example-samples-w1";
+      String component2 = "example-samples-w2";
+      Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
+
+      Object_component_write oc1 = dp.getComponent(component1);
+      oc1.raise_issue("something is terribly wrong with this component", 10);
+      oc1.writeSamples(samples);
+      oc1.raise_issue("very bad component", 1);
+
+      Object_component_write oc2 = dp.getComponent(component2);
+      oc2.writeSamples(samples);
+      oc2.raise_issue("this one is not so bad", 1);
+
+      // fileApi.writeSamples(dataProduct, component1, samples);
+      // fileApi.writeSamples(dataProduct, component2, samples);
+    } catch (Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+      e.printStackTrace();
+    }
+    System.out.println("end of testWriteSamplesMultipleComponents");
+    // assertEqualFileContents("actualSamplesMultiple.toml", "expectedSamplesMultiple.toml");
+  }
+
+  @Test
+  @Order(15)
+  public void testReadSamplesMultipleComponentsAndIssues() {
+    System.out.println("\n\ntestReadSamplesMultipleComponents\n\n");
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "human/multicomp";
+      String component1 = "example-samples-w1";
+      String component2 = "example-samples-w2";
+      Data_product_read dc = fileApi.get_dp_for_read(dataProduct);
+      Object_component_read oc1 = dc.getComponent(component1);
+      oc1.raise_issue("upon re-reading this component we found even more problems", 10);
+      Object_component_read oc2 = dc.getComponent(component2);
+      oc1.raise_issue("upon re-reading this component we found it's actually OK", 0);
+      assertThat(oc1.readSamples()).containsExactly(1, 2, 3);
+      assertThat(oc2.readSamples()).containsExactly(1, 2, 3);
+
+      // assertThat(fileApi.readSamples(dataProduct, component)).containsExactly(1, 2, 3);
+      // assertThat(fileApi.readSamples(dataProduct, component1)).isEqualTo(samples);
+      // assertThat(fileApi.readSamples(dataProduct, component2)).isEqualTo(samples);
+    } catch (Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+      e.printStackTrace();
+    }
+    System.out.println("\n\nend of testReadSamplesMultipleComponents\n\n");
+  }
+
+
+  @Test
   @Disabled // Not implemented yet
   public void testReadArray() {
     var fileApi = new FileApi(configPath, scriptPath);

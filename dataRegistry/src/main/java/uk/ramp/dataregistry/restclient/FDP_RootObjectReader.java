@@ -19,7 +19,6 @@ class FDP_RootObjectReader implements MessageBodyReader<FDP_RootObject> {
   public boolean isReadable(
       Class type, Type genericType, Annotation[] annotations, MediaType mediaType) {
     Boolean r = FDP_RootObject.class.isAssignableFrom(type);
-    System.out.println("RootObject.isReadable(" + type.getName() + "): " + r);
     return r;
   }
 
@@ -32,8 +31,6 @@ class FDP_RootObjectReader implements MessageBodyReader<FDP_RootObject> {
       MultivaluedMap<String, String> httpHeaders,
       InputStream entityStream)
       throws IOException, WebApplicationException {
-    System.out.println("FTR readFrom.. generictype: " + genericType.getTypeName());
-
     try {
       ObjectMapper om = new ObjectMapper();
       om.registerModule(new JavaTimeModule());

@@ -8,7 +8,7 @@ import uk.ramp.dataregistry.content.*;
 import uk.ramp.dataregistry.restclient.RestClient;
 import uk.ramp.hash.Hasher;
 
-public class Code_run_session {
+class Code_run_session {
   Code_run code_run;
   RestClient restClient;
   Config config;
@@ -42,14 +42,12 @@ public class Code_run_session {
     if (config_stolo != null) {
       // there is an already existing StorageLocation for the config; we need to delete the config
       // file.
-      System.out.println("there was an existing stolo for config");
       // try {
       // Files.delete(configPath);
       // } catch (IOException e) {
       // logger - log failure to delete configFile
       // }
     } else {
-      System.out.println("creating a new stolo");
       config_stolo = new Storage_location();
       config_stolo.setHash(confighash);
       config_stolo.setStorage_root(storage_root.getUrl());
@@ -64,10 +62,7 @@ public class Code_run_session {
         (File_type)
             restClient.getFirst(File_type.class, Collections.singletonMap("extension", "yaml"));
     if (config_filetype == null) {
-      System.out.println("creating a new filetype for YAML");
       config_filetype = (File_type) restClient.post(new File_type("yaml", "yaml"));
-    } else {
-      System.out.println("filetype already existed");
     }
     FDPObject config_object = new FDPObject();
     config_object.setStorage_location(config_stolo.getUrl());
@@ -77,7 +72,6 @@ public class Code_run_session {
     if (config_object == null) {
       throw (new IllegalArgumentException("failed to create config Object"));
     }
-    System.out.println("created the FDPObj");
 
     code_run.setModel_config(config_object.getUrl());
 
@@ -93,14 +87,12 @@ public class Code_run_session {
     Storage_location script_stolo =
         (Storage_location) restClient.getFirst(Storage_location.class, find_script_stolo);
     if (script_stolo != null) {
-      System.out.println("found existing script with the same hash; NOT?! deleting the script");
       // try {
       // Files.delete(scriptPath);
       // } catch (IOException e) {
       // logger - log failure to delete scriptPath
       // }
     } else {
-      System.out.println("registering the script stolo");
       script_stolo = new Storage_location();
       script_stolo.setHash(scripthash);
       script_stolo.setStorage_root(storage_root.getUrl());
@@ -115,10 +107,7 @@ public class Code_run_session {
         (File_type)
             restClient.getFirst(File_type.class, Collections.singletonMap("extension", "sh"));
     if (script_filetype == null) {
-      System.out.println("creating new filetype for SH");
       script_filetype = (File_type) restClient.post(new File_type("sh", "sh"));
-    } else {
-      System.out.println("found filetype for SH");
     }
     FDPObject script_object = new FDPObject();
     script_object.setStorage_location(script_stolo.getUrl());
@@ -128,7 +117,6 @@ public class Code_run_session {
     if (script_object == null) {
       throw (new IllegalArgumentException("failed to create script Object"));
     }
-    System.out.println("created the script Object");
 
     code_run.setModel_config(config_object.getUrl());
     code_run.setSubmission_script(script_object.getUrl());

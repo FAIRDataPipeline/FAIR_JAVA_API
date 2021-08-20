@@ -11,8 +11,7 @@ import uk.ramp.dataregistry.content.*;
 import uk.ramp.file.CleanableFileChannel;
 
 /**
- * retrieving and storing the dataRegistry details for a dataproduct; as requested from the API
- * user, and possibly amended by the config.
+ *
  */
 public class Data_product_read extends Data_product_RW {
   private boolean hash_checked = false;
@@ -21,7 +20,7 @@ public class Data_product_read extends Data_product_RW {
     super(dataProduct_name, fileApi);
   }
 
-  public void populate_dataproduct() {
+  void populate_dataproduct() {
     // called from the constructor
     this.data_product = this.getDataProduct();
     if (this.data_product == null) {
@@ -43,7 +42,6 @@ public class Data_product_read extends Data_product_RW {
               + this.actualDataProduct_name
               + ")"));
     }
-    System.out.println("retrieved the fdpObj for this DP");
     this.storage_location =
         (Storage_location)
             fileApi.restClient.get(Storage_location.class, this.fdpObject.getStorage_location());
@@ -70,15 +68,15 @@ public class Data_product_read extends Data_product_RW {
         Path.of(this.storage_root.getRoot()).resolve(Path.of(this.storage_location.getPath()));
   }
 
-  public List<ImmutableConfigItem> getConfigItems() {
+  List<ImmutableConfigItem> getConfigItems() {
     return fileApi.config.readItems();
   }
 
-  public String getDefaultNamespace_name() {
+  String getDefaultNamespace_name() {
     return this.fileApi.config.run_metadata().default_input_namespace().orElse("");
   }
 
-  public Namespace getNamespace(String namespace_name) {
+  Namespace getNamespace(String namespace_name) {
     // for a READ dp we must have the namespace from the config or we will have to give up
     Namespace ns = super.getNamespace(namespace_name);
     if (ns == null) {
@@ -87,7 +85,7 @@ public class Data_product_read extends Data_product_RW {
     return ns;
   }
 
-  public ImmutableConfigItem getConfigItem(String dataProduct_name) {
+  ImmutableConfigItem getConfigItem(String dataProduct_name) {
     ImmutableConfigItem configItem = super.getConfigItem(dataProduct_name);
     if (configItem == null) {
       throw (new IllegalArgumentException(
@@ -104,19 +102,17 @@ public class Data_product_read extends Data_product_RW {
   }
 
   private void executeOnCloseFileHandleDP() {
-    System.out.println("executeOnCloseFileHandleDP() (DP READ).. " + this.actualDataProduct_name);
+    // don't need to Hash READ objects
   }
 
-  protected CleanableFileChannel getFilechannel() throws IOException {
+  CleanableFileChannel getFilechannel() throws IOException {
     this.been_used = true;
     Runnable onClose = this::executeOnCloseFileHandleDP;
     if (!hash_checked) this.check_hash();
     if (this.filechannel == null) {
-      System.out.println("filePath: " + this.filePath.toString());
       this.filechannel = new CleanableFileChannel(FileChannel.open(this.filePath, READ), onClose);
     } else {
       if (!this.filechannel.isOpen()) {
-        System.out.println("re-opening the filechannel");
         this.filechannel = new CleanableFileChannel(FileChannel.open(this.filePath, READ), onClose);
       }
     }
@@ -124,17 +120,27 @@ public class Data_product_read extends Data_product_RW {
   }
 
   public Object_component_read getComponent(String component_name) {
-    System.out.println("getComponent()");
     if (componentMap.containsKey(component_name))
       return (Object_component_read) componentMap.get(component_name);
     Object_component_read dc = new Object_component_read(this, component_name);
-    System.out.println("getComponent() after creating dc");
     componentMap.put(component_name, dc);
     return dc;
   }
 
-  protected void objects_to_registry() {
+  void components_to_registry() {
+    // this is just to make sure the components can register their issues
+    this.componentMap.entrySet().stream().filter(c -> c.getValue().been_used)
+            .forEach(
+                    component -> {
+                      component.getValue().register_me_in_registry();
+                    });
+  }
+
+  void objects_to_registry() {
     // this is called upon close; but since this is a READ dp, it won't have a DP, Stolo, fdpObj, or
     // any new components to register
+
+    // there might be issues to store though..
+    this.components_to_registry();
   }
 }

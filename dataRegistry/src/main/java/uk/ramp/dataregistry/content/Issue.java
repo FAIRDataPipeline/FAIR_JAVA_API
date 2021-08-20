@@ -15,6 +15,13 @@ public class Issue extends FDP_Updateable {
 
   @XmlElement private String uuid;
 
+  public Issue() {}
+
+  public Issue(String description, Integer severity) {
+    this.description = description;
+    this.severity = severity;
+  }
+
   public Integer getSeverity() {
     return this.severity;
   }
@@ -43,6 +50,11 @@ public class Issue extends FDP_Updateable {
 
   public void setComponent_issues(List<String> component_issues) {
     this.component_issues = new ArrayList<String>(component_issues);
+  }
+
+  public void addComponent_issue(String component) {
+    if(this.component_issues == null) this.component_issues = new ArrayList<>();
+    this.component_issues.add(component);
   }
 
   public void setUuid(String uuid) {

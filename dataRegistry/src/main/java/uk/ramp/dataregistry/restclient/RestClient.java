@@ -49,15 +49,19 @@ public class RestClient {
     init(registry_url, token);
   }
 
+  /*
+   * retrieve only the first FDP registry entry found when searching for entries of
+   * Class c matching all constraints in Map m
+   */
   public FDP_RootObject getFirst(Class<?> c, Map<String, String> m) {
     // c = the class contained within the objectlist
     // return the first item found.
     WebTarget wt2 = wt.path(FDP_RootObject.get_django_path(c.getSimpleName()));
 
-    System.out.println("RestClient.get(Class, Map) " + wt2.getUri());
     for (Map.Entry<String, String> e : m.entrySet()) {
       wt2 = wt2.queryParam(e.getKey(), e.getValue());
     }
+    // TODO: try retrieving only a single item:
     // wt2 = wt2.queryParam("page_size", 1);
     ParameterizedType p = TypeUtils.parameterize(FDP_ObjectList.class, c);
     FDP_ObjectList<?> o =
@@ -69,15 +73,16 @@ public class RestClient {
     return (FDP_RootObject) o.getResults().get(0);
   }
 
+  /*
+   * retrieve a list of all FDP registry entries of Class c matching all the constraints in Map m
+   */
   public FDP_ObjectList<?> getList(Class<?> c, Map<String, String> m) {
     // c is the class contained within the ObjectList
     if (!FDP_RootObject.class.isAssignableFrom(c)) {
       throw new IllegalArgumentException("Given class is not an FDP_RootObject.");
     }
     WebTarget wt2 = wt.path(FDP_RootObject.get_django_path(c.getSimpleName()));
-    System.out.println("RestClient.getList(Class, Map) " + wt2.getUri());
     for (Map.Entry<String, String> e : m.entrySet()) {
-      System.out.println("Adding query param: " + e.getKey() + " -> " + e.getValue());
       wt2 = wt2.queryParam(e.getKey(), e.getValue());
     }
     ParameterizedType p = TypeUtils.parameterize(FDP_ObjectList.class, c);
@@ -86,6 +91,9 @@ public class RestClient {
     return o;
   }
 
+  /*
+   * retrieve the FDP registry entry of Class c with ID i
+   */
   public FDP_RootObject get(Class<?> c, int i) {
     if (!FDP_RootObject.class.isAssignableFrom(c)) {
       throw new IllegalArgumentException("Given class is not an FDP_RootObject.");
@@ -100,6 +108,9 @@ public class RestClient {
     }
   }
 
+  /*
+   * retrieve the FDP registry entry with URI URI
+   */
   public FDP_RootObject get(Class<?> c, String URI) {
     if (!FDP_RootObject.class.isAssignableFrom(c)) {
       throw new IllegalArgumentException("Given class is not an FDP_RootObject.");
@@ -113,9 +124,12 @@ public class RestClient {
     }
   }
 
+  /*
+   * submit the new FDP registry object o;
+   * return the created object (with the URL, updated_by, last_updated fields filled in by the registry)
+   */
   public FDP_Updateable post(FDP_Updateable o) {
     WebTarget wt2 = wt.path(o.get_django_path());
-    System.out.println("post target: " + wt2.getUri());
     if (o.getUrl() != null)
       throw (new IllegalArgumentException(
           "trying to post an already existing object "
@@ -124,6 +138,8 @@ public class RestClient {
     Response r =
         wt2.request(MediaType.APPLICATION_JSON).post(Entity.entity(o, MediaType.APPLICATION_JSON));
     if (r.getStatus() != 201) {
+      // in case we failed to create the object, log the error message
+      // TODO: should go to logger
       InputStream i = (InputStream) r.getEntity();
       try {
         String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
@@ -135,20 +151,6 @@ public class RestClient {
     } else {
       return (FDP_Updateable) r.readEntity(o.getClass());
     }
-  }
-
-  public FDP_Updateable post2(FDP_Updateable o) {
-    WebTarget wt2 = wt.path(o.get_django_path());
-    System.out.println("post target: " + wt2.getUri());
-    Response r =
-        wt2.request(MediaType.APPLICATION_JSON).post(Entity.entity(o, MediaType.APPLICATION_JSON));
-    if (r.getStatus() != 201) {
-      Object i = (Object) r.getEntity();
-      System.out.println(i.getClass());
-      FDP_Updateable f = (FDP_Updateable) i;
-      System.out.println("URL: " + f.getUrl());
-    }
-    return null;
   }
 
   /* put is not allowed

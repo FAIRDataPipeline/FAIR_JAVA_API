@@ -25,7 +25,6 @@ class FDP_RootObjectWriter implements MessageBodyWriter<FDP_RootObject> {
   public boolean isWriteable(
       Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
     Boolean r = FDP_RootObject.class.isAssignableFrom(type);
-    System.out.println("FDP_RootObjectWriter - isWriteable() -> " + r);
     return r;
   }
 
@@ -41,7 +40,6 @@ class FDP_RootObjectWriter implements MessageBodyWriter<FDP_RootObject> {
       throws IOException, WebApplicationException {
 
     try {
-      System.out.println("FDP_RootObjectWriter - writing " + o);
       ObjectMapper om = new ObjectMapper();
       JavaTimeModule jtm = new JavaTimeModule();
       jtm.addSerializer(
@@ -50,7 +48,6 @@ class FDP_RootObjectWriter implements MessageBodyWriter<FDP_RootObject> {
       om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       Writer w = new PrintWriter(outStream);
       String s = om.writeValueAsString(o);
-      System.out.println(s);
       w.write(s);
       w.flush();
       w.close();
