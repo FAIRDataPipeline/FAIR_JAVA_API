@@ -4,14 +4,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class File_type extends FDP_Updateable {
+public class RegistryFile_type extends Registry_Updateable {
   @XmlElement private String name;
 
   @XmlElement private String extension;
 
-  public File_type() {};
+  public RegistryFile_type() {};
 
-  public File_type(String name, String extension) {
+  public RegistryFile_type(String name, String extension) {
     this.name = name;
     this.extension = extension;
   }

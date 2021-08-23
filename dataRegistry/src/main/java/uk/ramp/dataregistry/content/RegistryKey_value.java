@@ -4,14 +4,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Key_value extends FDP_Updateable {
+public class RegistryKey_value extends Registry_Updateable {
   @XmlElement private String key;
 
   @XmlElement private String value;
 
   @XmlElement private String object;
 
-  public Key_value() {}
+  public RegistryKey_value() {}
 
   public String getKey() {
     return this.key;

@@ -10,9 +10,7 @@ import uk.ramp.config.ImmutableConfigItem;
 import uk.ramp.dataregistry.content.*;
 import uk.ramp.file.CleanableFileChannel;
 
-/**
- *
- */
+/** */
 public class Data_product_read extends Data_product_RW {
   private boolean hash_checked = false;
 
@@ -22,18 +20,19 @@ public class Data_product_read extends Data_product_RW {
 
   void populate_dataproduct() {
     // called from the constructor
-    this.data_product = this.getDataProduct();
-    if (this.data_product == null) {
+    this.registryData_product = this.getDataProduct();
+    if (this.registryData_product == null) {
       throw (new IllegalArgumentException(
           "Trying to read from non-existing data_product "
               + this.actualDataProduct_name
               + "; NS "
-              + this.namespace.getName()
+              + this.registryNamespace.getName()
               + "; version "
               + version));
     }
     this.fdpObject =
-        (FDPObject) fileApi.restClient.get(FDPObject.class, this.data_product.getObject());
+        (RegistryObject)
+            fileApi.restClient.get(RegistryObject.class, this.registryData_product.getObject());
     if (this.fdpObject == null) {
       throw (new IllegalArgumentException(
           "couldn't retrieve the fdpObject for this READ dp "
@@ -42,10 +41,11 @@ public class Data_product_read extends Data_product_RW {
               + this.actualDataProduct_name
               + ")"));
     }
-    this.storage_location =
-        (Storage_location)
-            fileApi.restClient.get(Storage_location.class, this.fdpObject.getStorage_location());
-    if (this.storage_location == null) {
+    this.registryStorage_location =
+        (RegistryStorage_location)
+            fileApi.restClient.get(
+                RegistryStorage_location.class, this.fdpObject.getStorage_location());
+    if (this.registryStorage_location == null) {
       throw (new IllegalArgumentException(
           "couldn't retrieve the StorageLocation for this READ dp "
               + this.givenDataProduct_name
@@ -53,10 +53,11 @@ public class Data_product_read extends Data_product_RW {
               + this.actualDataProduct_name
               + ")"));
     }
-    this.storage_root =
-        (Storage_root)
-            fileApi.restClient.get(Storage_root.class, this.storage_location.getStorage_root());
-    if (this.storage_root == null) {
+    this.registryStorage_root =
+        (RegistryStorage_root)
+            fileApi.restClient.get(
+                RegistryStorage_root.class, this.registryStorage_location.getStorage_root());
+    if (this.registryStorage_root == null) {
       throw (new IllegalArgumentException(
           "couldn't retrieve the StorageRoot for this READ dp "
               + this.givenDataProduct_name
@@ -65,7 +66,8 @@ public class Data_product_read extends Data_product_RW {
               + ")"));
     }
     this.filePath =
-        Path.of(this.storage_root.getRoot()).resolve(Path.of(this.storage_location.getPath()));
+        Path.of(this.registryStorage_root.getRoot())
+            .resolve(Path.of(this.registryStorage_location.getPath()));
   }
 
   List<ImmutableConfigItem> getConfigItems() {
@@ -76,9 +78,9 @@ public class Data_product_read extends Data_product_RW {
     return this.fileApi.config.run_metadata().default_input_namespace().orElse("");
   }
 
-  Namespace getNamespace(String namespace_name) {
+  RegistryNamespace getNamespace(String namespace_name) {
     // for a READ dp we must have the namespace from the config or we will have to give up
-    Namespace ns = super.getNamespace(namespace_name);
+    RegistryNamespace ns = super.getNamespace(namespace_name);
     if (ns == null) {
       throw (new IllegalArgumentException("can't find the namespace " + namespace_name));
     }
@@ -129,11 +131,12 @@ public class Data_product_read extends Data_product_RW {
 
   void components_to_registry() {
     // this is just to make sure the components can register their issues
-    this.componentMap.entrySet().stream().filter(c -> c.getValue().been_used)
-            .forEach(
-                    component -> {
-                      component.getValue().register_me_in_registry();
-                    });
+    this.componentMap.entrySet().stream()
+        .filter(c -> c.getValue().been_used)
+        .forEach(
+            component -> {
+              component.getValue().register_me_in_registry();
+            });
   }
 
   void objects_to_registry() {

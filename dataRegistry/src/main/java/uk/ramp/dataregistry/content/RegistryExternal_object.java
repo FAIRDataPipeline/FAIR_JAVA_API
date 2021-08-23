@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class External_object extends FDP_Updateable {
+public class RegistryExternal_object extends Registry_Updateable {
   @XmlElement private String identifier;
 
   @XmlElement private String alternate_identifier;
@@ -29,7 +29,7 @@ public class External_object extends FDP_Updateable {
 
   @XmlElement private String version;
 
-  public External_object() {};
+  public RegistryExternal_object() {};
 
   public String getIdentifier() {
     return identifier;

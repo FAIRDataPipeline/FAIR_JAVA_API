@@ -21,8 +21,8 @@ public class Object_component_read extends Object_component_RW {
   }*/
 
   protected void populate_component() {
-    this.object_component = this.retrieveObject_component();
-    if (this.object_component == null) {
+    this.registryObject_component = this.retrieveObject_component();
+    if (this.registryObject_component == null) {
       throw (new IllegalArgumentException(
           "Object Component '"
               + this.component_name
@@ -36,7 +36,8 @@ public class Object_component_read extends Object_component_RW {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       data =
-          dp.fileApi.stdApi.parameterDataReader.read(fileChannel, this.object_component.getName());
+          dp.fileApi.stdApi.parameterDataReader.read(
+              fileChannel, this.registryObject_component.getName());
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open the file."));
     }
@@ -75,11 +76,9 @@ public class Object_component_read extends Object_component_RW {
 
   protected void register_me_in_registry() {
     // i am a read component, so i am already registered.
-    // do need to register any new issues:
-    this.register_my_issues();
   }
 
   protected void register_me_in_code_run_session(Code_run_session crs) {
-    crs.addInput(this.object_component.getUrl());
+    crs.addInput(this.registryObject_component.getUrl());
   }
 }

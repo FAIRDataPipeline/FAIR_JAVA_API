@@ -10,10 +10,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang3.NotImplementedException;
 
 @XmlRootElement
-public abstract class FDP_RootObject {
+public abstract class Registry_RootObject {
   @XmlElement private String url;
 
-  public FDP_RootObject() {}
+  public Registry_RootObject() {}
 
   public String getUrl() {
     return url;
@@ -25,7 +25,7 @@ public abstract class FDP_RootObject {
 
   @JsonIgnore
   public String get_django_path() {
-    throw (new NotImplementedException("this abstract class doesn't have a django path"));
+    return this.get_django_path(this.getClass().getSimpleName());
   }
 
   @JsonIgnore
@@ -33,7 +33,7 @@ public abstract class FDP_RootObject {
     if (this.url == null) {
       return null;
     }
-    return FDP_RootObject.get_id(this.url);
+    return Registry_RootObject.get_id(this.url);
   }
 
   @JsonIgnore
@@ -49,12 +49,9 @@ public abstract class FDP_RootObject {
 
   @JsonIgnore
   public static String get_django_path(String n) {
-    if (n.startsWith("FDP_")) {
+    if (n.startsWith("Registry_")) {
       throw (new NotImplementedException("this abstract class doesn't have a django path"));
     }
-    if (n.equals("FDPObject")) {
-      return "object/";
-    }
-    return n.toLowerCase(Locale.ROOT) + "/";
+    return n.substring(8).toLowerCase(Locale.ROOT) + "/";
   }
 }

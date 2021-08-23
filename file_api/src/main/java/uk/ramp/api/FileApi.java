@@ -37,9 +37,10 @@ public class FileApi implements AutoCloseable {
   Hasher hasher = new Hasher();
   private Path scriptPath;
   private Path configFilePath;
-  private Storage_root storage_root;
+  private RegistryStorage_root registryStorage_root;
   StandardApi stdApi;
   RandomGenerator rng;
+  List<Issue> issues;
 
   public FileApi(Path configFilePath) {
     this(configFilePath, null);
@@ -70,12 +71,13 @@ public class FileApi implements AutoCloseable {
 
     String Storage_root_path = config.run_metadata().write_data_store().orElse("");
     // TODO: i don't think write_data_store is optional..
-    this.storage_root =
-        (Storage_root)
+    this.registryStorage_root =
+        (RegistryStorage_root)
             restClient.getFirst(
-                Storage_root.class, Collections.singletonMap("root", Storage_root_path));
-    if (this.storage_root == null) {
-      this.storage_root = (Storage_root) restClient.post(new Storage_root(Storage_root_path));
+                RegistryStorage_root.class, Collections.singletonMap("root", Storage_root_path));
+    if (this.registryStorage_root == null) {
+      this.registryStorage_root =
+          (RegistryStorage_root) restClient.post(new RegistryStorage_root(Storage_root_path));
     }
 
     if (this.scriptPath == null && config.run_metadata().script_path().isPresent()) {
@@ -83,12 +85,17 @@ public class FileApi implements AutoCloseable {
     }
     prepare_code_run_session();
     dp_info_map = new HashMap<>();
+    this.issues = new ArrayList<>();
   }
 
   private void prepare_code_run_session() {
     this.code_run_session =
         new Code_run_session(
-            this.restClient, this.config, this.configFilePath, this.scriptPath, this.storage_root);
+            this.restClient,
+            this.config,
+            this.configFilePath,
+            this.scriptPath,
+            this.registryStorage_root);
   }
 
   public Data_product_read get_dp_for_read(String dataProduct_name) {
@@ -107,6 +114,16 @@ public class FileApi implements AutoCloseable {
     return dp;
   }
 
+  public Issue raise_issue(String description, Integer severity) {
+    Issue i = new Issue(description, severity);
+    this.issues.add(i);
+    return i;
+  }
+
+  private void register_issues() {
+    this.issues.stream().filter(issue -> !issue.components.isEmpty()).forEach(issue -> restClient.post(issue.getRegistryIssue()));
+  }
+
   @Override
   public void close() {
     dp_info_map.entrySet().stream()
@@ -115,6 +132,7 @@ public class FileApi implements AutoCloseable {
               li.getValue().close();
             });
     code_run_session.finish();
+    this.register_issues();
     // cleanable.clean();
   }
 }

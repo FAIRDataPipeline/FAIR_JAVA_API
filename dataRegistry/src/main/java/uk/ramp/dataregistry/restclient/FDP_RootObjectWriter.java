@@ -17,20 +17,20 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import uk.ramp.dataregistry.content.FDP_RootObject;
+import uk.ramp.dataregistry.content.Registry_RootObject;
 
-class FDP_RootObjectWriter implements MessageBodyWriter<FDP_RootObject> {
+class FDP_RootObjectWriter implements MessageBodyWriter<Registry_RootObject> {
 
   @Override
   public boolean isWriteable(
       Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    Boolean r = FDP_RootObject.class.isAssignableFrom(type);
+    Boolean r = Registry_RootObject.class.isAssignableFrom(type);
     return r;
   }
 
   @Override
   public void writeTo(
-      FDP_RootObject o,
+      Registry_RootObject o,
       Class<?> type,
       Type genericType,
       Annotation[] annotations,

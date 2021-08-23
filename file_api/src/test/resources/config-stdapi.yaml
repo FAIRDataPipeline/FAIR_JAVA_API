@@ -25,6 +25,9 @@ read:
   - data_product: animal/dog
     use:
       version: 0.0.1
+  - data_product: animal/dodo
+    use:
+      version: 0.0.1
 
 write:
   - data_product: human/population

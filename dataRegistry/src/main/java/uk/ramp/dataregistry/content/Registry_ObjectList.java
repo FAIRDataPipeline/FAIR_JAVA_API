@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class FDP_ObjectList<T extends FDP_RootObject> {
+public class Registry_ObjectList<T extends Registry_RootObject> {
   @XmlElement private Integer count;
 
   @XmlElement private String next;
@@ -15,7 +15,7 @@ public class FDP_ObjectList<T extends FDP_RootObject> {
 
   @XmlElement private List<T> results;
 
-  public FDP_ObjectList() {};
+  public Registry_ObjectList() {};
 
   public Integer getCount() {
     return count;

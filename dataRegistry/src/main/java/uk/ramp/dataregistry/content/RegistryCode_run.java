@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Code_run extends FDP_Updateable {
+public class RegistryCode_run extends Registry_Updateable {
   @XmlElement private LocalDateTime run_date;
 
   @XmlElement private String description;

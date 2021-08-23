@@ -22,24 +22,24 @@ public class test_read_from_populated_registry {
   @ParameterizedTest
   @ValueSource(
       classes = {
-        Author.class,
-        Code_repo_release.class,
-        Code_run.class,
-        Data_product.class,
-        External_object.class,
-        FDPObject.class,
-        File_type.class,
-        Issue.class,
-        Key_value.class,
-        Keyword.class,
-        Namespace.class,
-        Object_component.class,
-        Storage_location.class,
-        Storage_root.class,
-        Users.class
+        RegistryAuthor.class,
+        RegistryCode_repo_release.class,
+        RegistryCode_run.class,
+        RegistryData_product.class,
+        RegistryExternal_object.class,
+        RegistryObject.class,
+        RegistryFile_type.class,
+        RegistryIssue.class,
+        RegistryKey_value.class,
+        RegistryKeyword.class,
+        RegistryNamespace.class,
+        RegistryObject_component.class,
+        RegistryStorage_location.class,
+        RegistryStorage_root.class,
+        RegistryUsers.class
       })
   public void get_object(Class c) {
-    FDP_RootObject n = lc.getFirst(c, m);
+    Registry_RootObject n = lc.getFirst(c, m);
     System.out.println(c.getName() + " id: " + n.get_id());
     Assertions.assertNotNull(n.getUrl());
   }

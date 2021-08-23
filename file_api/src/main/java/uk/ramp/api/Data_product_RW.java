@@ -1,7 +1,5 @@
 package uk.ramp.api;
 
-import static java.nio.file.StandardOpenOption.*;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -18,15 +16,15 @@ import uk.ramp.file.CleanableFileChannel;
  */
 public abstract class Data_product_RW implements AutoCloseable {
   protected FileApi fileApi;
-  protected Namespace namespace;
+  protected RegistryNamespace registryNamespace;
   protected String namespace_name;
   protected String extension;
   protected String version;
   protected String description;
-  protected Data_product data_product;
-  protected FDPObject fdpObject;
-  protected Storage_location storage_location;
-  protected Storage_root storage_root;
+  protected RegistryData_product registryData_product;
+  protected RegistryObject fdpObject;
+  protected RegistryStorage_location registryStorage_location;
+  protected RegistryStorage_root registryStorage_root;
   protected Path filePath;
   protected CleanableFileChannel filechannel;
   protected String givenDataProduct_name;
@@ -53,9 +51,20 @@ public abstract class Data_product_RW implements AutoCloseable {
     if (configItem.use().data_product().isPresent()) {
       this.actualDataProduct_name = configItem.use().data_product().get();
     }
+    if (configItem.file_type().isPresent()) {
+      if (extension != null && !configItem.file_type().get().equals(extension)) {
+        // TODO: logger WARNING conflict between 2 file_types
+        System.out.println(
+            "file type conflict: code says "
+                + extension
+                + ", config says "
+                + configItem.file_type().get());
+      }
+      this.extension = configItem.file_type().get();
+    }
     this.description = configItem.description().orElse("");
     this.version = configItem.use().version();
-    this.namespace = this.getNamespace(this.namespace_name);
+    this.registryNamespace = this.getNamespace(this.namespace_name);
     this.populate_dataproduct();
   }
 
@@ -70,22 +79,22 @@ public abstract class Data_product_RW implements AutoCloseable {
 
   abstract String getDefaultNamespace_name();
 
-  Namespace getNamespace(String namespace_name) {
-    return (Namespace)
+  RegistryNamespace getNamespace(String namespace_name) {
+    return (RegistryNamespace)
         fileApi.restClient.getFirst(
-            Namespace.class, Collections.singletonMap("name", namespace_name));
+            RegistryNamespace.class, Collections.singletonMap("name", namespace_name));
   }
 
-  public Data_product getDataProduct() {
+  public RegistryData_product getDataProduct() {
     Map<String, String> dp_map =
         Map.of(
             "name",
             this.actualDataProduct_name,
             "namespace",
-            this.namespace.get_id().toString(),
+            this.registryNamespace.get_id().toString(),
             "version",
             version);
-    return (Data_product) fileApi.restClient.getFirst(Data_product.class, dp_map);
+    return (RegistryData_product) fileApi.restClient.getFirst(RegistryData_product.class, dp_map);
   }
 
   ImmutableConfigItem getConfigItem(String dataProduct_name) {

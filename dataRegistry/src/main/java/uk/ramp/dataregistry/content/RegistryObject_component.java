@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Object_component extends FDP_Updateable {
+public class RegistryObject_component extends Registry_Updateable {
   @XmlElement private String object;
 
   @XmlElement private String name;
@@ -21,22 +21,22 @@ public class Object_component extends FDP_Updateable {
 
   @XmlElement private List<String> outputs_of;
 
-  public Object_component() {};
+  public RegistryObject_component() {};
 
-  public Object_component(String name) {
+  public RegistryObject_component(String name) {
     this.name = name;
   }
 
-  public Object_component(boolean whole_object) {
+  public RegistryObject_component(boolean whole_object) {
     this.whole_object = whole_object;
   }
 
-  public Object_component(String object, String name) {
+  public RegistryObject_component(String object, String name) {
     this.object = object;
     this.name = name;
   }
 
-  public Object_component(String object, boolean whole_object) {
+  public RegistryObject_component(String object, boolean whole_object) {
     this.object = object;
     this.whole_object = whole_object;
   }

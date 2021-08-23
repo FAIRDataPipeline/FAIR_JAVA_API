@@ -4,46 +4,40 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Code_repo_release extends FDP_Updateable {
+public class RegistryNamespace extends Registry_Updateable {
   @XmlElement private String name;
 
-  @XmlElement private String version;
+  @XmlElement private String full_name;
 
   @XmlElement private String website;
 
-  @XmlElement private String object;
+  public RegistryNamespace() {}
 
-  public Code_repo_release() {}
+  public RegistryNamespace(String name) {
+    this.name = name;
+  }
 
   public String getName() {
     return this.name;
   }
 
-  public String getVersion() {
-    return this.version;
+  public String getFull_name() {
+    return this.full_name;
   }
 
   public String getWebsite() {
     return this.website;
   }
 
-  public String getObject() {
-    return this.object;
-  }
-
   public void setName(String name) {
     this.name = name;
   }
 
-  public void setVersion(String version) {
-    this.version = version;
+  public void setFull_name(String full_name) {
+    this.full_name = full_name;
   }
 
   public void setWebsite(String website) {
     this.website = website;
-  }
-
-  public void setObject(String object) {
-    this.object = object;
   }
 }

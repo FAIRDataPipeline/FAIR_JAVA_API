@@ -13,19 +13,19 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import uk.ramp.dataregistry.content.FDP_ObjectList;
+import uk.ramp.dataregistry.content.Registry_ObjectList;
 
-class FDP_ObjectListReader implements MessageBodyReader<FDP_ObjectList> {
+class FDP_ObjectListReader implements MessageBodyReader<Registry_ObjectList> {
 
   @Override
   public boolean isReadable(
       Class type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type == FDP_ObjectList.class;
+    return type == Registry_ObjectList.class;
   }
 
   @Override
-  public FDP_ObjectList<?> readFrom(
-      Class<FDP_ObjectList> type,
+  public Registry_ObjectList<?> readFrom(
+      Class<Registry_ObjectList> type,
       Type genericType,
       Annotation[] annotations,
       MediaType mediaType,
@@ -39,10 +39,10 @@ class FDP_ObjectListReader implements MessageBodyReader<FDP_ObjectList> {
       Type MyTypeParameter = ((ParameterizedType) genericType).getActualTypeArguments()[0];
       JavaType ptype =
           om.getTypeFactory()
-              .constructParametricType(FDP_ObjectList.class, (Class) MyTypeParameter);
-      return (FDP_ObjectList) om.readValue(entityStream, ptype);
+              .constructParametricType(Registry_ObjectList.class, (Class) MyTypeParameter);
+      return (Registry_ObjectList) om.readValue(entityStream, ptype);
     } catch (Exception e) {
-      throw new ProcessingException("Error deserializing FDP_ObjectList", e);
+      throw new ProcessingException("Error deserializing Registry_ObjectList", e);
     }
   }
 }

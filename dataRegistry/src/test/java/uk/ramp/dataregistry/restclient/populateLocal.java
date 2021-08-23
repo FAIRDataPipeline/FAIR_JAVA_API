@@ -9,7 +9,7 @@ import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import uk.ramp.dataregistry.content.*;
-import uk.ramp.dataregistry.content.Storage_location;
+import uk.ramp.dataregistry.content.RegistryStorage_location;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class populateLocal {
@@ -25,26 +25,26 @@ public class populateLocal {
   @ParameterizedTest
   @MethodSource("objectsToBeCreated")
   @DisabledIf("keyvalueExists")
-  public void createObjects(FDP_Updateable o) {
-    FDP_Updateable r = lc.post(o);
+  public void createObjects(Registry_Updateable o) {
+    Registry_Updateable r = lc.post(o);
     System.out.println("createObj.. statusinfo: " + r);
     Assertions.assertNotNull(r);
   }
 
-  private Stream<FDP_Updateable> objectsToBeCreated() {
-    ArrayList<FDP_Updateable> al = new ArrayList<FDP_Updateable>();
-    al.add(new Namespace("test namespace"));
-    al.add(new File_type("Test filetype", ".tst"));
-    Issue i = new Issue();
+  private Stream<Registry_Updateable> objectsToBeCreated() {
+    ArrayList<Registry_Updateable> al = new ArrayList<Registry_Updateable>();
+    al.add(new RegistryNamespace("test namespace"));
+    al.add(new RegistryFile_type("Test filetype", ".tst"));
+    RegistryIssue i = new RegistryIssue();
     i.setDescription("the big issue");
     i.setSeverity(1);
     al.add(i);
-    Storage_root sr = new Storage_root();
+    RegistryStorage_root sr = new RegistryStorage_root();
     sr.setRoot("D:\\Datastore");
     sr.setLocal(true);
     sr.setLocations(new ArrayList<>() {});
     al.add(sr);
-    Storage_location sl = new Storage_location();
+    RegistryStorage_location sl = new RegistryStorage_location();
     sl.setPath("StorageLocation");
     sl.setStorage_root(localReg + "storage_root/1/");
     sl.setHash("myHash");
@@ -54,17 +54,17 @@ public class populateLocal {
     s.setAbbreviation("tstsrc");
     s.setWebsite("http://github.com/testsource/");
     al.add(s);*/
-    FDPObject o = new FDPObject();
+    RegistryObject o = new RegistryObject();
     o.setDescription("my new object description");
     o.setStorage_location(localReg + "storage_location/1/");
     al.add(o);
-    Data_product dp = new Data_product();
+    RegistryData_product dp = new RegistryData_product();
     dp.setName("Initial Data_product");
     dp.setObject(localReg + "object/1/");
     dp.setVersion("1.0.0");
     dp.setNamespace(localReg + "namespace/1/");
     al.add(dp);
-    External_object eo = new External_object();
+    RegistryExternal_object eo = new RegistryExternal_object();
     eo.setDescription("My test external object");
     eo.setIdentifier("http://www.bbc.co.uk/");
     eo.setRelease_date(LocalDateTime.of(2021, 4, 4, 4, 4, 4, 4));
@@ -72,31 +72,31 @@ public class populateLocal {
     eo.setData_product(localReg + "data_product/1/");
     eo.setPrimary_not_supplement(true);
     al.add(eo);
-    Object_component oc = new Object_component();
+    RegistryObject_component oc = new RegistryObject_component();
     oc.setName("Initial object component");
     oc.setObject(localReg + "object/1/");
     oc.setDescription("My test object component");
     al.add(oc);
-    Code_run cr = new Code_run();
+    RegistryCode_run cr = new RegistryCode_run();
     cr.setDescription("My test codeRun");
     cr.setRun_date(LocalDateTime.of(2021, 3, 3, 3, 3, 3, 3));
     cr.setCode_repo(localReg + "object/1/");
     cr.setSubmission_script(localReg + "object/1/");
     al.add(cr);
-    Author a = new Author();
+    RegistryAuthor a = new RegistryAuthor();
     a.setName("Bram Boskamp");
     al.add(a);
-    Keyword k = new Keyword();
+    RegistryKeyword k = new RegistryKeyword();
     k.setObject(localReg + "object/1/");
     k.setKeyphrase("huh");
     al.add(k);
-    Code_repo_release crr = new Code_repo_release();
+    RegistryCode_repo_release crr = new RegistryCode_repo_release();
     crr.setName("Initial code repo release");
     crr.setObject(localReg + "object/1/");
     crr.setVersion("1.0.0");
     crr.setWebsite("http://github.com/blabla");
     al.add(crr);
-    Key_value kv = new Key_value();
+    RegistryKey_value kv = new RegistryKey_value();
     kv.setObject(localReg + "object/1/");
     kv.setKey("the key");
     kv.setValue("the value");
@@ -109,8 +109,8 @@ public class populateLocal {
   }
 
   private boolean keyvalueExists() {
-    FDP_ObjectList<?> sr =
-        (FDP_ObjectList<?>) lc.getList(Key_value.class, new HashMap<String, String>());
+    Registry_ObjectList<?> sr =
+        (Registry_ObjectList<?>) lc.getList(RegistryKey_value.class, new HashMap<String, String>());
     System.out.println("keyvalueExists? " + (sr.getCount() != 0));
     return sr.getCount() != 0;
   }

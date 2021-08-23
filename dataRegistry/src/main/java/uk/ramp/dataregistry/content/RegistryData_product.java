@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Data_product extends FDP_Updateable {
+public class RegistryData_product extends Registry_Updateable {
   @XmlElement private String name;
 
   @XmlElement private String version;
@@ -20,7 +20,7 @@ public class Data_product extends FDP_Updateable {
   @XmlElement
   private boolean internal_format;
 
-  public Data_product() {}
+  public RegistryData_product() {}
 
   public String getName() {
     return name;

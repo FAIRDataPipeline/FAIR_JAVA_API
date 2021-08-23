@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Users extends FDP_RootObject {
+public class RegistryUsers extends Registry_RootObject {
 
   @XmlElement private String username;
 
@@ -16,7 +16,7 @@ public class Users extends FDP_RootObject {
 
   @XmlElement private List<String> orgs;
 
-  public Users() {}
+  public RegistryUsers() {}
 
   public String getUsername() {
     return username;

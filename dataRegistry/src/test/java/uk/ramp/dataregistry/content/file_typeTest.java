@@ -29,11 +29,11 @@ public class file_typeTest {
   @Test
   @Order(1)
   public void testFile_typeReader() throws Exception {
-    File_type o;
+    RegistryFile_type o;
     ObjectMapper om = new ObjectMapper();
     System.out.println("TESTFILE_TYPEREADER1");
     om.registerModule(new JavaTimeModule());
-    o = om.readValue(jsonstring, File_type.class);
+    o = om.readValue(jsonstring, RegistryFile_type.class);
     Assertions.assertEquals(o.getUrl(), url);
     Assertions.assertEquals(o.getLast_updated(), d);
     Assertions.assertEquals(o.getUpdated_by(), updated_by);
@@ -45,7 +45,7 @@ public class file_typeTest {
   @Order(2)
   void testFile_typeTwoWayTest() throws Exception {
     System.out.println("TESTFILE_TYPEWRITER");
-    File_type o = new File_type();
+    RegistryFile_type o = new RegistryFile_type();
     ObjectMapper om = new ObjectMapper();
     JavaTimeModule jtm = new JavaTimeModule();
     jtm.addSerializer(
@@ -57,7 +57,7 @@ public class file_typeTest {
     o.setLast_updated(d);
     o.setExtension(extension);
     String s = om.writeValueAsString(o);
-    File_type o2 = om.readValue(s, File_type.class);
+    RegistryFile_type o2 = om.readValue(s, RegistryFile_type.class);
     Assertions.assertEquals(name, o2.getName());
     Assertions.assertEquals(url, o2.getUrl());
     Assertions.assertEquals(updated_by, o2.getUpdated_by());

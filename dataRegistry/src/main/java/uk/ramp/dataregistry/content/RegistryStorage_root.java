@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Storage_root extends FDP_Updateable {
+public class RegistryStorage_root extends Registry_Updateable {
   @XmlElement private String root;
 
   @XmlElement
@@ -18,9 +18,9 @@ public class Storage_root extends FDP_Updateable {
 
   @XmlElement private List<String> locations;
 
-  public Storage_root() {}
+  public RegistryStorage_root() {}
 
-  public Storage_root(String root) {
+  public RegistryStorage_root(String root) {
     this.root = root;
   }
 

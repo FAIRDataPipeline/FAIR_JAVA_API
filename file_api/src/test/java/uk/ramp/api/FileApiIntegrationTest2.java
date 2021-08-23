@@ -9,11 +9,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.jupiter.api.*;
+import uk.ramp.dataregistry.content.*;
+import uk.ramp.dataregistry.restclient.RestClient;
 import uk.ramp.distribution.Distribution;
 import uk.ramp.distribution.Distribution.DistributionType;
 import uk.ramp.distribution.ImmutableDistribution;
@@ -51,16 +55,18 @@ public class FileApiIntegrationTest2 {
   private RandomGenerator rng;
   private Path configPath = coderunTSpath.resolve("config.yaml");
   private Path scriptPath = coderunTSpath.resolve("script.sh");
+  private RestClient restClient;
 
   @BeforeAll
   public void setUp() throws Exception {
+    restClient = new RestClient("http://localhost:8000/api/");
     ori_configPath = Paths.get(getClass().getResource("/config-stdapi.yaml").toURI());
     ori_scriptPath = Paths.get(getClass().getResource("/script.sh").toURI());
     // System.out.println(configPath);
     // rng = mock(RandomGenerator.class);
     // when(rng.nextDouble()).thenReturn(0D);
     rng = new RandomDataGenerator().getRandomGenerator();
-    samples  = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
+    samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
     samples2 = ImmutableSamples.builder().addSamples(4, 5, 6).rng(rng).build();
     samples3 = ImmutableSamples.builder().addSamples(7, 8, 9).rng(rng).build();
     samples4 = ImmutableSamples.builder().addSamples(10, 11, 12).rng(rng).build();
@@ -137,12 +143,34 @@ public class FileApiIntegrationTest2 {
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeEstimate(estimate);
-      // assertThat("bla").isEqualTo("bla");
-      // assertEqualFileContents("actualEstimate.toml", "expectedEstimate.toml");
     } catch (Exception e) {
       System.out.println("Exception");
       System.out.println(e);
       e.printStackTrace();
+    }
+    // to assert things are correct, we check the storageRoot:
+    // we just make sure that 3 storagelocations were created: config, script, and output
+    RegistryStorage_root sr =
+        (RegistryStorage_root)
+            restClient.getFirst(
+                RegistryStorage_root.class, Collections.singletonMap("root", "D:\\datastore"));
+    assertThat(sr.getLocations().size() == 3);
+    if (sr.getLocations().size() == 3) {
+      RegistryStorage_location sl =
+          (RegistryStorage_location)
+              restClient.get(RegistryStorage_location.class, sr.getLocations().get(2));
+      assertThat(sl.getHash()).isEqualTo("a4f9d47dac45639e69a758a8b2d49bf11bbeb262");
+      assertThat(sl.getPath())
+          .isEqualTo(
+              "standardAPItest\\human\\population\\0.0.1.toml"); // TODO: this is windows specific?
+    }
+    Registry_ObjectList<?> l =
+        restClient.getList(RegistryObject.class, new HashMap<String, String>());
+    assertThat(l.getCount()).isEqualTo(3);
+    if (l.getCount() == 3) {
+      RegistryObject o = (RegistryObject) l.getResults().get(0);
+      assertThat(o.getFile_type()).isEqualTo("http://localhost:8000/api/file_type/3/");
+      assertThat(o.getDescription()).isEqualTo("StandardApi Integration test");
     }
     System.out.println("\n\nend of testWriteEstimate\n\n");
   }
@@ -162,6 +190,27 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    RegistryStorage_root sr =
+        (RegistryStorage_root)
+            restClient.getFirst(
+                RegistryStorage_root.class, Collections.singletonMap("root", "D:\\datastore"));
+    assertThat(sr.getLocations().size() == 3);
+    Registry_ObjectList<?> l =
+        restClient.getList(RegistryObject.class, new HashMap<String, String>());
+    assertThat(l.getCount())
+        .isEqualTo(5); // we have 2 x script, 2 x config, 1 x data_product = 5 objects
+    l = restClient.getList(RegistryCode_run.class, new HashMap<String, String>());
+    assertThat(l.getCount()).isEqualTo(2); // 2 code run's 1 write, 1 read
+    if (l.getCount() == 2) {
+      RegistryCode_run cr = (RegistryCode_run) l.getResults().get(1);
+      assertThat(cr.getUrl()).isEqualTo("http://localhost:8000/api/code_run/1/");
+      assertThat(cr.getOutputs().size()).isEqualTo(1);
+      cr = (RegistryCode_run) l.getResults().get(0);
+      assertThat(cr.getUrl()).isEqualTo("http://localhost:8000/api/code_run/2/");
+      assertThat(cr.getOutputs().size()).isEqualTo(0);
+      assertThat(cr.getInputs().size()).isEqualTo(1);
+    }
+
     System.out.println("\n\nend of testReadEstimate\n\n");
   }
 
@@ -180,6 +229,11 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // 3rd coderun
+    // output 10th objcomponent
+    // 8th object
+    // 4th stolo (1 script, 1 config, 2 data)
+
     System.out.println("\n\nend of testWriteDistribution\n\n");
   }
 
@@ -198,6 +252,10 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // 4th coderun
+    // input 10th objcomp
+    // we now have 10 objects
+
     System.out.println("\n\nend of testReadDistribution\n\n");
   }
 
@@ -216,6 +274,12 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // 5th coderun
+    // output obj component 16
+    // which is part of object 13
+    // we now have 13 objects
+    // and 5 stolo's
+
     System.out.println("\n\nend of testCategorialDistribution\n\n");
   }
 
@@ -234,6 +298,10 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // we now have 6 code runs
+    // this one inputs objcomp 16
+    // we now have 15 objects
+
     System.out.println("\n\nend of testCategorialDistribution\n\n");
   }
 
@@ -252,6 +320,11 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // 7th code run
+    // outputs 22nd obj comp
+    // which belongs to obj 18
+    // which uses stolo 6
+
     System.out.println("\n\nend of testWriteSamples\n\n");
     // assertEqualFileContents("actualSamples.toml", "expectedSamples.toml");
   }
@@ -273,6 +346,12 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // code run 8
+    // inputs obj comp 22
+    // part of obj 18
+    // stolo 6
+    // we have 20 objects
+
     System.out.println("\n\nend of testReadSamples\n\n");
   }
 
@@ -299,6 +378,10 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // code run 9
+    // outputs objcomp 28 and 29
+    // both belong to obj 23 at stolo 7
+
     System.out.println("end of testWriteSamplesMultipleComponents");
     // assertEqualFileContents("actualSamplesMultiple.toml", "expectedSamplesMultiple.toml");
   }
@@ -325,6 +408,9 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // code run 10
+    // inputs objcomp 28 and 29 (obj 23)
+    // there are 25 objects
     System.out.println("\n\nend of testReadSamplesMultipleComponents\n\n");
   }
 
@@ -343,6 +429,9 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // code run 11
+    // outputs obj comp 35, obj 28, stolo 8
+
     System.out.println("end of testWriteSamplesMultipleComponents");
     // assertEqualFileContents("actualSamplesMultiple.toml", "expectedSamplesMultiple.toml");
   }
@@ -358,10 +447,11 @@ public class FileApiIntegrationTest2 {
       Object_component_read oc = dc.getComponent(component);
       assertThat(oc.readSamples()).containsExactly(4, 5, 6);
     } catch (Exception e) {
-      System.out.println("Exception");
-      System.out.println(e);
       e.printStackTrace();
     }
+    // code run 12
+    // inputs 35, obj 28 stolo 8
+
     System.out.println("end of testWriteSamplesMultipleComponents");
     // assertEqualFileContents("actualSamplesMultiple.toml", "expectedSamplesMultiple.toml");
   }
@@ -386,6 +476,8 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // code run 13
+    // outputs obj comp 41 (obj 33, stolo 9) 43 (obj 34, stolo 10)
     System.out.println("end of testWriteSamplesMultipleComponents");
     // assertEqualFileContents("actualSamplesMultiple.toml", "expectedSamplesMultiple.toml");
   }
@@ -395,9 +487,9 @@ public class FileApiIntegrationTest2 {
   public void testWriteSamplesMultipleComponentsAndIssues() throws IOException {
     System.out.println("\n\ntestWriteSamplesMultipleComponentsAndIssues\n\n");
     try (var fileApi = new FileApi(configPath, scriptPath)) {
-      String dataProduct = "human/multicomp";
-      String component1 = "example-samples-w1";
-      String component2 = "example-samples-w2";
+      String dataProduct = "animal/dodo";
+      String component1 = "example-samples-dodo1";
+      String component2 = "example-samples-dodo2";
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
 
       Object_component_write oc1 = dp.getComponent(component1);
@@ -416,6 +508,9 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // code run 14
+    // outputs 47 (with issues 1, 2) and 48 (issue 3), obj 37, stolo 11
+
     System.out.println("end of testWriteSamplesMultipleComponents");
     // assertEqualFileContents("actualSamplesMultiple.toml", "expectedSamplesMultiple.toml");
   }
@@ -425,9 +520,9 @@ public class FileApiIntegrationTest2 {
   public void testReadSamplesMultipleComponentsAndIssues() {
     System.out.println("\n\ntestReadSamplesMultipleComponents\n\n");
     try (var fileApi = new FileApi(configPath, scriptPath)) {
-      String dataProduct = "human/multicomp";
-      String component1 = "example-samples-w1";
-      String component2 = "example-samples-w2";
+      String dataProduct = "animal/dodo";
+      String component1 = "example-samples-dodo1";
+      String component2 = "example-samples-dodo2";
       Data_product_read dc = fileApi.get_dp_for_read(dataProduct);
       Object_component_read oc1 = dc.getComponent(component1);
       oc1.raise_issue("upon re-reading this component we found even more problems", 10);
@@ -444,9 +539,42 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
+    // code run 15
+    // inputs 47 (now has issues 1, 2, 4, 5) and 48 (still only has issue 3)
     System.out.println("\n\nend of testReadSamplesMultipleComponents\n\n");
   }
 
+  @Test
+  @Order(16)
+  public void testRead_oneIssueToMultipleComp() {
+    System.out.println("\n\ntestRead_oneIssueToMultipleComp\n\n");
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "animal/dodo";
+      String component1 = "example-samples-dodo1";
+      String component2 = "example-samples-dodo2";
+      Data_product_read dc = fileApi.get_dp_for_read(dataProduct);
+      Object_component_read oc1 = dc.getComponent(component1);
+      Issue i = fileApi.raise_issue("one issue for 2 comps", 2);
+      i.add_components(oc1);
+      Object_component_read oc2 = dc.getComponent(component2);
+      i.add_components(oc2);
+      assertThat(oc1.readSamples()).containsExactly(1, 2, 3);
+      assertThat(oc2.readSamples()).containsExactly(1, 2, 3);
+      Issue i2 = fileApi.raise_issue("this issue attached itself to the comps", 3);
+      i2.add_components(oc1, oc2);
+
+      // assertThat(fileApi.readSamples(dataProduct, component)).containsExactly(1, 2, 3);
+      // assertThat(fileApi.readSamples(dataProduct, component1)).isEqualTo(samples);
+      // assertThat(fileApi.readSamples(dataProduct, component2)).isEqualTo(samples);
+    } catch (Exception e) {
+      System.out.println("Exception");
+      System.out.println(e);
+      e.printStackTrace();
+    }
+    // code run 16
+    // inputs 47 (now has issues 1, 2, 4, 5) and 48 (still only has issue 3)
+    System.out.println("\n\nend of testReadSamplesMultipleComponents\n\n");
+  }
 
   @Test
   @Disabled // Not implemented yet

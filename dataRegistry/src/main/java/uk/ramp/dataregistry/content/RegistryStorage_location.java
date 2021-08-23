@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Storage_location extends FDP_Updateable {
+public class RegistryStorage_location extends Registry_Updateable {
   @XmlElement private String path;
 
   @XmlElement private String hash;
@@ -17,7 +17,7 @@ public class Storage_location extends FDP_Updateable {
 
   @XmlElement private String storage_root;
 
-  public Storage_location() {}
+  public RegistryStorage_location() {}
 
   public String getPath() {
     return path;

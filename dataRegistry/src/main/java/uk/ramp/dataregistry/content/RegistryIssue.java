@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Issue extends FDP_Updateable {
+public class RegistryIssue extends Registry_Updateable {
   @XmlElement private Integer severity;
 
   @XmlElement private String description;
@@ -15,9 +15,9 @@ public class Issue extends FDP_Updateable {
 
   @XmlElement private String uuid;
 
-  public Issue() {}
+  public RegistryIssue() {}
 
-  public Issue(String description, Integer severity) {
+  public RegistryIssue(String description, Integer severity) {
     this.description = description;
     this.severity = severity;
   }
@@ -52,9 +52,11 @@ public class Issue extends FDP_Updateable {
     this.component_issues = new ArrayList<String>(component_issues);
   }
 
-  public void addComponent_issue(String component) {
-    if(this.component_issues == null) this.component_issues = new ArrayList<>();
-    this.component_issues.add(component);
+  public void addComponent_issue(String object_component_url) {
+    if (this.component_issues == null) this.component_issues = new ArrayList<>();
+    if(object_component_url != null && !this.component_issues.contains(object_component_url)) {
+      this.component_issues.add(object_component_url);
+    }
   }
 
   public void setUuid(String uuid) {

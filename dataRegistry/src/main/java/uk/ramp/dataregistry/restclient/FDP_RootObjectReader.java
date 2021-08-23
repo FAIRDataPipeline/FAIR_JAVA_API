@@ -11,20 +11,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import uk.ramp.dataregistry.content.FDP_RootObject;
+import uk.ramp.dataregistry.content.Registry_RootObject;
 
-class FDP_RootObjectReader implements MessageBodyReader<FDP_RootObject> {
+class FDP_RootObjectReader implements MessageBodyReader<Registry_RootObject> {
 
   @Override
   public boolean isReadable(
       Class type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    Boolean r = FDP_RootObject.class.isAssignableFrom(type);
+    Boolean r = Registry_RootObject.class.isAssignableFrom(type);
     return r;
   }
 
   @Override
-  public FDP_RootObject readFrom(
-      Class<FDP_RootObject> type,
+  public Registry_RootObject readFrom(
+      Class<Registry_RootObject> type,
       Type genericType,
       Annotation[] annotations,
       MediaType mediaType,
@@ -34,9 +34,9 @@ class FDP_RootObjectReader implements MessageBodyReader<FDP_RootObject> {
     try {
       ObjectMapper om = new ObjectMapper();
       om.registerModule(new JavaTimeModule());
-      return (FDP_RootObject) om.readValue(entityStream, type);
+      return (Registry_RootObject) om.readValue(entityStream, type);
     } catch (Exception e) {
-      throw new ProcessingException("Error deserializing File_type", e);
+      throw new ProcessingException("Error deserializing RegistryFile_type", e);
     }
   }
 }

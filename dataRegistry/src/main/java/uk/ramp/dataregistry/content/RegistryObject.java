@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class FDPObject extends FDP_Updateable {
+public class RegistryObject extends Registry_Updateable {
   @XmlElement private String description;
 
   @XmlElement private String storage_location;
@@ -30,7 +30,7 @@ public class FDPObject extends FDP_Updateable {
 
   @XmlElement private List<String> keywords;
 
-  public FDPObject() {}
+  public RegistryObject() {}
 
   public String getDescription() {
     return description;

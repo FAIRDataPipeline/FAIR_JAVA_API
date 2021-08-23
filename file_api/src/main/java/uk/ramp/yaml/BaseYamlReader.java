@@ -13,7 +13,10 @@ class BaseYamlReader implements YamlReader {
   @Override
   public <T> T read(Reader reader, TypeReference<T> typeReference) {
     try {
-      return new YAMLMapper().registerModule(new Jdk8Module()).registerModule(new GuavaModule()).readValue(reader, typeReference);
+      return new YAMLMapper()
+          .registerModule(new Jdk8Module())
+          .registerModule(new GuavaModule())
+          .readValue(reader, typeReference);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

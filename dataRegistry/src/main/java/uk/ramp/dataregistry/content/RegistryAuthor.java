@@ -4,14 +4,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Author extends FDP_Updateable {
+public class RegistryAuthor extends Registry_Updateable {
   @XmlElement private String name;
 
   @XmlElement private String identifier;
 
   @XmlElement private String uuid;
 
-  public Author() {}
+  public RegistryAuthor() {}
 
   public String getName() {
     return this.name;

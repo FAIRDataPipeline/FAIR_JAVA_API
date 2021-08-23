@@ -59,5 +59,4 @@ public class ConfigTester {
     var config = new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
     System.out.println(config);
   }
-
 }

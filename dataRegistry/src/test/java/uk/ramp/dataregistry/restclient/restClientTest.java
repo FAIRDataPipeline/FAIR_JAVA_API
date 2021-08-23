@@ -24,7 +24,7 @@ public class restClientTest {
   @Test
   @Order(0)
   public void get_namespace() {
-    Namespace n = (Namespace) lc.get(Namespace.class, 98765);
+    RegistryNamespace n = (RegistryNamespace) lc.get(RegistryNamespace.class, 98765);
     Assertions.assertNull(n); // i'm expecting NULL cause namespace 1 doesn't exist.
     // Assertions.assertEquals("BramTestNS", n.getName());
   }
@@ -34,8 +34,8 @@ public class restClientTest {
   @Order(1)
   public void create_namespace() {
     String name = "test namespace8x";
-    Namespace n = new Namespace(name);
-    Namespace r = (Namespace) lc.post(n);
+    RegistryNamespace n = new RegistryNamespace(name);
+    RegistryNamespace r = (RegistryNamespace) lc.post(n);
     System.out.println("create_namespace: " + r);
     Assertions.assertEquals(name, r.getName());
   }
@@ -46,7 +46,7 @@ public class restClientTest {
   public void create_file_type() {
     String name = "Test filetype";
     String extension = ".tst";
-    File_type r = (File_type) lc.post(new File_type(name, extension));
+    RegistryFile_type r = (RegistryFile_type) lc.post(new RegistryFile_type(name, extension));
     System.out.println("create_file_type: " + r);
     Assertions.assertEquals(name, r.getName());
   }
@@ -57,10 +57,10 @@ public class restClientTest {
   public void create_issue() {
     String desc = "The big issue";
     Integer severity = 1;
-    Issue i = new Issue();
+    RegistryIssue i = new RegistryIssue();
     i.setDescription(desc);
     i.setSeverity(severity);
-    Issue r = (Issue) lc.post(i);
+    RegistryIssue r = (RegistryIssue) lc.post(i);
     System.out.println("create_issue: " + r);
     Assertions.assertEquals(desc, r.getDescription());
     Assertions.assertEquals(severity, r.getSeverity());
@@ -71,10 +71,10 @@ public class restClientTest {
   @Order(4)
   public void create_storageroot() {
     String root = "StorageRoot";
-    Storage_root sr = new Storage_root();
+    RegistryStorage_root sr = new RegistryStorage_root();
     sr.setLocal(true);
     sr.setRoot(root);
-    Storage_root r = (Storage_root) lc.post(sr);
+    RegistryStorage_root r = (RegistryStorage_root) lc.post(sr);
     System.out.println("create_storageroot Response: " + r);
     Assertions.assertEquals(root, r.getRoot());
   }
@@ -83,14 +83,14 @@ public class restClientTest {
   @Test
   @Order(5)
   public void create_storagelocation() {
-    Storage_location sl = new Storage_location();
+    RegistryStorage_location sl = new RegistryStorage_location();
     String stroot = localReg + "storage_root/1/";
     String path = "StorageLocation";
     String hash = "myhash";
     sl.setStorage_root(stroot);
     sl.setPath(path);
     sl.setHash(hash); // hash is not allowed to be empty!
-    Storage_location r = (Storage_location) lc.post(sl);
+    RegistryStorage_location r = (RegistryStorage_location) lc.post(sl);
     System.out.println("create_storageLocation: " + r);
     Assertions.assertEquals(stroot, r.getStorage_root());
   }
@@ -99,7 +99,7 @@ public class restClientTest {
   @Test
   @Order(7)
   public void create_object() {
-    FDPObject o = new FDPObject();
+    RegistryObject o = new RegistryObject();
     o.setDescription("my new object description");
     o.setStorage_location(localReg + "storage_location/1/");
     // Response r = lc.post(o);
@@ -111,7 +111,7 @@ public class restClientTest {
   @Test
   @Order(8)
   public void create_data_product() {
-    Data_product dp = new Data_product();
+    RegistryData_product dp = new RegistryData_product();
     dp.setName("Initial Data_product");
     dp.setObject(localReg + "object/4/");
     dp.setVersion("1.bla.piep");
@@ -128,7 +128,7 @@ public class restClientTest {
     // version must be a valid version [removed in this version?]
     // object,source,original store must be valid URLs
     // obj & source must be supplied. original_store is optional
-    External_object eo = new External_object();
+    RegistryExternal_object eo = new RegistryExternal_object();
     eo.setDescription("My test external object");
     eo.setIdentifier("http://www.xs4all.nl/");
     eo.setRelease_date(LocalDateTime.of(2021, 4, 4, 4, 4, 4, 4));
@@ -144,7 +144,7 @@ public class restClientTest {
   @Test
   @Order(10)
   public void create_objectComponent() {
-    Object_component oc = new Object_component();
+    RegistryObject_component oc = new RegistryObject_component();
     oc.setName("Initial object component");
     oc.setObject(localReg + "object/1/");
     oc.setDescription("My test object component");
@@ -157,7 +157,7 @@ public class restClientTest {
   @Test
   @Order(11)
   public void create_codeRun() {
-    Code_run cr = new Code_run();
+    RegistryCode_run cr = new RegistryCode_run();
     cr.setDescription("My test codeRun");
     cr.setRun_date(LocalDateTime.of(2021, 3, 3, 3, 3, 3, 3));
     cr.setCode_repo(localReg + "object/1/");
@@ -171,7 +171,7 @@ public class restClientTest {
   @Test
   @Order(12)
   public void create_author() {
-    Author a = new Author();
+    RegistryAuthor a = new RegistryAuthor();
     a.setName("Bram Boskamp");
     // Response r = lc.post(a);
     // System.out.println("create_author: " + r.getStatusInfo());
@@ -182,7 +182,7 @@ public class restClientTest {
   @Test
   @Order(13)
   public void create_keyword() {
-    Keyword k = new Keyword();
+    RegistryKeyword k = new RegistryKeyword();
     k.setObject(localReg + "object/1/");
     k.setKeyphrase("huh");
     // Response r = lc.post(k);
@@ -194,7 +194,7 @@ public class restClientTest {
   @Test
   @Order(14)
   public void create_code_repo_release() {
-    Code_repo_release crr = new Code_repo_release();
+    RegistryCode_repo_release crr = new RegistryCode_repo_release();
     crr.setName("Initial code repo release");
     crr.setObject(localReg + "object/1/");
     crr.setVersion("1.0.0");
@@ -208,7 +208,7 @@ public class restClientTest {
   @Test
   @Order(15)
   public void create_key_value() {
-    Key_value kv = new Key_value();
+    RegistryKey_value kv = new RegistryKey_value();
     kv.setObject(localReg + "object/1/");
     kv.setKey("the key");
     kv.setValue("the value");
@@ -232,7 +232,7 @@ public class restClientTest {
   @Test
   @Order(18)
   public void get_file_type() {
-    File_type f = (File_type) lc.get(File_type.class, 1);
+    RegistryFile_type f = (RegistryFile_type) lc.get(RegistryFile_type.class, 1);
     Assertions.assertEquals("Test filetype", f.getName());
   }
 
@@ -240,7 +240,8 @@ public class restClientTest {
   @Test
   @Order(19)
   public void get_first() {
-    File_type f = (File_type) lc.getFirst(File_type.class, new HashMap<String, String>() {});
+    RegistryFile_type f =
+        (RegistryFile_type) lc.getFirst(RegistryFile_type.class, new HashMap<String, String>() {});
     Assertions.assertEquals(".tst", f.getExtension());
   }
 
@@ -250,10 +251,10 @@ public class restClientTest {
   public void get_first_of_none() {
     Map<String, String> m = new HashMap<String, String>() {};
     m.put("extension", "blow");
-    FDP_ObjectList<?> ol = lc.getList(File_type.class, m);
+    Registry_ObjectList<?> ol = lc.getList(RegistryFile_type.class, m);
     System.out.println("get_first_of_none ol.count: " + ol.getCount());
 
-    File_type f = (File_type) lc.getFirst(File_type.class, m);
+    RegistryFile_type f = (RegistryFile_type) lc.getFirst(RegistryFile_type.class, m);
     if (f != null) {
       System.out.println(f.getUrl());
     }
