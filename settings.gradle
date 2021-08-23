@@ -2,4 +2,4 @@ rootProject.name = 'java_api'
 include 'file_api'
 include 'dataRegistry'
 include 'HDF5'
-
+include 'fdp-user'
