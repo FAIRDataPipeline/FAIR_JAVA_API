@@ -6,13 +6,16 @@ import uk.ramp.distribution.Distribution;
 import uk.ramp.file.CleanableFileChannel;
 import uk.ramp.parameters.ReadComponent;
 
-public class Object_component_read extends Object_component_RW {
+/**
+ * An object_component for reading from.
+ */
+public class Object_component_read extends Object_component {
 
-  public Object_component_read(Data_product_read dp, String component_name) {
+  Object_component_read(Data_product_read dp, String component_name) {
     super(dp, component_name);
   }
 
-  public Object_component_read(Data_product_read dp) {
+  Object_component_read(Data_product_read dp) {
     super(dp);
   }
 
@@ -32,6 +35,10 @@ public class Object_component_read extends Object_component_RW {
     }
   }
 
+  /**
+   * read the Estimate that was stored as this component in a TOML file.
+   * @return the estimate as Number
+   */
   public Number readEstimate() {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
@@ -44,6 +51,10 @@ public class Object_component_read extends Object_component_RW {
     return data.getEstimate();
   }
 
+  /**
+   * read the Distribution that was stored as this component in a TOML file.
+   * @return the Distribution
+   */
   public Distribution readDistribution() {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
@@ -54,6 +65,10 @@ public class Object_component_read extends Object_component_RW {
     return data.getDistribution();
   }
 
+  /**
+   * read the Samples that were stored as this component in a TOML file.
+   * @return the Samples object
+   */
   public List<Number> readSamples() {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {

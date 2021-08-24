@@ -54,7 +54,7 @@ public class RegistryIssue extends Registry_Updateable {
 
   public void addComponent_issue(String object_component_url) {
     if (this.component_issues == null) this.component_issues = new ArrayList<>();
-    if(object_component_url != null && !this.component_issues.contains(object_component_url)) {
+    if (object_component_url != null && !this.component_issues.contains(object_component_url)) {
       this.component_issues.add(object_component_url);
     }
   }

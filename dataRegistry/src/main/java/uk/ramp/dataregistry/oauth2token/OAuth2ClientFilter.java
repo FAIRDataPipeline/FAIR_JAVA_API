@@ -1,6 +1,13 @@
 package uk.ramp.dataregistry.oauth2token;
 
 /*
+ *
+ * just copied this from https://github.com/eclipse-ee4j/jersey/blob/master/security/oauth2-client/src/main/java/org/glassfish/jersey/client/oauth2/OAuth2ClientFilter.java
+ * only changed the line: String authentication = "Bearer " + token; into String authentication = "Token " + token;
+ *
+ */
+
+/*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  * Copyright (c) 2013-2017 Oracle and/or its affiliates. All rights reserved.

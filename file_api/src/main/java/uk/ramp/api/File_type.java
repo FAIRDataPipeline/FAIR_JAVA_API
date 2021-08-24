@@ -4,7 +4,7 @@ import java.util.Collections;
 import uk.ramp.dataregistry.content.RegistryFile_type;
 import uk.ramp.dataregistry.restclient.RestClient;
 
-public class File_type {
+class File_type {
   RegistryFile_type registryFile_type;
 
   File_type(String extension, RestClient restClient) {

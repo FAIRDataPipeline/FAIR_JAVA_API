@@ -10,11 +10,13 @@ import uk.ramp.config.ImmutableConfigItem;
 import uk.ramp.dataregistry.content.*;
 import uk.ramp.file.CleanableFileChannel;
 
-/** */
-public class Data_product_read extends Data_product_RW {
+/**
+ * A Data Product for obtaining Object_component_read.
+ */
+public class Data_product_read extends Data_product {
   private boolean hash_checked = false;
 
-  public Data_product_read(String dataProduct_name, FileApi fileApi) {
+  Data_product_read(String dataProduct_name, FileApi fileApi) {
     super(dataProduct_name, fileApi);
   }
 
@@ -121,6 +123,12 @@ public class Data_product_read extends Data_product_RW {
     return this.filechannel;
   }
 
+  /**
+   * Obtain an Object_component for reading.
+   * @param component_name the name of the object component to read.
+   * @return the Object_component class
+   *
+   */
   public Object_component_read getComponent(String component_name) {
     if (componentMap.containsKey(component_name))
       return (Object_component_read) componentMap.get(component_name);

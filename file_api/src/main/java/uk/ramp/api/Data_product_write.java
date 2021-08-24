@@ -16,17 +16,16 @@ import uk.ramp.dataregistry.content.*;
 import uk.ramp.file.CleanableFileChannel;
 
 /**
- * retrieving and storing the dataRegistry details for a dataproduct; as requested from the API
- * user, and possibly amended by the config.
+ * Class representing a data product for writing.
  */
-public class Data_product_write extends Data_product_RW {
+public class Data_product_write extends Data_product {
   private boolean is_hashed;
 
-  public Data_product_write(String dataProduct_name, FileApi fileApi) {
+  Data_product_write(String dataProduct_name, FileApi fileApi) {
     super(dataProduct_name, fileApi);
   }
 
-  public Data_product_write(String dataProduct_name, FileApi fileApi, String extension) {
+  Data_product_write(String dataProduct_name, FileApi fileApi, String extension) {
     super(dataProduct_name, fileApi, extension);
   }
 
@@ -82,7 +81,7 @@ public class Data_product_write extends Data_product_RW {
     return ns;
   }
 
-  public RegistryData_product getDataProduct() {
+  RegistryData_product getDataProduct() {
     // for a write DP we just make sure the DP should not exist yet:
     RegistryData_product dp = super.getDataProduct();
     if (dp != null) {
@@ -158,6 +157,11 @@ public class Data_product_write extends Data_product_RW {
     }
   }
 
+  /**
+   * Obtain an Object_component for writing.
+   * @param component_name the name of the object component.
+   * @return the Object_component_write object.
+   */
   public Object_component_write getComponent(String component_name) {
     if (componentMap.containsKey(component_name))
       return (Object_component_write) componentMap.get(component_name);

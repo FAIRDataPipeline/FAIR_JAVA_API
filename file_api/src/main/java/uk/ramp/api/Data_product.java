@@ -11,10 +11,9 @@ import uk.ramp.dataregistry.content.*;
 import uk.ramp.file.CleanableFileChannel;
 
 /**
- * retrieving and storing the dataRegistry details for a dataproduct; as requested from the API
- * user, and possibly amended by the config.
+ * Data product class. Used to obtain access to the components.
  */
-public abstract class Data_product_RW implements AutoCloseable {
+public abstract class Data_product implements AutoCloseable {
   protected FileApi fileApi;
   protected RegistryNamespace registryNamespace;
   protected String namespace_name;
@@ -29,15 +28,15 @@ public abstract class Data_product_RW implements AutoCloseable {
   protected CleanableFileChannel filechannel;
   protected String givenDataProduct_name;
   protected String actualDataProduct_name;
-  protected Map<String, Object_component_RW> componentMap = new HashMap<>();
+  protected Map<String, Object_component> componentMap = new HashMap<>();
   protected List<ImmutableConfigItem> configItems;
   protected boolean been_used = false;
 
-  Data_product_RW(String dataProduct_name, FileApi fileApi) {
+  Data_product(String dataProduct_name, FileApi fileApi) {
     this(dataProduct_name, fileApi, null);
   }
 
-  Data_product_RW(String dataProduct_name, FileApi fileApi, String extension) {
+  Data_product(String dataProduct_name, FileApi fileApi, String extension) {
     this.extension = extension;
     this.fileApi = fileApi;
     this.givenDataProduct_name = dataProduct_name;
@@ -85,7 +84,7 @@ public abstract class Data_product_RW implements AutoCloseable {
             RegistryNamespace.class, Collections.singletonMap("name", namespace_name));
   }
 
-  public RegistryData_product getDataProduct() {
+  RegistryData_product getDataProduct() {
     Map<String, String> dp_map =
         Map.of(
             "name",

@@ -9,17 +9,20 @@ import uk.ramp.estimate.ImmutableEstimate;
 import uk.ramp.file.CleanableFileChannel;
 import uk.ramp.samples.Samples;
 
-public class Object_component_write extends Object_component_RW {
+/**
+ * the object component class for reading data from data product (components or whole objects)
+ */
+public class Object_component_write extends Object_component {
 
-  public Object_component_write(Data_product_RW dp, String component_name) {
+  Object_component_write(Data_product dp, String component_name) {
     super(dp, component_name);
   }
 
-  public Object_component_write(Data_product_RW dp) {
+  Object_component_write(Data_product dp) {
     super(dp, "whole_object", true);
   }
 
-  public void populate_component() {
+  protected void populate_component() {
     this.registryObject_component = new RegistryObject_component(component_name);
   }
 
@@ -27,6 +30,10 @@ public class Object_component_write extends Object_component_RW {
     return this.registryObject_component;
   }
 
+  /**
+   * write a Number as an Estimate, as this named component in the data product.
+   * @param estimateNumber
+   */
   public void writeEstimate(Number estimateNumber) {
     var estimate =
         ImmutableEstimate.builder().internalValue(estimateNumber).rng(this.dp.fileApi.rng).build();
@@ -38,6 +45,10 @@ public class Object_component_write extends Object_component_RW {
     }
   }
 
+  /**
+   * write a Distribution, as this named component in the data product.
+   * @param distribution
+   */
   public void writeDistribution(Distribution distribution) {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       this.dp.fileApi.stdApi.parameterDataWriter.write(
@@ -56,6 +67,10 @@ public class Object_component_write extends Object_component_RW {
     }
   }*/
 
+  /**
+   * write Samples, as this named component in the data product.
+   * @param samples a Samples object containing the samples
+   */
   public void writeSamples(Samples samples) {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       this.dp.fileApi.stdApi.parameterDataWriter.write(fileChannel, this.component_name, samples);

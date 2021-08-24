@@ -1,35 +1,41 @@
 package uk.ramp.api;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import uk.ramp.dataregistry.content.RegistryObject_component;
 import uk.ramp.file.CleanableFileChannel;
 
-public abstract class Object_component_RW {
+/**
+ *
+ */
+public abstract class Object_component {
   protected String component_name;
   protected boolean whole_object = false;
-  protected Data_product_RW dp;
+  protected Data_product dp;
   protected RegistryObject_component registryObject_component;
   protected boolean been_used = false;
 
-  public Object_component_RW(Data_product_RW dp, String component_name) {
+  Object_component(Data_product dp, String component_name) {
     this(dp, component_name, false);
   }
 
-  public Object_component_RW(Data_product_RW dp) {
+  Object_component(Data_product dp) {
     this(dp, "whole_object", true);
   }
 
-  protected Object_component_RW(Data_product_RW dp, String component_name, boolean whole_object) {
+  protected Object_component(Data_product dp, String component_name, boolean whole_object) {
     this.dp = dp;
     this.whole_object = whole_object;
     this.component_name = component_name;
     this.populate_component();
   }
 
+  /**
+   * raise an issue with this component
+   * @param description the text description of this issue
+   * @param severity Integer - higher means more severe
+   */
   public void raise_issue(String description, Integer severity) {
     Issue i = this.dp.fileApi.raise_issue(description, severity);
     i.add_components(this);

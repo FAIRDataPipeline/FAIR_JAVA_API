@@ -9,25 +9,14 @@ import uk.ramp.toml.TomlReader;
 import uk.ramp.toml.TomlWriter;
 
 /**
- * Java implementation of Data Pipeline Standard API.
- *
- * <p>Standard API knows about Data Pipeline data such as distributions, arrays, parameter.
- *
- * <p>It uses File API only for dealing with the YAML config file, and for its Hasher.
- *
- * <p>The distinction between File API and Standard API comes from the previous version of the Data
- * Pipeline API; i'm not sure if we should change this.
- *
- * <p>Standard API uses dataregistry.restclient.RestClient for interacting with the local registry.
- *
- * <p>Access
+ * StandardApi helper for the fileApi
  */
 public class StandardApi {
   protected final ParameterDataReader parameterDataReader;
   protected final ParameterDataWriter parameterDataWriter;
   private final RandomGenerator rng;
 
-  public StandardApi(RandomGenerator rng) {
+  StandardApi(RandomGenerator rng) {
     this(
         new ParameterDataReaderImpl(new TomlReader(new TOMLMapper(rng))),
         new ParameterDataWriterImpl(new TomlWriter(new TOMLMapper(rng))),
