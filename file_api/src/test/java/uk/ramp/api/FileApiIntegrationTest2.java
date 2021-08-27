@@ -1,17 +1,25 @@
 package uk.ramp.api;
 
+import static java.nio.file.StandardOpenOption.READ;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.ref.Cleaner;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -23,6 +31,7 @@ import uk.ramp.distribution.Distribution.DistributionType;
 import uk.ramp.distribution.ImmutableDistribution;
 import uk.ramp.distribution.ImmutableMinMax;
 import uk.ramp.distribution.MinMax;
+import uk.ramp.file.CleanableFileChannel;
 import uk.ramp.samples.ImmutableSamples;
 import uk.ramp.samples.Samples;
 
@@ -38,6 +47,10 @@ public class FileApiIntegrationTest2 {
           .put(1, "colB", 1)
           .put(2, "colB", 2)
           .build();
+
+  private List<String[]> csv_data;
+  private String chickenTestText = "This is a text file about chickens.\nPlease forgive the lack of interesting content in this file.";
+
 
   private final Number[] array = new Number[] {5, 6, 3.4};
   private Samples samples, samples2, samples3, samples4;
@@ -70,6 +83,11 @@ public class FileApiIntegrationTest2 {
     samples2 = ImmutableSamples.builder().addSamples(4, 5, 6).rng(rng).build();
     samples3 = ImmutableSamples.builder().addSamples(7, 8, 9).rng(rng).build();
     samples4 = ImmutableSamples.builder().addSamples(10, 11, 12).rng(rng).build();
+
+    csv_data = new ArrayList<>();
+    csv_data.add(new String[] {"apple", "12", "green"});
+    csv_data.add(new String[] {"orange", "5", "orange"});
+    csv_data.add(new String[] {"banana", "32", "yellow"});
 
     distribution =
         ImmutableDistribution.builder()
@@ -577,6 +595,186 @@ public class FileApiIntegrationTest2 {
   }
 
   @Test
+  @Order(17)
+  public void testCSV_writeLink() throws IOException {
+    System.out.println("\n\ntestCSV\n\n");
+    try(var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "animal/ant";
+      Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "csv");
+      Object_component_write oc = dp.getComponent();
+      Path p = oc.writeLink();
+      assertNotNull(p);
+      if(p == null) return;
+      try(PrintWriter pw = new PrintWriter(p.toFile())){
+        csv_data.stream().map(s -> Stream.of(s).collect(Collectors.joining(","))).forEach(pw::println);
+      }
+    }
+  }
+
+  private List<String> getRecordFromLine(String line) {
+    List<String> values = new ArrayList<String>();
+    try (Scanner rowScanner = new Scanner(line)) {
+      rowScanner.useDelimiter(",");
+      while (rowScanner.hasNext()) {
+        values.add(rowScanner.next());
+      }
+    }
+    return values;
+  }
+
+  @Test
+  @Order(18)
+  public void testCSV_readLink() throws IOException {
+    System.out.println("\n\ntestCSV\n\n");
+    try(var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "animal/ant";
+      Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
+      Object_component_read oc = dp.getComponent();
+      Path p = oc.readLink();
+      Integer i = 0;
+      try (Scanner scanner = new Scanner(p.toFile());) {
+        while (scanner.hasNextLine()) {
+          assertThat(getRecordFromLine(scanner.nextLine())).isEqualTo(List.of(csv_data.get(i)));
+          i = i + 1;
+        }
+      }
+    }
+  }
+
+  @Test
+  @Order(19)
+  public void testCSV_writeLink_withIssue() throws IOException {
+    System.out.println("\n\ntestCSV\n\n");
+    try(var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "animal/monkey";
+      Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "csv");
+      Object_component_write oc = dp.getComponent();
+      Path p = oc.writeLink();
+      oc.raise_issue("this does not seem to contain anything monkey-related", 9);
+      assertNotNull(p);
+      if(p == null) return;
+      try(PrintWriter pw = new PrintWriter(p.toFile())){
+        csv_data.stream().map(s -> Stream.of(s).collect(Collectors.joining(","))).forEach(pw::println);
+      }
+    }
+  }
+
+  @Test
+  @Order(20)
+  public void testCSV_readLink_withIssue() throws IOException {
+    System.out.println("\n\ntestCSV\n\n");
+    try(var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "animal/ant";
+      Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
+      Object_component_read oc = dp.getComponent();
+      oc.raise_issue("not enough orange", 10);
+      Path p = oc.readLink();
+      Integer i = 0;
+      try (Scanner scanner = new Scanner(p.toFile());) {
+        while (scanner.hasNextLine()) {
+          assertThat(getRecordFromLine(scanner.nextLine())).isEqualTo(List.of(csv_data.get(i)));
+          i = i + 1;
+        }
+      }
+    }
+  }
+
+  @Test
+  @Order(21)
+  public void testRewriteDPname() {
+    System.out.println("\n\ntestCSV\n\n");
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "animal/canine";
+      Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent("NumberOfLegs");
+      oc.writeSamples(samples);
+    }
+  }
+
+  @Test
+  @Order(22)
+  public void testReadRewrittenDPname() {
+    System.out.println("\n\ntestReadRewrittenDPname\n\n");
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "animal/canine";
+      Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
+      Object_component_read oc = dp.getComponent("NumberOfLegs");
+      oc.readSamples();
+    }
+  }
+
+
+  @Test
+  @Order(23)
+  public void testAltNS() {
+    System.out.println("\n\ntestAltNS\n\n");
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "test/altns";
+      Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent("altNScompo");
+      oc.writeSamples(samples);
+    }
+  }
+
+  @Test
+  @Order(24)
+  public void testAltNSread() {
+    System.out.println("\n\ntestAltNSread\n\n");
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "test/altns";
+      Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
+      Object_component_read oc = dp.getComponent("altNScompo");
+      oc.readSamples();
+    }
+  }
+
+  @Test
+  @Order(25)
+  public void testConfigFiletype() {
+    System.out.println("\n\ntestConfigFiletype WRITE\n\n");
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "animal/chicken";
+      Data_product_write dp = fileApi.get_dp_for_write(dataProduct);
+      Object_component_write oc = dp.getComponent();
+      try (CleanableFileChannel f = oc.getFileChannel()){
+        ByteBuffer bb = ByteBuffer.wrap(chickenTestText.getBytes(StandardCharsets.UTF_8));
+        f.write(bb);
+      } catch(IOException e) {
+        System.out.println("failed to open FileChannel");
+      }
+    }
+
+    System.out.println("\n\ntestConfigFiletype READ\n\n");
+
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      String dataProduct = "animal/chicken";
+      Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
+      assertThat(dp.extension).isEqualTo("txt");
+      Object_component_read oc = dp.getComponent();
+      try(CleanableFileChannel f = oc.getFileChannel()){
+        ByteBuffer bb = ByteBuffer.allocate(chickenTestText.length());
+        f.read(bb);
+        String r = new String(bb.array());
+        assertThat(r).isEqualTo(chickenTestText);
+      }catch(IOException e) {
+        System.out.println("failed to open FileChannel");
+      }
+
+    }
+  }
+
+  @Test
+  @Order(26)
+  public void emptyCoderun() {
+    System.out.println("\n\nemptyCoderun\n\n");
+    try (var fileApi = new FileApi(configPath, scriptPath)) {
+      // do nothing
+    }
+
+  }
+
+
+    @Test
   @Disabled // Not implemented yet
   public void testReadArray() {
     var fileApi = new FileApi(configPath, scriptPath);

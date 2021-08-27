@@ -31,7 +31,7 @@ public class Data_product_write extends Data_product {
 
   void populate_dataproduct() {
     // called from the constructor
-    if (this.getDataProduct() != null) {
+    if (this.getRegistryData_product() != null) {
       throw (new IllegalArgumentException(
           "Data Product already exists: "
               + this.actualDataProduct_name
@@ -69,8 +69,8 @@ public class Data_product_write extends Data_product {
     return this.fileApi.config.run_metadata().default_output_namespace().orElse("");
   }
 
-  RegistryNamespace getNamespace(String namespace_name) {
-    RegistryNamespace ns = super.getNamespace(namespace_name);
+  RegistryNamespace getRegistryNamespace(String namespace_name) {
+    RegistryNamespace ns = super.getRegistryNamespace(namespace_name);
     if (ns == null) {
       ns = (RegistryNamespace) fileApi.restClient.post(new RegistryNamespace(namespace_name));
       if (ns == null) {
@@ -81,9 +81,9 @@ public class Data_product_write extends Data_product {
     return ns;
   }
 
-  RegistryData_product getDataProduct() {
+  RegistryData_product getRegistryData_product() {
     // for a write DP we just make sure the DP should not exist yet:
-    RegistryData_product dp = super.getDataProduct();
+    RegistryData_product dp = super.getRegistryData_product();
     if (dp != null) {
       throw (new IllegalArgumentException(
           "Trying to write to existing data_product "
@@ -131,6 +131,20 @@ public class Data_product_write extends Data_product {
     this.is_hashed = true;
   }
 
+  Path getFilePath() {
+    this.been_used = true;
+    this.is_hashed = false;
+    if (!this.filePath.getParent().toFile().exists()) {
+      try {
+        Files.createDirectories(this.filePath.getParent());
+      }catch (IOException e) {
+        System.out.println("failed to create directory " + this.filePath.getParent().toString());
+        return null;
+      }
+    }
+    return this.filePath;
+  }
+
   CleanableFileChannel getFilechannel() throws IOException {
     this.been_used = true;
     Runnable onClose = this::executeOnCloseFileHandleDP;
@@ -173,6 +187,18 @@ public class Data_product_write extends Data_product {
     }
     componentMap.put(component_name, dc);
     return dc;
+  }
+
+  /**
+   * Obtain an Object_component (whole_object) for writing.
+   * @return the Object_component class
+   *
+   */
+  public Object_component_write getComponent() {
+    if(this.whole_obj_oc == null)
+      this.whole_obj_oc = (Object_component) new Object_component_write(this);
+    //componentMap.put(component_name, dc);
+    return (Object_component_write) this.whole_obj_oc;
   }
 
   void stolo_obj_and_dp_to_registry() {
@@ -226,8 +252,8 @@ public class Data_product_write extends Data_product {
   }
 
   void components_to_registry() {
+    if(this.whole_obj_oc != null) this.whole_obj_oc.register_me_in_registry();
     this.componentMap.entrySet().stream()
-        .filter(c -> c.getValue().been_used)
         .forEach(
             component -> {
               component.getValue().register_me_in_registry();

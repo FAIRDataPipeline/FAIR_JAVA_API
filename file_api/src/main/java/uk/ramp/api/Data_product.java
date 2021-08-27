@@ -11,7 +11,8 @@ import uk.ramp.dataregistry.content.*;
 import uk.ramp.file.CleanableFileChannel;
 
 /**
- * Data product class. Used to obtain access to the components.
+ * Data product is created by the consumer: {@link uk.ramp.api.FileApi#get_dp_for_write(String, String)} or {@link uk.ramp.api.FileApi#get_dp_for_read(String)}
+ * Upon {@link FileApi#close()} it will try to register itself and its components in the registry, and then register itself in the coderun.
  */
 public abstract class Data_product implements AutoCloseable {
   protected FileApi fileApi;
@@ -26,7 +27,14 @@ public abstract class Data_product implements AutoCloseable {
   protected RegistryStorage_root registryStorage_root;
   protected Path filePath;
   protected CleanableFileChannel filechannel;
+  Object_component whole_obj_oc;
+  /**
+   *  the name given by the user (asked for in the FileApi.get_dp_for_xxx() call)
+   */
   protected String givenDataProduct_name;
+  /**
+   * usually the same as the given name, unless the config use section has given an alternative data product name to open.
+   */
   protected String actualDataProduct_name;
   protected Map<String, Object_component> componentMap = new HashMap<>();
   protected List<ImmutableConfigItem> configItems;
@@ -63,7 +71,7 @@ public abstract class Data_product implements AutoCloseable {
     }
     this.description = configItem.description().orElse("");
     this.version = configItem.use().version();
-    this.registryNamespace = this.getNamespace(this.namespace_name);
+    this.registryNamespace = this.getRegistryNamespace(this.namespace_name);
     this.populate_dataproduct();
   }
 
@@ -78,13 +86,13 @@ public abstract class Data_product implements AutoCloseable {
 
   abstract String getDefaultNamespace_name();
 
-  RegistryNamespace getNamespace(String namespace_name) {
+  RegistryNamespace getRegistryNamespace(String namespace_name) {
     return (RegistryNamespace)
         fileApi.restClient.getFirst(
             RegistryNamespace.class, Collections.singletonMap("name", namespace_name));
   }
 
-  RegistryData_product getDataProduct() {
+  RegistryData_product getRegistryData_product() {
     Map<String, String> dp_map =
         Map.of(
             "name",
@@ -107,6 +115,11 @@ public abstract class Data_product implements AutoCloseable {
   }
 
   /*
+   *
+   */
+  abstract Path getFilePath();
+
+  /*
    * please make sure the implementation set been_used = true;
    */
   abstract CleanableFileChannel getFilechannel() throws IOException;
@@ -123,8 +136,8 @@ public abstract class Data_product implements AutoCloseable {
   abstract void objects_to_registry();
 
   void InputsOutputsToCoderun() {
+    if(this.whole_obj_oc != null) this.whole_obj_oc.register_me_in_code_run_session(fileApi.code_run_session);
     this.componentMap.entrySet().stream()
-        .filter(obj_comp -> obj_comp.getValue().been_used)
         .forEach(
             obj_comp -> {
               obj_comp.getValue().register_me_in_code_run_session(fileApi.code_run_session);

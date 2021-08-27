@@ -1,10 +1,14 @@
-fail_on_hash_mismatch: True
 run_metadata:
   description: A simple analysis
   local_data_registry_url: http://localhost:8000/api/
+  remote_data_registry_url: https://data.scrc.uk/api/
   default_input_namespace: outputNS
   default_output_namespace: outputNS
   write_data_store: D:\datastore
+  local_repo: local_repo
+  script: ''
+  latest_commit: 988637ffb95381375f6b22e2281fea1bcb6c8fe0
+  remote_repo: https://github.com/fake_org/fake_repo/
 
 write:
   - data_product: human/example

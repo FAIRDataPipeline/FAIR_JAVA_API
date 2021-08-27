@@ -28,6 +28,23 @@ read:
   - data_product: animal/dodo
     use:
       version: 0.0.1
+  - data_product: animal/ant
+    use:
+      version: 0.0.1
+  - data_product: animal/doggy
+    use:
+      version: 0.0.1
+  - data_product: animal/canine
+    use:
+      data_product: animal/doggy
+      version: 0.0.1
+  - data_product: test/altns
+    use:
+      namespace: alternativeNS
+      version: 0.0.1
+  - data_product: animal/chicken
+    use:
+      version: 0.0.1
 
 write:
   - data_product: human/population
@@ -51,6 +68,23 @@ write:
     use:
       version: 0.0.1
   - data_product: animal/*
-    description: StandardApi Integration test for samples multiple components
+    description: StandardApi Integration test starglob animal
     use:
       version: 0.0.1
+  - data_product: animal/canine
+    description: testing a rewrite of dp name in use section
+    use:
+      data_product: animal/doggy
+      version: 0.0.1
+  - data_product: test/altns
+    description: testing alternative namespace
+    use:
+      namespace: alternativeNS
+      version: 0.0.1
+  - data_product: animal/chicken
+    description: chicken with config filetype
+    file_type: txt
+    use:
+      version: 0.0.2
+
+

@@ -33,7 +33,7 @@ public class FDPObjectTest {
         o.getStorage_location(), "https://data.scrc.uk/api/storage_location/14376/?format=json");
     // Assertions.assertNull(o.getFile_type());
     Assertions.assertEquals(o.getComponents(), new ArrayList<String>() {});
-    Assertions.assertNull(o.getData_product());
+    Assertions.assertNull(o.getData_products());
     Assertions.assertNull(o.getCode_repo_release());
     Assertions.assertNull(o.getQuality_control());
     Assertions.assertEquals(o.getAuthors(), new ArrayList<String>() {});
@@ -61,7 +61,7 @@ public class FDPObjectTest {
     // Assertions.assertNull(o.getFile_type());
     Assertions.assertEquals(o.getComponents().size(), 15);
     Assertions.assertEquals(
-        o.getData_product(), "https://data.scrc.uk/api/data_product/3341/?format=json");
+        o.getData_products().get(0), "https://data.scrc.uk/api/data_product/3341/?format=json");
     Assertions.assertNull(o.getCode_repo_release());
     Assertions.assertNull(o.getQuality_control());
     Assertions.assertEquals(o.getAuthors(), new ArrayList<String>() {});

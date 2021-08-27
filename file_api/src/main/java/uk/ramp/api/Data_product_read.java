@@ -11,7 +11,8 @@ import uk.ramp.dataregistry.content.*;
 import uk.ramp.file.CleanableFileChannel;
 
 /**
- * A Data Product for obtaining Object_component_read.
+ * Data_product_read is created by the consumer:  {@link uk.ramp.api.FileApi#get_dp_for_read(String)}
+ * Upon {@link FileApi#close()} it will register itself in the coderun. (
  */
 public class Data_product_read extends Data_product {
   private boolean hash_checked = false;
@@ -22,7 +23,7 @@ public class Data_product_read extends Data_product {
 
   void populate_dataproduct() {
     // called from the constructor
-    this.registryData_product = this.getDataProduct();
+    this.registryData_product = this.getRegistryData_product();
     if (this.registryData_product == null) {
       throw (new IllegalArgumentException(
           "Trying to read from non-existing data_product "
@@ -80,9 +81,9 @@ public class Data_product_read extends Data_product {
     return this.fileApi.config.run_metadata().default_input_namespace().orElse("");
   }
 
-  RegistryNamespace getNamespace(String namespace_name) {
+  RegistryNamespace getRegistryNamespace(String namespace_name) {
     // for a READ dp we must have the namespace from the config or we will have to give up
-    RegistryNamespace ns = super.getNamespace(namespace_name);
+    RegistryNamespace ns = super.getRegistryNamespace(namespace_name);
     if (ns == null) {
       throw (new IllegalArgumentException("can't find the namespace " + namespace_name));
     }
@@ -107,6 +108,12 @@ public class Data_product_read extends Data_product {
 
   private void executeOnCloseFileHandleDP() {
     // don't need to Hash READ objects
+  }
+
+  protected Path getFilePath() {
+    this.been_used = true;
+    if (!hash_checked) this.check_hash();
+    return this.filePath;
   }
 
   CleanableFileChannel getFilechannel() throws IOException {
@@ -137,6 +144,21 @@ public class Data_product_read extends Data_product {
     return dc;
   }
 
+  /**
+   * Obtain an Object_component (whole_object) for reading.
+   * @return the Object_component class
+   *
+   */
+  public Object_component_read getComponent() {
+    //
+    //if (componentMap.containsKey(component_name))
+    //  return (Object_component_read) componentMap.get(component_name);
+    if(this.whole_obj_oc == null)
+    this.whole_obj_oc = (Object_component) new Object_component_read(this);
+    //componentMap.put(component_name, dc);
+    return (Object_component_read) this.whole_obj_oc;
+  }
+
   void components_to_registry() {
     // this is just to make sure the components can register their issues
     this.componentMap.entrySet().stream()
@@ -150,8 +172,6 @@ public class Data_product_read extends Data_product {
   void objects_to_registry() {
     // this is called upon close; but since this is a READ dp, it won't have a DP, Stolo, fdpObj, or
     // any new components to register
-
-    // there might be issues to store though..
     this.components_to_registry();
   }
 }

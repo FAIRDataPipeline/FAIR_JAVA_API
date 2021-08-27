@@ -27,17 +27,6 @@ public class FileApiIntegrationTest1 {
     Files.copy(ori_scriptPath, scriptPath);
   }
 
-  @Disabled
-  @Test
-  public void testClose() throws IOException {
-    // api = new FileApi(Path.of(configPath));
-    api.close();
-    /*assertThat(Files.readString(Path.of(parentPath, "access-runId.yaml")))
-    .contains("open_timestamp")
-    .contains("close_timestamp")
-    .contains("run_id")
-    .contains("io");*/
-  }
 
   // @Test
   /*

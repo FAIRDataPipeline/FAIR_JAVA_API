@@ -20,7 +20,7 @@ public class RegistryObject extends Registry_Updateable {
 
   @XmlElement private List<String> components;
 
-  @XmlElement private String data_product;
+  @XmlElement private List<String> data_products;
 
   @XmlElement private String code_repo_release;
 
@@ -56,8 +56,8 @@ public class RegistryObject extends Registry_Updateable {
     return (this.components == null) ? new ArrayList<>() {} : new ArrayList<String>(components);
   }
 
-  public String getData_product() {
-    return data_product;
+  public List<String> getData_products() {
+    return (this.data_products == null) ? new ArrayList<>() {} : new ArrayList<String>(data_products);
   }
 
   public String getCode_repo_release() {
@@ -100,8 +100,8 @@ public class RegistryObject extends Registry_Updateable {
     this.components = new ArrayList<>(components);
   }
 
-  public void setData_product(String data_product) {
-    this.data_product = data_product;
+  public void setData_products(List<String> data_products) {
+    this.data_products = new ArrayList<>(data_products);
   }
 
   public void setCode_repo_release(String code_repo_release) {

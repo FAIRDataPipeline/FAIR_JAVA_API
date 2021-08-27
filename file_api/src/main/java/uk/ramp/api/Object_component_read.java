@@ -1,6 +1,7 @@
 package uk.ramp.api;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import uk.ramp.distribution.Distribution;
 import uk.ramp.file.CleanableFileChannel;
@@ -33,6 +34,31 @@ public class Object_component_read extends Object_component {
               + this.dp.fdpObject.get_id().toString()
               + " not found in registry."));
     }
+  }
+
+  /**
+   * get the filePath to read from; only for whole_object component
+   * @return Path the Path of the data object.
+   */
+  public Path readLink() {
+    if (!this.whole_object) {
+      throw(new IllegalArgumentException("you shouldn't try to read directly from a Data Product with named components."));
+    }
+    this.been_used = true;
+    return this.dp.getFilePath();
+  }
+
+  /**
+   * get the CleanableFileChannel to read directly from the file. only for whole_object component.
+   * @return CleanableFileChannel the filechannel to read from.
+   * @throws IOException
+   */
+  public CleanableFileChannel readFileChannel() throws IOException {
+    if (!this.whole_object) {
+      throw(new IllegalArgumentException("you shouldn't try to read directly from a Data Product with named components."));
+    }
+    this.been_used = true;
+    return this.getFileChannel();
   }
 
   /**

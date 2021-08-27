@@ -181,11 +181,35 @@ public interface Config {
     Optional<String> local_repo();
 
     /**
+     * This is ignored; should it actually be here?
+     * @return String remote_repo - this is ignored.
+     */
+    @JsonProperty
+    Optional<String> remote_repo();
+
+    /**
+     * you can give the path to the submission script (to be stored in the code run) here, or in
+     * {@link uk.ramp.api.FileApi#FileApi(Path, Path)} FileApi constructor. Constructor will override the config.
+     * @return String script_path - the location of the 'submission script', if given.
+     */
+    @JsonProperty
+    Optional<String> script();
+
+    /**
      * you can give the path to the submission script (to be stored in the code run) here, or in
      * {@link uk.ramp.api.FileApi#FileApi(Path, Path)} FileApi constructor. Constructor will override the config.
      * @return String script_path - the location of the 'submission script', if given.
      */
     @JsonProperty
     Optional<String> script_path();
+
+    /**
+     * you can give the path to the submission script (to be stored in the code run) here, or in
+     * {@link uk.ramp.api.FileApi#FileApi(Path, Path)} FileApi constructor. Constructor will override the config.
+     * @return String script_path - the location of the 'submission script', if given.
+     */
+    @JsonProperty
+    Optional<String> latest_commit();
+
   }
 }

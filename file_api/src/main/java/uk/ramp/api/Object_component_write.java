@@ -1,6 +1,7 @@
 package uk.ramp.api;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import uk.ramp.dataregistry.content.RegistryObject_component;
@@ -29,6 +30,33 @@ public class Object_component_write extends Object_component {
   RegistryObject_component getObject_component() {
     return this.registryObject_component;
   }
+
+  /**
+   * get the filePath to write; only for whole_object component
+   * @return Path the Path of the data object.
+   */
+  public Path writeLink() {
+    if (!this.whole_object) {
+      throw(new IllegalArgumentException("you shouldn't try to write directly to a Data Product with named components."));
+    }
+    this.been_used = true;
+    return this.dp.getFilePath();
+  }
+
+  /**
+   * get the CleanableFileChannel to write directly to the file. only for whole_object component.
+   * @return CleanableFileChannel the filechannel to write to.
+   * @throws IOException
+   */
+  public CleanableFileChannel writeFileChannel() throws IOException {
+    if (!this.whole_object) {
+      throw(new IllegalArgumentException("you shouldn't try to write directly to a Data Product with named components."));
+    }
+    this.been_used = true;
+    return this.getFileChannel();
+  }
+
+
 
   /**
    * write a Number as an Estimate, as this named component in the data product.
@@ -80,10 +108,12 @@ public class Object_component_write extends Object_component {
   }
 
   protected void register_me_in_code_run_session(Code_run_session crs) {
-    crs.addOutput(this.registryObject_component.getUrl());
+    if(this.been_used)
+      crs.addOutput(this.registryObject_component.getUrl());
   }
 
   protected void register_me_in_registry() {
+    if(!been_used) return; // don't register a component unless it has been written to
     if (this.whole_object) {
       Map<String, String> find_whole_object =
           new HashMap<>() {

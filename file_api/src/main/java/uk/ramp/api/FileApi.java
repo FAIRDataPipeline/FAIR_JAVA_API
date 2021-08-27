@@ -1,7 +1,5 @@
 package uk.ramp.api;
 
-import java.lang.ref.Cleaner;
-import java.lang.ref.Cleaner.Cleanable;
 import java.nio.file.*;
 import java.time.Clock;
 import java.time.Instant;
@@ -22,9 +20,6 @@ import uk.ramp.yaml.YamlReader;
  * <p>Users should initialise this library using a try-with-resources block or ensure that .close()
  * is explicitly closed when the required file handles have been accessed.
  *
- * <p>As a safety net, .close() is called by a cleaner when the instance of FileApi is being
- * collected by the GC. [BB actually unsure about this at the moment]
- *
  * <p>
  *     <b>Usage example</b>
  *     <blockquote><pre>
@@ -42,8 +37,6 @@ import uk.ramp.yaml.YamlReader;
  *
  */
 public class FileApi implements AutoCloseable {
-  private static final Cleaner cleaner = Cleaner.create(); // safety net for closing
-  private final Cleanable cleanable;
   final Config config;
   static final boolean DP_READ = true;
   static final boolean DP_WRITE = false;
@@ -82,8 +75,6 @@ public class FileApi implements AutoCloseable {
   FileApi(Clock clock, Path configFilePath, Path scriptPath) {
     Instant openTimestamp = clock.instant();
     YamlReader yamlReader = new YamlFactory().yamlReader();
-    this.cleanable =
-        cleaner.register(this, new FileApiWrapper(this, (Runnable) this::closingMessage));
     this.hasher = new Hasher();
     this.scriptPath = scriptPath;
     this.configFilePath = configFilePath;
@@ -98,7 +89,6 @@ public class FileApi implements AutoCloseable {
                 .run_metadata()
                 .local_data_registry_url()
                 .orElse("http://localhost:8000/api/"));
-    // this.cleanable = cleaner.register(this, accessLoggerWrapper);
 
     String Storage_root_path = config.run_metadata().write_data_store().orElse("");
     // TODO: i don't think write_data_store is optional..
@@ -119,33 +109,6 @@ public class FileApi implements AutoCloseable {
     this.issues = new ArrayList<>();
   }
 
-  public void closingMessage() {
-    System.out.println("closing message");
-  }
-
-  private static class FileApiWrapper implements Runnable {
-    private final FileApi fileApi;
-    Runnable runOnClose;
-
-    FileApiWrapper(FileApi fileApi, Runnable runOnClose) {
-      System.out.println("the cleaner/wrapper has been created");
-      this.fileApi = fileApi;
-      this.runOnClose = runOnClose;
-    }
-
-    // Invoked by close method or cleaner
-    @Override
-    public void run() {
-      runOnClose.run();
-      System.out.println("trying to cleanup the fileApi");
-      try {
-        fileApi.close();
-      } catch (Exception e) {
-        throw new IllegalArgumentException(e);
-      }
-    }
-  }
-
   private void prepare_code_run_session() {
     this.code_run_session =
         new Code_run_session(
@@ -162,8 +125,13 @@ public class FileApi implements AutoCloseable {
    * @return the data product.
    */
   public Data_product_read get_dp_for_read(String dataProduct_name) {
-    if (dp_info_map.containsKey(dataProduct_name))
+    if (dp_info_map.containsKey(dataProduct_name)) {
+      // I could of course refuse to serve up the same DP twice, but let's be friendly.
+      if(dp_info_map.get(dataProduct_name).getClass() != Data_product_read.class) {
+        throw(new IllegalArgumentException("You are trying to open the same data product twice in the same coderun, first for write and then for read. Please don't."));
+      }
       return (Data_product_read) dp_info_map.get(dataProduct_name);
+    }
     Data_product_read dp = new Data_product_read(dataProduct_name, this);
     dp_info_map.put(dataProduct_name, dp);
     return dp;
@@ -176,9 +144,36 @@ public class FileApi implements AutoCloseable {
    * @return the data product
    */
   public Data_product_write get_dp_for_write(String dataProduct_name, String extension) {
-    if (dp_info_map.containsKey(dataProduct_name))
+    if (dp_info_map.containsKey(dataProduct_name)) {
+      // I could of course refuse to serve up the same DP twice, but let's be friendly.
+      if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write.class) {
+        throw (new IllegalArgumentException("You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't."));
+      }
+      if(dp_info_map.get(dataProduct_name).extension != extension) {
+        throw(new IllegalArgumentException("You are trying to open the same data product using two different file types. Please don't."));
+      }
       return (Data_product_write) dp_info_map.get(dataProduct_name);
+    }
     Data_product_write dp = new Data_product_write(dataProduct_name, this, extension);
+    dp_info_map.put(dataProduct_name, dp);
+    return dp;
+  }
+
+  /**
+   * Obtain a data product for writing. (gets the extension from config)
+   * @param dataProduct_name the name of the dataProduct to obtain.
+   * @return the data product
+   */
+  public Data_product_write get_dp_for_write(String dataProduct_name) {
+    if (dp_info_map.containsKey(dataProduct_name)) {
+      // I could of course refuse to serve up the same DP twice, but let's be friendly.
+      if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write.class) {
+        throw (new IllegalArgumentException("You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't."));
+      }
+      return (Data_product_write) dp_info_map.get(dataProduct_name);
+    }
+    Data_product_write dp = new Data_product_write(dataProduct_name, this);
+    // if dp.extension != dp_info_map.get(dataProduct_name).extension) -> FAIL
     dp_info_map.put(dataProduct_name, dp);
     return dp;
   }
@@ -211,6 +206,5 @@ public class FileApi implements AutoCloseable {
             });
     code_run_session.finish();
     this.register_issues();
-    // cleanable.clean();
   }
 }
