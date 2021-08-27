@@ -2,10 +2,22 @@ plugins {
     id 'java'
     id "com.diffplug.gradle.spotless" version "4.4.0"
     id "maven-publish"
+    id "application"
     //id "jacoco"
 }
 group 'uk.ramp'
 version '1.0-SNAPSHOT'
+
+apply plugin : "java"
+
+ext {
+    javaMainClass = "uk.ramp.fdpuser2"
+}
+
+application {
+    mainClassName = javaMainClass
+}
+
 
 repositories {
     mavenCentral()
@@ -29,4 +41,18 @@ spotless {
     java {
         googleJavaFormat()
     }
+}
+
+task runWithJavaExec(type: JavaExec) {
+    group = "Execution"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    main = javaMainClass
+}
+
+task runWithExec(type: Exec) {
+    dependsOn build
+    group = "Execution"
+    description = "Run the main class with ExecTask"
+    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), javaMainClass
 }
