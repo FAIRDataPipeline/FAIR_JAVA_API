@@ -20,4 +20,8 @@ class File_type {
       }
     }
   }
+
+  String getUrl(){
+    return this.registryFile_type.getUrl();
+  }
 }

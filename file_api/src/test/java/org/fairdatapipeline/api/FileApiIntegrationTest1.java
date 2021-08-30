@@ -11,7 +11,7 @@ public class FileApiIntegrationTest1 {
   private Path ori_configPath, configPath, ori_scriptPath, scriptPath;
   private String datastore = "D:\\datastore";
   private String coderun = "\\coderun\\20210806T123456";
-  private FileApi api;
+  private Coderun api;
 
   @BeforeAll
   public void setUp() throws IOException, URISyntaxException {

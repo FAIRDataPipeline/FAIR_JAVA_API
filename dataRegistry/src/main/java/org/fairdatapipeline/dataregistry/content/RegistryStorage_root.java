@@ -28,9 +28,7 @@ public class RegistryStorage_root extends Registry_Updateable {
     return this.root;
   }
 
-  public Path getPath() {
-    return Paths.get(this.root);
-  }
+  public String getPath() { return this.root; }
 
   public Boolean getLocal() {
     return this.local;

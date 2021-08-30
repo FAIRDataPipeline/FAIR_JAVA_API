@@ -1,11 +1,15 @@
 package org.fairdatapipeline.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement
 public class RegistryData_product extends Registry_Updateable {
+
   @XmlElement private String name;
 
   @XmlElement private String version;
@@ -20,7 +24,9 @@ public class RegistryData_product extends Registry_Updateable {
   @XmlElement
   private boolean internal_format;
 
-  public RegistryData_product() {}
+  public RegistryData_product() {
+    this.methods_allowed = List.of("GET", "PUT", "PATCH", "HEAD", "OPTIONS");
+  }
 
   public String getName() {
     return name;

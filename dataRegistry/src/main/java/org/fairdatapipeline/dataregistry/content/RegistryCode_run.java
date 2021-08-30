@@ -1,5 +1,7 @@
 package org.fairdatapipeline.dataregistry.content;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class RegistryCode_run extends Registry_Updateable {
+
   @XmlElement private LocalDateTime run_date;
 
   @XmlElement private String description;
@@ -25,6 +28,10 @@ public class RegistryCode_run extends Registry_Updateable {
   @XmlElement private String uuid;
 
   @XmlElement private String prov_report;
+
+  public RegistryCode_run() {
+    methods_allowed = List.of("GET", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS");
+  }
 
   public LocalDateTime getRun_date() {
     return this.run_date;
@@ -47,11 +54,15 @@ public class RegistryCode_run extends Registry_Updateable {
   }
 
   public List<String> getInputs() {
-    return (this.inputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.inputs);
+    //return (this.inputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.inputs);
+    // we're more likely to be able to use the PATCH method if unset items are null.
+    return (this.inputs == null) ? null : new ArrayList<>(this.inputs);
   }
 
   public List<String> getOutputs() {
-    return (this.outputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.outputs);
+    //return (this.outputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.outputs);
+    // we're more likely to be able to use the PATCH method if unset items are null.
+    return (this.outputs == null) ? null : new ArrayList<>(this.outputs);
   }
 
   public String getUuid() {
@@ -83,11 +94,11 @@ public class RegistryCode_run extends Registry_Updateable {
   }
 
   public void setInputs(List<String> inputs) {
-    this.inputs = new ArrayList<String>(inputs);
+    this.inputs = (inputs == null) ? null : new ArrayList<String>(inputs);
   }
 
   public void setOutputs(List<String> outputs) {
-    this.outputs = new ArrayList<String>(outputs);
+    this.outputs = (outputs==null) ? null : new ArrayList<String>(outputs);
   }
 
   public void addOutput(String output) {

@@ -22,12 +22,12 @@ import org.fairdatapipeline.file.CleanableFileChannel;
 public class Data_product_write extends Data_product {
   private boolean is_hashed;
 
-  Data_product_write(String dataProduct_name, FileApi fileApi) {
-    super(dataProduct_name, fileApi);
+  Data_product_write(String dataProduct_name, Coderun coderun) {
+    super(dataProduct_name, coderun);
   }
 
-  Data_product_write(String dataProduct_name, FileApi fileApi, String extension) {
-    super(dataProduct_name, fileApi, extension);
+  Data_product_write(String dataProduct_name, Coderun coderun, String extension) {
+    super(dataProduct_name, coderun, extension);
   }
 
   void populate_dataproduct() {
@@ -41,7 +41,8 @@ public class Data_product_write extends Data_product {
               + ", namespace: "
               + this.namespace_name));
     }
-    File_type file_type = new File_type(this.extension, fileApi.restClient);
+    File_type file_type = new File_type(this.extension, coderun.restClient);
+
     this.registryStorage_root = this.getStorageRoot();
     this.registryStorage_location = new RegistryStorage_location();
     this.registryStorage_location.setStorage_root(this.registryStorage_root.getUrl());
@@ -52,7 +53,7 @@ public class Data_product_write extends Data_product {
     this.registryStorage_location.setPath(my_stolo_path.toString());
     this.fdpObject = new RegistryObject();
     this.fdpObject.setDescription(this.description);
-    this.fdpObject.setFile_type(file_type.registryFile_type.getUrl());
+    this.fdpObject.setFile_type(file_type.getUrl());
     // o.setAuthors();
     this.registryData_product =
         new RegistryData_product(); // sorry for the confusion but this is a restclient Object for
@@ -63,17 +64,17 @@ public class Data_product_write extends Data_product {
   }
 
   List<ImmutableConfigItem> getConfigItems() {
-    return fileApi.config.writeItems();
+    return coderun.config.writeItems();
   }
 
   String getDefaultNamespace_name() {
-    return this.fileApi.config.run_metadata().default_output_namespace().orElse("");
+    return this.coderun.config.run_metadata().default_output_namespace().orElse("");
   }
 
   RegistryNamespace getRegistryNamespace(String namespace_name) {
     RegistryNamespace ns = super.getRegistryNamespace(namespace_name);
     if (ns == null) {
-      ns = (RegistryNamespace) fileApi.restClient.post(new RegistryNamespace(namespace_name));
+      ns = (RegistryNamespace) coderun.restClient.post(new RegistryNamespace(namespace_name));
       if (ns == null) {
         throw (new IllegalArgumentException(
             "failed to create in registry: namespace '" + namespace_name + "'"));
@@ -127,7 +128,7 @@ public class Data_product_write extends Data_product {
 
   private void do_hash() {
     if (this.is_hashed) return;
-    String hash = fileApi.hasher.fileHash(this.filePath.toString());
+    String hash = coderun.hasher.fileHash(this.filePath.toString());
     this.registryStorage_location.setHash(hash);
     this.is_hashed = true;
   }
@@ -217,7 +218,7 @@ public class Data_product_write extends Data_product {
               this.registryStorage_location.isIs_public() ? "true" : "false");
       RegistryStorage_location identical_sl =
           (RegistryStorage_location)
-              this.fileApi.restClient.getFirst(RegistryStorage_location.class, find_identical);
+              this.coderun.restClient.getFirst(RegistryStorage_location.class, find_identical);
       if (identical_sl != null) {
         // we've found an existing stolo with matching hash.. delete this one.
         this.filePath.toFile().delete();
@@ -226,7 +227,7 @@ public class Data_product_write extends Data_product {
       } else {
         // we've not found an existing stolo with matching hash.. store this one.
         RegistryStorage_location sl =
-            (RegistryStorage_location) this.fileApi.restClient.post(this.registryStorage_location);
+            (RegistryStorage_location) this.coderun.restClient.post(this.registryStorage_location);
         if (sl == null) {
           throw (new IllegalArgumentException(
               "Failed to create in registry: new storage location "
@@ -237,14 +238,14 @@ public class Data_product_write extends Data_product {
       }
     }
     this.fdpObject.setStorage_location(this.registryStorage_location.getUrl());
-    final RegistryObject o = (RegistryObject) this.fileApi.restClient.post(this.fdpObject);
+    final RegistryObject o = (RegistryObject) this.coderun.restClient.post(this.fdpObject);
     if (o == null)
       throw (new IllegalArgumentException(
           "Failed to create in registry: Object " + this.fdpObject.getDescription()));
     this.fdpObject = o;
     this.registryData_product.setObject(o.getUrl());
     RegistryData_product dp =
-        (RegistryData_product) this.fileApi.restClient.post(this.registryData_product);
+        (RegistryData_product) this.coderun.restClient.post(this.registryData_product);
     if (dp == null) {
       throw (new IllegalArgumentException(
           "Failed to create in registry: Data_product " + this.registryData_product.getName()));
@@ -262,18 +263,18 @@ public class Data_product_write extends Data_product {
   }
 
   RegistryStorage_root getStorageRoot() {
-    String storage_root_path = fileApi.config.run_metadata().write_data_store().orElse("");
+    String storage_root_path = coderun.config.run_metadata().write_data_store().orElse("");
     if (storage_root_path == "") {
       throw (new IllegalArgumentException("No write_data_store given in config."));
     }
     RegistryStorage_root sr =
         (RegistryStorage_root)
-            fileApi.restClient.getFirst(
+            coderun.restClient.getFirst(
                 RegistryStorage_root.class, Collections.singletonMap("root", storage_root_path));
     if (sr == null) {
       sr =
           (RegistryStorage_root)
-              fileApi.restClient.post(new RegistryStorage_root(storage_root_path));
+              coderun.restClient.post(new RegistryStorage_root(storage_root_path));
       if (sr == null) {
         throw (new IllegalArgumentException(
             "failed to create in registry: storage root " + storage_root_path));

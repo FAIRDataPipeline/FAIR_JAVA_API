@@ -21,10 +21,6 @@ public class Object_component_read extends Object_component {
     super(dp);
   }
 
-  /*private Object_component_read(Data_product_read dp, String component_name, boolean whole_object) {
-      super(dp, component_name, whole_object);
-  }*/
-
   protected void populate_component() {
     this.registryObject_component = this.retrieveObject_component();
     if (this.registryObject_component == null) {
@@ -70,7 +66,7 @@ public class Object_component_read extends Object_component {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       data =
-          dp.fileApi.stdApi.parameterDataReader.read(
+          dp.coderun.stdApi.parameterDataReader.read(
               fileChannel, this.registryObject_component.getName());
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open the file."));
@@ -85,7 +81,7 @@ public class Object_component_read extends Object_component {
   public Distribution readDistribution() {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      data = this.dp.fileApi.stdApi.parameterDataReader.read(fileChannel, this.component_name);
+      data = this.dp.coderun.stdApi.parameterDataReader.read(fileChannel, this.component_name);
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file for read " + e.toString()));
     }
@@ -99,7 +95,7 @@ public class Object_component_read extends Object_component {
   public List<Number> readSamples() {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      data = this.dp.fileApi.stdApi.parameterDataReader.read(fileChannel, this.component_name);
+      data = this.dp.coderun.stdApi.parameterDataReader.read(fileChannel, this.component_name);
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file for read " + e.toString()));
     }
@@ -120,7 +116,8 @@ public class Object_component_read extends Object_component {
     // i am a read component, so i am already registered.
   }
 
-  protected void register_me_in_code_run_session(Code_run_session crs) {
-    crs.addInput(this.registryObject_component.getUrl());
+  protected void register_me_in_code_run() {
+    if(this.been_used)
+      this.dp.coderun.addInput(this.registryObject_component.getUrl());
   }
 }

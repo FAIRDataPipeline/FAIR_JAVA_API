@@ -33,7 +33,7 @@ import org.fairdatapipeline.samples.Samples;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class FileApiIntegrationTest2 {
+public class CoderunIntegrationTest2 {
   private final Table<Integer, String, Number> mockTable =
       ImmutableTable.<Integer, String, Number>builder()
           .put(0, "colA", 5)
@@ -153,8 +153,8 @@ public class FileApiIntegrationTest2 {
     String dataProduct = "human/population";
     String component = "estimate-component";
     System.out.println("\n\ntestWriteEstimate\n\n");
-    try (FileApi fileApi = new FileApi(configPath, scriptPath)) {
-      Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
+    try (Coderun coderun = new Coderun(configPath, scriptPath)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeEstimate(estimate);
     } catch (Exception e) {
@@ -164,7 +164,7 @@ public class FileApiIntegrationTest2 {
     }
     // to assert things are correct, we check the storageRoot:
     // we just make sure that 3 storagelocations were created: config, script, and output
-    RegistryStorage_root sr =
+    /*RegistryStorage_root sr =
         (RegistryStorage_root)
             restClient.getFirst(
                 RegistryStorage_root.class, Collections.singletonMap("root", "D:\\datastore"));
@@ -185,7 +185,7 @@ public class FileApiIntegrationTest2 {
       RegistryObject o = (RegistryObject) l.getResults().get(0);
       assertThat(o.getFile_type()).isEqualTo("http://localhost:8000/api/file_type/3/");
       assertThat(o.getDescription()).isEqualTo("StandardApi Integration test");
-    }
+    }*/
     System.out.println("\n\nend of testWriteEstimate\n\n");
   }
 
@@ -195,7 +195,7 @@ public class FileApiIntegrationTest2 {
     String dataProduct = "human/population";
     String component = "estimate-component";
     System.out.println("\n\ntestReadEstimate\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent(component);
       assertThat(oc.readEstimate()).isEqualTo(estimate);
@@ -204,7 +204,7 @@ public class FileApiIntegrationTest2 {
       System.out.println(e);
       e.printStackTrace();
     }
-    RegistryStorage_root sr =
+    /*RegistryStorage_root sr =
         (RegistryStorage_root)
             restClient.getFirst(
                 RegistryStorage_root.class, Collections.singletonMap("root", "D:\\datastore"));
@@ -224,7 +224,7 @@ public class FileApiIntegrationTest2 {
       assertThat(cr.getOutputs().size()).isEqualTo(0);
       assertThat(cr.getInputs().size()).isEqualTo(1);
     }
-
+*/
     System.out.println("\n\nend of testReadEstimate\n\n");
   }
 
@@ -234,7 +234,7 @@ public class FileApiIntegrationTest2 {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
     System.out.println("\n\ntestWriteDistribution\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeDistribution(distribution);
@@ -257,7 +257,7 @@ public class FileApiIntegrationTest2 {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
     System.out.println("\n\ntestReadDistribution\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       Data_product_read dc = fileApi.get_dp_for_read(dataProduct);
       Object_component_read oc = dc.getComponent(component);
       assertThat(oc.readDistribution()).isEqualTo(distribution);
@@ -277,7 +277,7 @@ public class FileApiIntegrationTest2 {
   @Order(5)
   public void testWriteCategoricalDistribution() throws IOException {
     System.out.println("\n\ntestWriteCategorialDistribution\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "human/cdistribution";
       String component = "cdistribution-component";
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
@@ -301,7 +301,7 @@ public class FileApiIntegrationTest2 {
   @Order(6)
   public void testReadCategoricalDistribution() {
     System.out.println("\n\ntestReadCategorialDistribution\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "human/cdistribution";
       String component = "cdistribution-component";
       Data_product_read dc = fileApi.get_dp_for_read(dataProduct);
@@ -323,7 +323,7 @@ public class FileApiIntegrationTest2 {
   @Order(7)
   public void testWriteSamples() throws IOException {
     System.out.println("\n\ntestWriteSamples\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "human/samples";
       String component = "example-samples-w";
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
@@ -347,7 +347,7 @@ public class FileApiIntegrationTest2 {
   @Order(8)
   public void testReadSamples() {
     System.out.println("\n\ntestReadSamples\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "human/samples";
       String component = "example-samples-w";
       Data_product_read dc = fileApi.get_dp_for_read(dataProduct);
@@ -373,7 +373,7 @@ public class FileApiIntegrationTest2 {
   @Order(9)
   public void testWriteSamplesMultipleComponents() throws IOException {
     System.out.println("\n\ntestWriteSamplesMultipleComponents\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "human/multicomp";
       String component1 = "example-samples-w1";
       String component2 = "example-samples-w2";
@@ -404,7 +404,7 @@ public class FileApiIntegrationTest2 {
   @Order(10)
   public void testReadSamplesMultipleComponents() {
     System.out.println("\n\ntestReadSamplesMultipleComponents\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "human/multicomp";
       String component1 = "example-samples-w1";
       String component2 = "example-samples-w2";
@@ -432,7 +432,7 @@ public class FileApiIntegrationTest2 {
   @Order(11)
   public void testWriteGlobDP() {
     System.out.println("\n\ntestWriteGlobDP\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/dog";
       String component = "example-samples";
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
@@ -454,7 +454,7 @@ public class FileApiIntegrationTest2 {
   @Order(12)
   public void testReadNoGlob() {
     System.out.println("\n\ntestReadNoGlob\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/dog";
       String component = "example-samples";
       Data_product_read dc = fileApi.get_dp_for_read(dataProduct);
@@ -474,7 +474,7 @@ public class FileApiIntegrationTest2 {
   @Order(13)
   public void testWriteGlobMultiDP() {
     System.out.println("\n\ntestWriteGlobDP\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct1 = "animal/horse";
       String dataProduct2 = "animal/mouse";
       String component = "example-samples";
@@ -500,7 +500,7 @@ public class FileApiIntegrationTest2 {
   @Order(14)
   public void testWriteSamplesMultipleComponentsAndIssues() throws IOException {
     System.out.println("\n\ntestWriteSamplesMultipleComponentsAndIssues\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/dodo";
       String component1 = "example-samples-dodo1";
       String component2 = "example-samples-dodo2";
@@ -533,7 +533,7 @@ public class FileApiIntegrationTest2 {
   @Order(15)
   public void testReadSamplesMultipleComponentsAndIssues() {
     System.out.println("\n\ntestReadSamplesMultipleComponents\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/dodo";
       String component1 = "example-samples-dodo1";
       String component2 = "example-samples-dodo2";
@@ -562,7 +562,7 @@ public class FileApiIntegrationTest2 {
   @Order(16)
   public void testRead_oneIssueToMultipleComp() {
     System.out.println("\n\ntestRead_oneIssueToMultipleComp\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/dodo";
       String component1 = "example-samples-dodo1";
       String component2 = "example-samples-dodo2";
@@ -594,7 +594,7 @@ public class FileApiIntegrationTest2 {
   @Order(17)
   public void testCSV_writeLink() throws IOException {
     System.out.println("\n\ntestCSV\n\n");
-    try(var fileApi = new FileApi(configPath, scriptPath)) {
+    try(var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/ant";
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "csv");
       Object_component_write oc = dp.getComponent();
@@ -622,7 +622,7 @@ public class FileApiIntegrationTest2 {
   @Order(18)
   public void testCSV_readLink() throws IOException {
     System.out.println("\n\ntestCSV\n\n");
-    try(var fileApi = new FileApi(configPath, scriptPath)) {
+    try(var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/ant";
       Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent();
@@ -641,7 +641,7 @@ public class FileApiIntegrationTest2 {
   @Order(19)
   public void testCSV_writeLink_withIssue() throws IOException {
     System.out.println("\n\ntestCSV\n\n");
-    try(var fileApi = new FileApi(configPath, scriptPath)) {
+    try(var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/monkey";
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "csv");
       Object_component_write oc = dp.getComponent();
@@ -659,7 +659,7 @@ public class FileApiIntegrationTest2 {
   @Order(20)
   public void testCSV_readLink_withIssue() throws IOException {
     System.out.println("\n\ntestCSV\n\n");
-    try(var fileApi = new FileApi(configPath, scriptPath)) {
+    try(var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/ant";
       Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent();
@@ -679,7 +679,7 @@ public class FileApiIntegrationTest2 {
   @Order(21)
   public void testRewriteDPname() {
     System.out.println("\n\ntestCSV\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/canine";
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent("NumberOfLegs");
@@ -691,7 +691,7 @@ public class FileApiIntegrationTest2 {
   @Order(22)
   public void testReadRewrittenDPname() {
     System.out.println("\n\ntestReadRewrittenDPname\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/canine";
       Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent("NumberOfLegs");
@@ -704,7 +704,7 @@ public class FileApiIntegrationTest2 {
   @Order(23)
   public void testAltNS() {
     System.out.println("\n\ntestAltNS\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "test/altns";
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent("altNScompo");
@@ -716,7 +716,7 @@ public class FileApiIntegrationTest2 {
   @Order(24)
   public void testAltNSread() {
     System.out.println("\n\ntestAltNSread\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "test/altns";
       Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent("altNScompo");
@@ -728,7 +728,7 @@ public class FileApiIntegrationTest2 {
   @Order(25)
   public void testConfigFiletype() {
     System.out.println("\n\ntestConfigFiletype WRITE\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/chicken";
       Data_product_write dp = fileApi.get_dp_for_write(dataProduct);
       Object_component_write oc = dp.getComponent();
@@ -742,7 +742,7 @@ public class FileApiIntegrationTest2 {
 
     System.out.println("\n\ntestConfigFiletype READ\n\n");
 
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       String dataProduct = "animal/chicken";
       Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
       assertThat(dp.extension).isEqualTo("txt");
@@ -763,7 +763,7 @@ public class FileApiIntegrationTest2 {
   @Order(26)
   public void emptyCoderun() {
     System.out.println("\n\nemptyCoderun\n\n");
-    try (var fileApi = new FileApi(configPath, scriptPath)) {
+    try (var fileApi = new Coderun(configPath, scriptPath)) {
       // do nothing
     }
 
@@ -773,7 +773,7 @@ public class FileApiIntegrationTest2 {
     @Test
   @Disabled // Not implemented yet
   public void testReadArray() {
-    var fileApi = new FileApi(configPath, scriptPath);
+    var fileApi = new Coderun(configPath, scriptPath);
     String dataProduct = "object";
     String component = "grid1km/10year/females";
 
@@ -783,7 +783,7 @@ public class FileApiIntegrationTest2 {
   @Test
   @Disabled // Not implemented yet
   public void testWriteArray() throws IOException {
-    var fileApi = new FileApi(configPath, scriptPath);
+    var fileApi = new Coderun(configPath, scriptPath);
     String dataProduct = "object";
     String component = "example-array-w";
     // fileApi.writeArray(dataProduct, component, array);
@@ -794,7 +794,7 @@ public class FileApiIntegrationTest2 {
   @Test
   @Disabled // Not implemented yet
   public void testReadTable() {
-    var fileApi = new FileApi(configPath, scriptPath);
+    var fileApi = new Coderun(configPath, scriptPath);
     String dataProduct = "object";
     String component = "example-table";
 
@@ -804,7 +804,7 @@ public class FileApiIntegrationTest2 {
   @Test
   @Disabled // Not implemented yet
   public void testWriteTable() throws IOException {
-    var fileApi = new FileApi(configPath, scriptPath);
+    var fileApi = new Coderun(configPath, scriptPath);
     String dataProduct = "object";
     String component = "example-table-w";
     // fileApi.writeTable(dataProduct, component, mockTable);

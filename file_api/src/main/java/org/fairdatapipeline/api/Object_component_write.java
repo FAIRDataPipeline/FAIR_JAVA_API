@@ -64,10 +64,10 @@ public class Object_component_write extends Object_component {
    */
   public void writeEstimate(Number estimateNumber) {
     var estimate =
-        ImmutableEstimate.builder().internalValue(estimateNumber).rng(this.dp.fileApi.rng).build();
+        ImmutableEstimate.builder().internalValue(estimateNumber).rng(this.dp.coderun.rng).build();
 
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      dp.fileApi.stdApi.parameterDataWriter.write(fileChannel, this.component_name, estimate);
+      dp.coderun.stdApi.parameterDataWriter.write(fileChannel, this.component_name, estimate);
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file" + e.toString()));
     }
@@ -79,7 +79,7 @@ public class Object_component_write extends Object_component {
    */
   public void writeDistribution(Distribution distribution) {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      this.dp.fileApi.stdApi.parameterDataWriter.write(
+      this.dp.coderun.stdApi.parameterDataWriter.write(
           fileChannel, this.component_name, distribution);
     } catch (IOException e) {
       throw (new IllegalArgumentException("failed to open file for write " + e.toString()));
@@ -101,15 +101,15 @@ public class Object_component_write extends Object_component {
    */
   public void writeSamples(Samples samples) {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      this.dp.fileApi.stdApi.parameterDataWriter.write(fileChannel, this.component_name, samples);
+      this.dp.coderun.stdApi.parameterDataWriter.write(fileChannel, this.component_name, samples);
     } catch (IOException e) {
       throw (new IllegalArgumentException(e));
     }
   }
 
-  protected void register_me_in_code_run_session(Code_run_session crs) {
+  protected void register_me_in_code_run() {
     if(this.been_used)
-      crs.addOutput(this.registryObject_component.getUrl());
+      this.dp.coderun.addOutput(this.registryObject_component.getUrl());
   }
 
   protected void register_me_in_registry() {
@@ -124,7 +124,7 @@ public class Object_component_write extends Object_component {
           };
       RegistryObject_component objComponent =
           (RegistryObject_component)
-              dp.fileApi.restClient.getFirst(RegistryObject_component.class, find_whole_object);
+              dp.coderun.restClient.getFirst(RegistryObject_component.class, find_whole_object);
       if (objComponent == null) {
         throw (new IllegalArgumentException(
             "can't find the 'whole_object' component for obj " + dp.fdpObject.get_id().toString()));
@@ -137,7 +137,7 @@ public class Object_component_write extends Object_component {
       // component != whole_object
       this.registryObject_component.setObject(dp.fdpObject.getUrl());
       RegistryObject_component objComponent =
-          (RegistryObject_component) dp.fileApi.restClient.post(this.registryObject_component);
+          (RegistryObject_component) dp.coderun.restClient.post(this.registryObject_component);
       if (objComponent == null) {
         throw (new IllegalArgumentException(
             "failed to create in registry: object component "

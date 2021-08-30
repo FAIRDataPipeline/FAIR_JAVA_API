@@ -1,5 +1,7 @@
 package org.fairdatapipeline.dataregistry.content;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -7,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class RegistryIssue extends Registry_Updateable {
+
   @XmlElement private Integer severity;
 
   @XmlElement private String description;
@@ -15,9 +18,12 @@ public class RegistryIssue extends Registry_Updateable {
 
   @XmlElement private String uuid;
 
-  public RegistryIssue() {}
+  public RegistryIssue() {
+    this.methods_allowed = List.of("GET", "PUT", "PATCH", "HEAD", "OPTIONS");
+  }
 
   public RegistryIssue(String description, Integer severity) {
+    this();
     this.description = description;
     this.severity = severity;
   }

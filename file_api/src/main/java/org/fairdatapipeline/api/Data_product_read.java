@@ -15,14 +15,14 @@ import org.fairdatapipeline.config.ImmutableConfigItem;
 import org.fairdatapipeline.file.CleanableFileChannel;
 
 /**
- * Data_product_read is created by the consumer:  {@link FileApi#get_dp_for_read(String)}
- * Upon {@link FileApi#close()} it will register itself in the coderun. (
+ * Data_product_read is created by the consumer:  {@link Coderun#get_dp_for_read(String)}
+ * Upon {@link Coderun#close()} it will register itself in the coderun. (
  */
 public class Data_product_read extends Data_product {
   private boolean hash_checked = false;
 
-  Data_product_read(String dataProduct_name, FileApi fileApi) {
-    super(dataProduct_name, fileApi);
+  Data_product_read(String dataProduct_name, Coderun coderun) {
+    super(dataProduct_name, coderun);
   }
 
   void populate_dataproduct() {
@@ -39,7 +39,7 @@ public class Data_product_read extends Data_product {
     }
     this.fdpObject =
         (RegistryObject)
-            fileApi.restClient.get(RegistryObject.class, this.registryData_product.getObject());
+            coderun.restClient.get(RegistryObject.class, this.registryData_product.getObject());
     if (this.fdpObject == null) {
       throw (new IllegalArgumentException(
           "couldn't retrieve the fdpObject for this READ dp "
@@ -50,7 +50,7 @@ public class Data_product_read extends Data_product {
     }
     this.registryStorage_location =
         (RegistryStorage_location)
-            fileApi.restClient.get(
+            coderun.restClient.get(
                 RegistryStorage_location.class, this.fdpObject.getStorage_location());
     if (this.registryStorage_location == null) {
       throw (new IllegalArgumentException(
@@ -62,7 +62,7 @@ public class Data_product_read extends Data_product {
     }
     this.registryStorage_root =
         (RegistryStorage_root)
-            fileApi.restClient.get(
+            coderun.restClient.get(
                 RegistryStorage_root.class, this.registryStorage_location.getStorage_root());
     if (this.registryStorage_root == null) {
       throw (new IllegalArgumentException(
@@ -78,11 +78,11 @@ public class Data_product_read extends Data_product {
   }
 
   List<ImmutableConfigItem> getConfigItems() {
-    return fileApi.config.readItems();
+    return coderun.config.readItems();
   }
 
   String getDefaultNamespace_name() {
-    return this.fileApi.config.run_metadata().default_input_namespace().orElse("");
+    return this.coderun.config.run_metadata().default_input_namespace().orElse("");
   }
 
   RegistryNamespace getRegistryNamespace(String namespace_name) {

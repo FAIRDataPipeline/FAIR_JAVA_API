@@ -5,6 +5,10 @@ run_metadata:
   default_input_namespace: standardAPItest
   default_output_namespace: standardAPItest
   write_data_store: D:\datastore
+  local_repo: local repo
+  script: ''
+  latest_commit: 988637ffb95381375f6b22e2281fea1bcb6c8fe0
+  remote_repo: https://github.com/fake_org/fake_repo/
 
 read:
   - data_product: human/population

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Locale;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,6 +12,8 @@ import org.apache.commons.lang3.NotImplementedException;
 
 @XmlRootElement
 public abstract class Registry_RootObject {
+  @JsonIgnore List<String> methods_allowed = List.of("GET", "HEAD", "OPTIONS");
+
   @XmlElement private String url;
 
   public Registry_RootObject() {}
@@ -53,5 +56,12 @@ public abstract class Registry_RootObject {
       throw (new NotImplementedException("this abstract class doesn't have a django path"));
     }
     return n.substring(8).toLowerCase(Locale.ROOT) + "/";
+  }
+
+  @JsonIgnore
+  public boolean allow_method(String method) {
+    System.out.println("testing for method " + method);
+    System.out.println("this obj allows methods: " + this.methods_allowed);
+    return this.methods_allowed.stream().anyMatch(s -> s.equals(method));
   }
 }

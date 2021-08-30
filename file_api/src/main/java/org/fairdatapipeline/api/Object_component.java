@@ -37,7 +37,7 @@ public abstract class Object_component {
    * @param severity Integer - higher means more severe
    */
   public void raise_issue(String description, Integer severity) {
-    Issue i = this.dp.fileApi.raise_issue(description, severity);
+    Issue i = this.dp.coderun.raise_issue(description, severity);
     i.add_components(this);
   }
 
@@ -68,7 +68,7 @@ public abstract class Object_component {
           };
     }
     return (RegistryObject_component)
-        dp.fileApi.restClient.getFirst(RegistryObject_component.class, objcompmap);
+        dp.coderun.restClient.getFirst(RegistryObject_component.class, objcompmap);
   }
 
   RegistryObject_component getObject_component() {
@@ -77,5 +77,5 @@ public abstract class Object_component {
 
   protected abstract void register_me_in_registry();
 
-  protected abstract void register_me_in_code_run_session(Code_run_session crs);
+  protected abstract void register_me_in_code_run();
 }

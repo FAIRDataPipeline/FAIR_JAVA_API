@@ -1,5 +1,5 @@
 /**
- * The main class for the FAIR data pipeline JAVA API is {@link org.fairdatapipeline.api.FileApi}
+ * The main class for the FAIR data pipeline JAVA API is {@link org.fairdatapipeline.api.Coderun}
  *
  * <p>
  *     <b>Usage example</b>

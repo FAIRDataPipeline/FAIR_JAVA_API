@@ -8,7 +8,7 @@ import org.fairdatapipeline.dataregistry.content.RegistryIssue;
 /**
  * An issue that can be raised with objects or their components.
  *
- * Issues can be created using {@link FileApi#raise_issue(String, Integer)} or with {@link Object_component#raise_issue(String, Integer)}.
+ * Issues can be created using {@link Coderun#raise_issue(String, Integer)} or with {@link Object_component#raise_issue(String, Integer)}.
  *
  * <p>
  *     <b>Usage example</b>

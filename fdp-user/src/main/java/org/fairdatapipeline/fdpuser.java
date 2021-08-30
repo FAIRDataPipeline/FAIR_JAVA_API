@@ -3,7 +3,7 @@ package org.fairdatapipeline;
 import java.nio.file.Path;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.fairdatapipeline.api.Data_product_read;
-import org.fairdatapipeline.api.FileApi;
+import org.fairdatapipeline.api.Coderun;
 import org.fairdatapipeline.api.Issue;
 import org.fairdatapipeline.api.Object_component_read;
 
@@ -13,14 +13,14 @@ public class fdpuser {
   static RandomGenerator rng;
 
   public static void main(String[] args) {
-    try (FileApi fileApi =
-        new FileApi(
+    try (Coderun coderun =
+        new Coderun(
             Path.of("d:\\Datastore\\coderun\\20210808T123456\\config.yaml"),
             Path.of("d:\\Datastore\\coderun\\20210808T123456\\script.sh"))) {
-      Data_product_read dp = fileApi.get_dp_for_read(dataProduct);
+      Data_product_read dp = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent(component);
       System.out.println("Estimate: " + oc.readEstimate());
-      Issue i = fileApi.raise_issue("bla", 1);
+      Issue i = coderun.raise_issue("bla", 1);
     } catch (Exception e) {
       e.printStackTrace();
     }

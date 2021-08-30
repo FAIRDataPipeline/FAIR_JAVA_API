@@ -10,7 +10,7 @@ import org.fairdatapipeline.toml.TomlReader;
 import org.fairdatapipeline.toml.TomlWriter;
 
 /**
- * StandardApi helper for the fileApi
+ * StandardApi helper for Coderun
  */
 public class StandardApi {
   protected final ParameterDataReader parameterDataReader;

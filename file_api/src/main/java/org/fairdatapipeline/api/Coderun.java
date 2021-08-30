@@ -1,11 +1,15 @@
 package org.fairdatapipeline.api;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.*;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.fairdatapipeline.dataregistry.content.RegistryCode_run;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
 import org.fairdatapipeline.hash.Hasher;
@@ -36,18 +40,22 @@ import org.fairdatapipeline.yaml.YamlReader;
  *
  *
  */
-public class FileApi implements AutoCloseable {
+public class Coderun implements AutoCloseable {
   final Config config;
   static final boolean DP_READ = true;
   static final boolean DP_WRITE = false;
   final RestClient restClient;
   private Map<String, Data_product>
       dp_info_map; // TODO: if we can have one and the same DP open for read & write we need 2 maps
-  Code_run_session code_run_session;
+  RegistryCode_run registryCode_run;
   Hasher hasher = new Hasher();
-  private Path scriptPath;
-  private Path configFilePath;
-  private RegistryStorage_root registryStorage_root;
+  Storage_location script_storage_location;
+  Storage_location config_storage_location;
+  //private Path scriptPath;
+  //private Path configFilePath;
+  private Storage_root write_data_store_root;         // i happen to store each local dataregistry stolo
+                                                      // with a storage root corresponding to the
+                                                      // 'write_data_store' location from config.
   StandardApi stdApi;
   RandomGenerator rng;
   List<Issue> issues;
@@ -57,7 +65,7 @@ public class FileApi implements AutoCloseable {
    * @param configFilePath the Path to the config file, which must be located in the local data
    *                       store CodeRun folder with timestamp name.
    */
-  public FileApi(Path configFilePath) {
+  public Coderun(Path configFilePath) {
     this(configFilePath, null);
   }
 
@@ -68,16 +76,14 @@ public class FileApi implements AutoCloseable {
    *
    * both startup files must be located in the local data store CodeRun folder with timestamp name.
    */
-  public FileApi(Path configFilePath, Path scriptPath) {
+  public Coderun(Path configFilePath, Path scriptPath) {
     this(Clock.systemUTC(), configFilePath, scriptPath);
   }
 
-  FileApi(Clock clock, Path configFilePath, Path scriptPath) {
+  Coderun(Clock clock, Path configFilePath, Path scriptPath) {
     Instant openTimestamp = clock.instant();
     YamlReader yamlReader = new YamlFactory().yamlReader();
     this.hasher = new Hasher();
-    this.scriptPath = scriptPath;
-    this.configFilePath = configFilePath;
     this.rng = new RandomDataGenerator().getRandomGenerator();
     this.stdApi = new StandardApi(this.rng);
 
@@ -90,33 +96,44 @@ public class FileApi implements AutoCloseable {
                 .local_data_registry_url()
                 .orElse("http://localhost:8000/api/"));
 
-    String Storage_root_path = config.run_metadata().write_data_store().orElse("");
     // TODO: i don't think write_data_store is optional..
-    this.registryStorage_root =
-        (RegistryStorage_root)
-            restClient.getFirst(
-                RegistryStorage_root.class, Collections.singletonMap("root", Storage_root_path));
-    if (this.registryStorage_root == null) {
-      this.registryStorage_root =
-          (RegistryStorage_root) restClient.post(new RegistryStorage_root(Storage_root_path));
-    }
+    this.write_data_store_root = new Storage_root(config.run_metadata().write_data_store().orElse(""), restClient);
 
-    if (this.scriptPath == null && config.run_metadata().script_path().isPresent()) {
-      this.scriptPath = Path.of(config.run_metadata().script_path().get());
+    if (scriptPath == null) {
+      if(config.run_metadata().script_path().isPresent()) {
+        scriptPath = Path.of(config.run_metadata().script_path().get());
+      }else {
+        throw (new IllegalArgumentException("No script path given."));
+      }
     }
-    prepare_code_run_session();
+    this.config_storage_location = new Storage_location(configFilePath, write_data_store_root, this, false);
+    this.script_storage_location = new Storage_location(scriptPath, write_data_store_root, this, false);
+    prepare_code_run();
     dp_info_map = new HashMap<>();
     this.issues = new ArrayList<>();
   }
 
-  private void prepare_code_run_session() {
-    this.code_run_session =
-        new Code_run_session(
-            this.restClient,
-            this.config,
-            this.configFilePath,
-            this.scriptPath,
-            this.registryStorage_root);
+  private void prepare_code_run() {
+    Author a = new Author(this.restClient);
+    List<String> authors = List.of(a.getUrl());
+    FileObject config_object = new FileObject(new File_type("yaml", restClient), this.config_storage_location, "Working config.yaml file location in local datastore", authors, this);
+    this.registryCode_run = new RegistryCode_run();
+    this.registryCode_run.setModel_config(config_object.getUrl());
+
+    FileObject script_object = new FileObject(new File_type("sh", restClient), this.script_storage_location, "Submission script location in local datastore", authors, this);
+    this.registryCode_run.setSubmission_script(script_object.getUrl());
+    String latest_commit = this.config.run_metadata().latest_commit().orElse("");
+    String remote_repo = this.config.run_metadata().remote_repo().orElse("");
+    URL remote_repo_url;
+    try {
+      remote_repo_url = new URL(remote_repo);
+    }catch(MalformedURLException e) {
+      throw(new IllegalArgumentException("remote repo must be a valid URL; (" + remote_repo + " isn't)"));
+    }
+    this.registryCode_run.setCode_repo(new Coderepo(latest_commit, remote_repo_url, "Analysis / processing script location", authors, this).getUrl());
+    this.registryCode_run.setModel_config(config_object.getUrl());
+    this.registryCode_run.setRun_date(LocalDateTime.now()); // or should this be config.openTimestamp??
+    this.registryCode_run.setDescription(this.config.run_metadata().description().orElse(""));
   }
 
   /**
@@ -196,6 +213,13 @@ public class FileApi implements AutoCloseable {
         .forEach(issue -> restClient.post(issue.getRegistryIssue()));
   }
 
+  void addInput(String input) {
+    this.registryCode_run.addInput(input);
+  }
+  void addOutput(String output) {
+    this.registryCode_run.addOutput(output);
+  }
+
   @Override
   public void close() {
     System.out.println("fileApi.close()");
@@ -204,7 +228,11 @@ public class FileApi implements AutoCloseable {
             li -> {
               li.getValue().close();
             });
-    code_run_session.finish();
+    if (restClient.post(this.registryCode_run) == null) {
+      throw (new IllegalArgumentException(
+              "failed to create in registry: " + this.registryCode_run));
+    }
+    //code_run_session.finish();
     this.register_issues();
   }
 }

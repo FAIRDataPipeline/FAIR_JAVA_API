@@ -12,11 +12,11 @@ import org.fairdatapipeline.dataregistry.content.*;
 import org.fairdatapipeline.file.CleanableFileChannel;
 
 /**
- * Data product is created by the consumer: {@link FileApi#get_dp_for_write(String, String)} or {@link FileApi#get_dp_for_read(String)}
- * Upon {@link FileApi#close()} it will try to register itself and its components in the registry, and then register itself in the coderun.
+ * Data product is created by the consumer: {@link Coderun#get_dp_for_write(String, String)} or {@link Coderun#get_dp_for_read(String)}
+ * Upon {@link Coderun#close()} it will try to register itself and its components in the registry, and then register itself in the coderun.
  */
 public abstract class Data_product implements AutoCloseable {
-  protected FileApi fileApi;
+  protected Coderun coderun;
   protected RegistryNamespace registryNamespace;
   protected String namespace_name;
   protected String extension;
@@ -41,13 +41,13 @@ public abstract class Data_product implements AutoCloseable {
   protected List<ImmutableConfigItem> configItems;
   protected boolean been_used = false;
 
-  Data_product(String dataProduct_name, FileApi fileApi) {
-    this(dataProduct_name, fileApi, null);
+  Data_product(String dataProduct_name, Coderun coderun) {
+    this(dataProduct_name, coderun, null);
   }
 
-  Data_product(String dataProduct_name, FileApi fileApi, String extension) {
+  Data_product(String dataProduct_name, Coderun coderun, String extension) {
     this.extension = extension;
-    this.fileApi = fileApi;
+    this.coderun = coderun;
     this.givenDataProduct_name = dataProduct_name;
     this.actualDataProduct_name = dataProduct_name;
     this.configItems = this.getConfigItems();
@@ -89,7 +89,7 @@ public abstract class Data_product implements AutoCloseable {
 
   RegistryNamespace getRegistryNamespace(String namespace_name) {
     return (RegistryNamespace)
-        fileApi.restClient.getFirst(
+        coderun.restClient.getFirst(
             RegistryNamespace.class, Collections.singletonMap("name", namespace_name));
   }
 
@@ -102,7 +102,7 @@ public abstract class Data_product implements AutoCloseable {
             this.registryNamespace.get_id().toString(),
             "version",
             version);
-    return (RegistryData_product) fileApi.restClient.getFirst(RegistryData_product.class, dp_map);
+    return (RegistryData_product) coderun.restClient.getFirst(RegistryData_product.class, dp_map);
   }
 
   ImmutableConfigItem getConfigItem(String dataProduct_name) {
@@ -137,11 +137,11 @@ public abstract class Data_product implements AutoCloseable {
   abstract void objects_to_registry();
 
   void InputsOutputsToCoderun() {
-    if(this.whole_obj_oc != null) this.whole_obj_oc.register_me_in_code_run_session(fileApi.code_run_session);
+    if(this.whole_obj_oc != null) this.whole_obj_oc.register_me_in_code_run();
     this.componentMap.entrySet().stream()
         .forEach(
             obj_comp -> {
-              obj_comp.getValue().register_me_in_code_run_session(fileApi.code_run_session);
+              obj_comp.getValue().register_me_in_code_run();
             });
   }
 

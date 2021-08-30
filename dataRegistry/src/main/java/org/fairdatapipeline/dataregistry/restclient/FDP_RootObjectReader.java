@@ -37,7 +37,7 @@ class FDP_RootObjectReader implements MessageBodyReader<Registry_RootObject> {
       om.registerModule(new JavaTimeModule());
       return (Registry_RootObject) om.readValue(entityStream, type);
     } catch (Exception e) {
-      throw new ProcessingException("Error deserializing RegistryFile_type", e);
+      throw new ProcessingException("Error deserializing ", e);
     }
   }
 }

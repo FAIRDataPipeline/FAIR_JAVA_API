@@ -13,7 +13,7 @@ public class Registry_ObjectList<T extends Registry_RootObject> {
 
   @XmlElement private String previous;
 
-  @XmlElement private List<T> results;
+  @XmlElement private List<Registry_RootObject> results;
 
   public Registry_ObjectList() {};
 
@@ -29,8 +29,12 @@ public class Registry_ObjectList<T extends Registry_RootObject> {
     return previous;
   }
 
-  public List<T> getResults() {
-    return (this.results == null) ? new ArrayList<T>() {} : new ArrayList<T>(results);
+  //public List<T> getResults() {
+  //  return (this.results == null) ? new ArrayList<T>() {} : new ArrayList<T>(results);
+  //}
+
+  public List<Registry_RootObject> getResults() {
+    return (this.results == null) ? new ArrayList<Registry_RootObject>() {} : new ArrayList<Registry_RootObject>(results);
   }
 
   public void setCount(Integer count) {

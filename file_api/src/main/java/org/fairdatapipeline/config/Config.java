@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-import org.fairdatapipeline.api.FileApi;
+import org.fairdatapipeline.api.Coderun;
 import org.immutables.value.Value.Derived;
 import org.immutables.value.Value.Immutable;
 
@@ -89,7 +89,7 @@ public interface Config {
     ImmutableConfigUseItem use();
 
     /**
-     * Config write items may specify the file_type (such as csv, h5, or toml) but this can also be specified using {@link  FileApi#get_dp_for_write(String, String)} method.
+     * Config write items may specify the file_type (such as csv, h5, or toml) but this can also be specified using {@link  Coderun#get_dp_for_write(String, String)} method.
      * @return String the file_type file extension, if given.
      */
     @JsonProperty
@@ -191,7 +191,7 @@ public interface Config {
 
     /**
      * you can give the path to the submission script (to be stored in the code run) here, or in
-     * {@link FileApi#FileApi(Path, Path)} FileApi constructor. Constructor will override the config.
+     * {@link Coderun#Coderun(Path, Path)} FileApi constructor. Constructor will override the config.
      * @return String script_path - the location of the 'submission script', if given.
      */
     @JsonProperty
@@ -199,7 +199,7 @@ public interface Config {
 
     /**
      * you can give the path to the submission script (to be stored in the code run) here, or in
-     * {@link FileApi#FileApi(Path, Path)} FileApi constructor. Constructor will override the config.
+     * {@link Coderun#Coderun(Path, Path)} FileApi constructor. Constructor will override the config.
      * @return String script_path - the location of the 'submission script', if given.
      */
     @JsonProperty
@@ -207,7 +207,7 @@ public interface Config {
 
     /**
      * you can give the path to the submission script (to be stored in the code run) here, or in
-     * {@link FileApi#FileApi(Path, Path)} FileApi constructor. Constructor will override the config.
+     * {@link Coderun#Coderun(Path, Path)} FileApi constructor. Constructor will override the config.
      * @return String script_path - the location of the 'submission script', if given.
      */
     @JsonProperty
