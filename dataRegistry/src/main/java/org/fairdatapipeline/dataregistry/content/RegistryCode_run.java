@@ -1,7 +1,5 @@
 package org.fairdatapipeline.dataregistry.content;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,13 +52,13 @@ public class RegistryCode_run extends Registry_Updateable {
   }
 
   public List<String> getInputs() {
-    //return (this.inputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.inputs);
+    // return (this.inputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.inputs);
     // we're more likely to be able to use the PATCH method if unset items are null.
     return (this.inputs == null) ? null : new ArrayList<>(this.inputs);
   }
 
   public List<String> getOutputs() {
-    //return (this.outputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.outputs);
+    // return (this.outputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.outputs);
     // we're more likely to be able to use the PATCH method if unset items are null.
     return (this.outputs == null) ? null : new ArrayList<>(this.outputs);
   }
@@ -98,7 +96,7 @@ public class RegistryCode_run extends Registry_Updateable {
   }
 
   public void setOutputs(List<String> outputs) {
-    this.outputs = (outputs==null) ? null : new ArrayList<String>(outputs);
+    this.outputs = (outputs == null) ? null : new ArrayList<String>(outputs);
   }
 
   public void addOutput(String output) {

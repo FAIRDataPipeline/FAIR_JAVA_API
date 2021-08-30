@@ -1,5 +1,5 @@
 rootProject.name = 'java_api'
-include 'file_api'
+include 'api'
 include 'dataRegistry'
 include 'HDF5'
 include 'fdp-user'

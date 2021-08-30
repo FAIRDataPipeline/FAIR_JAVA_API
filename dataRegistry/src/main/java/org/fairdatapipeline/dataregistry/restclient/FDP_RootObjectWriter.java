@@ -17,7 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
 import org.fairdatapipeline.dataregistry.content.Registry_RootObject;
 
 class FDP_RootObjectWriter implements MessageBodyWriter<Registry_RootObject> {

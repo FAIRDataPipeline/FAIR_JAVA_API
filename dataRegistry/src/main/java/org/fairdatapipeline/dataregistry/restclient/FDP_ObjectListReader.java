@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
 import org.fairdatapipeline.dataregistry.content.Registry_ObjectList;
 
 class FDP_ObjectListReader implements MessageBodyReader<Registry_ObjectList> {

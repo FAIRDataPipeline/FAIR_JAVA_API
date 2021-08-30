@@ -29,12 +29,14 @@ public class Registry_ObjectList<T extends Registry_RootObject> {
     return previous;
   }
 
-  //public List<T> getResults() {
+  // public List<T> getResults() {
   //  return (this.results == null) ? new ArrayList<T>() {} : new ArrayList<T>(results);
-  //}
+  // }
 
   public List<Registry_RootObject> getResults() {
-    return (this.results == null) ? new ArrayList<Registry_RootObject>() {} : new ArrayList<Registry_RootObject>(results);
+    return (this.results == null)
+        ? new ArrayList<Registry_RootObject>() {}
+        : new ArrayList<Registry_RootObject>(results);
   }
 
   public void setCount(Integer count) {

@@ -5,7 +5,6 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.client.*;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
-import org.fairdatapipeline.dataregistry.content.RegistryCode_run;
 import org.fairdatapipeline.dataregistry.content.Registry_ObjectList;
 import org.fairdatapipeline.dataregistry.content.Registry_RootObject;
 import org.fairdatapipeline.dataregistry.content.Registry_Updateable;
@@ -35,7 +33,7 @@ public class RestClient {
             .register(FDP_ObjectListReader.class)
             .register(new JavaUtilCollectionsDeserializers() {})
             .register(OAuth2ClientSupport.feature(token))
-                .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)
+            .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)
             .build();
     wt = client.target(registry_url);
   }
@@ -158,13 +156,19 @@ public class RestClient {
   }
 
   public Registry_Updateable patch(Registry_Updateable o) {
-    if(!o.allow_method("PATCH")) throw(new IllegalArgumentException("trying to use PATCH method on an object that can't be patched." + o));
-    if(o.getUrl() == null) throw(new IllegalArgumentException("can't patch an obj without URL"));
+    if (!o.allow_method("PATCH"))
+      throw (new IllegalArgumentException(
+          "trying to use PATCH method on an object that can't be patched." + o));
+    if (o.getUrl() == null) throw (new IllegalArgumentException("can't patch an obj without URL"));
 
-    Response r = client.target(o.getUrl()).request(MediaType.APPLICATION_JSON).
-            build("PATCH", Entity.entity(o, MediaType.APPLICATION_JSON)).invoke();
-    if(r.getStatus() >= 200 && r.getStatus() < 300)
-      return (Registry_Updateable)  r.readEntity(o.getClass());
+    Response r =
+        client
+            .target(o.getUrl())
+            .request(MediaType.APPLICATION_JSON)
+            .build("PATCH", Entity.entity(o, MediaType.APPLICATION_JSON))
+            .invoke();
+    if (r.getStatus() >= 200 && r.getStatus() < 300)
+      return (Registry_Updateable) r.readEntity(o.getClass());
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
@@ -176,12 +180,18 @@ public class RestClient {
   }
 
   public Registry_Updateable put(Registry_Updateable o) {
-    if(!o.allow_method("PUT")) throw(new IllegalArgumentException("trying to use PUT method on an object that doesn't support PUT." + o));
-    if(o.getUrl() == null) throw(new IllegalArgumentException("can't PUT an object without URL"));
+    if (!o.allow_method("PUT"))
+      throw (new IllegalArgumentException(
+          "trying to use PUT method on an object that doesn't support PUT." + o));
+    if (o.getUrl() == null) throw (new IllegalArgumentException("can't PUT an object without URL"));
     System.out.println(Entity.entity(o, MediaType.APPLICATION_JSON).getEncoding());
-    Response r = client.target(o.getUrl()).request(MediaType.APPLICATION_JSON).put(Entity.entity(o, MediaType.APPLICATION_JSON));
-    if(r.getStatus() >= 200 && r.getStatus() < 300)
-      return (Registry_Updateable)  r.readEntity(o.getClass());
+    Response r =
+        client
+            .target(o.getUrl())
+            .request(MediaType.APPLICATION_JSON)
+            .put(Entity.entity(o, MediaType.APPLICATION_JSON));
+    if (r.getStatus() >= 200 && r.getStatus() < 300)
+      return (Registry_Updateable) r.readEntity(o.getClass());
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
@@ -193,17 +203,22 @@ public class RestClient {
   }
 
   public void delete(Class<?> c, int i) {
-      if(!Registry_Updateable.class.isAssignableFrom(c)) { // i can only delete updateables; can't delete 'User'.
-          throw new IllegalArgumentException("Given class is not an Registry_Updateable.");
-      }
-      Registry_Updateable o = (Registry_Updateable) get(c, i);
-      delete(o);
+    if (!Registry_Updateable.class.isAssignableFrom(
+        c)) { // i can only delete updateables; can't delete 'User'.
+      throw new IllegalArgumentException("Given class is not an Registry_Updateable.");
+    }
+    Registry_Updateable o = (Registry_Updateable) get(c, i);
+    delete(o);
   }
 
   public void delete(Registry_Updateable o) {
-    if(!o.allow_method("DELETE")) throw(new IllegalArgumentException("trying to DELETE an object " + o.getClass().getSimpleName()));
-    if(o.getUrl() == null) throw(new IllegalArgumentException("can't DELETE an object without a set URL."));
+    if (!o.allow_method("DELETE"))
+      throw (new IllegalArgumentException(
+          "trying to DELETE an object " + o.getClass().getSimpleName()));
+    if (o.getUrl() == null)
+      throw (new IllegalArgumentException("can't DELETE an object without a set URL."));
     Response r = client.target(o.getUrl()).request(MediaType.APPLICATION_JSON).delete();
-    if(r.getStatus() != 204) throw(new IllegalArgumentException("failed to delete " + o.getUrl() ));
+    if (r.getStatus() != 204)
+      throw (new IllegalArgumentException("failed to delete " + o.getUrl()));
   }
 }

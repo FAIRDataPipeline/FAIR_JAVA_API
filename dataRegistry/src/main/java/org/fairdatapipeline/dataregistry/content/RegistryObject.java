@@ -57,7 +57,9 @@ public class RegistryObject extends Registry_Updateable {
   }
 
   public List<String> getData_products() {
-    return (this.data_products == null) ? new ArrayList<>() {} : new ArrayList<String>(data_products);
+    return (this.data_products == null)
+        ? new ArrayList<>() {}
+        : new ArrayList<String>(data_products);
   }
 
   public String getCode_repo_release() {

@@ -2,7 +2,6 @@ package org.fairdatapipeline.dataregistry.restclient;
 
 import java.util.Collections;
 import java.util.Map;
-
 import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;

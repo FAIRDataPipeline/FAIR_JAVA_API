@@ -13,7 +13,7 @@ public class RegistryStorage_location extends Registry_Updateable {
 
   @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   @JsonProperty("public")
-  private boolean is_public=true;
+  private boolean is_public = true;
 
   @XmlElement private String storage_root;
 

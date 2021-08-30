@@ -2,10 +2,9 @@ package org.fairdatapipeline;
 
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.math3.random.RandomGenerator;
-import org.fairdatapipeline.api.Data_product_read;
 import org.fairdatapipeline.api.Coderun;
+import org.fairdatapipeline.api.Data_product_read;
 import org.fairdatapipeline.api.Issue;
 import org.fairdatapipeline.api.Object_component_read;
 
@@ -18,9 +17,9 @@ public class fdpuser2 {
       RandomGenerator rng;
 
       Coderun coderun =
-              new Coderun(
-                      Path.of("d:\\Datastore\\coderun\\20210808T123456\\config.yaml"),
-                      Path.of("d:\\Datastore\\coderun\\20210808T123456\\script.sh"));
+          new Coderun(
+              Path.of("d:\\Datastore\\coderun\\20210808T123456\\config.yaml"),
+              Path.of("d:\\Datastore\\coderun\\20210808T123456\\script.sh"));
       Data_product_read dp = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent(component);
       System.out.println("Estimate: " + oc.readEstimate());
@@ -30,7 +29,7 @@ public class fdpuser2 {
     System.gc();
     try {
       TimeUnit.SECONDS.sleep(10);
-    }catch(InterruptedException e) {
+    } catch (InterruptedException e) {
       System.out.println(e);
     }
     System.out.println("after the sleep");

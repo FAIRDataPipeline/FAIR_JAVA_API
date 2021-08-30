@@ -1,8 +1,6 @@
 package org.fairdatapipeline.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,7 +26,9 @@ public class RegistryStorage_root extends Registry_Updateable {
     return this.root;
   }
 
-  public String getPath() { return this.root; }
+  public String getPath() {
+    return this.root;
+  }
 
   public Boolean getLocal() {
     return this.local;

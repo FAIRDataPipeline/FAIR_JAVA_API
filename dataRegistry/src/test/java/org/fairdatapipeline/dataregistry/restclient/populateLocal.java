@@ -4,13 +4,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Stream;
-
 import org.fairdatapipeline.dataregistry.content.*;
+import org.fairdatapipeline.dataregistry.content.RegistryStorage_location;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.fairdatapipeline.dataregistry.content.RegistryStorage_location;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class populateLocal {

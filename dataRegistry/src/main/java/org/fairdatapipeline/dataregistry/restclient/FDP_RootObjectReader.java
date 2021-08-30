@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-
 import org.fairdatapipeline.dataregistry.content.Registry_RootObject;
 
 class FDP_RootObjectReader implements MessageBodyReader<Registry_RootObject> {

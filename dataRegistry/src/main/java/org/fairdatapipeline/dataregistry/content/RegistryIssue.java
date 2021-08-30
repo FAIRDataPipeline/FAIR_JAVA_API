@@ -1,7 +1,5 @@
 package org.fairdatapipeline.dataregistry.content;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
