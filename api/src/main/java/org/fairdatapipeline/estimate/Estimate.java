@@ -9,10 +9,12 @@ import org.fairdatapipeline.distribution.Distribution;
 import org.fairdatapipeline.parameters.Component;
 import org.immutables.value.Value.Immutable;
 
+/** a component to store a plain simple single Number */
 @Immutable
 @JsonDeserialize
 @JsonSerialize
 public interface Estimate extends Component {
+  /** @return Number - the value that is stored in this component */
   @JsonProperty("value")
   Number internalValue();
 

@@ -3,9 +3,20 @@ package org.fairdatapipeline.api;
 import java.util.List;
 import org.fairdatapipeline.dataregistry.content.RegistryObject;
 
+/** create a new registryObject with given storage_location, description, authors, file_type. */
 public class FileObject {
   RegistryObject o;
 
+  /**
+   * This constructor is used to store actual files, such as the config and script files the coderun
+   * needs to store.
+   *
+   * @param file_type
+   * @param storage_location
+   * @param description
+   * @param authors
+   * @param coderun
+   */
   FileObject(
       File_type file_type,
       Storage_location storage_location,
@@ -24,6 +35,15 @@ public class FileObject {
     }
   }
 
+  /**
+   * this constructor is used to store an Object without a file_type, such as the Object for a
+   * code_repo
+   *
+   * @param storage_location
+   * @param description
+   * @param authors
+   * @param coderun
+   */
   FileObject(
       Storage_location storage_location,
       String description,

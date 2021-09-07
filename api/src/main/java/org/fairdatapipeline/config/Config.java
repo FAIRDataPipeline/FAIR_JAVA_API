@@ -1,6 +1,5 @@
 package org.fairdatapipeline.config;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -8,7 +7,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import org.fairdatapipeline.api.Coderun;
-import org.immutables.value.Value.Derived;
 import org.immutables.value.Value.Immutable;
 
 /**
@@ -23,23 +21,12 @@ import org.immutables.value.Value.Immutable;
 public interface Config {
 
   /**
-   * Ignored at the moment; I was hoping the FAIR-CLI could deal with hash-checking for input files.
+   * Ignored at the moment; I think the FAIR-CLI should deal with hash-checking for input files.
    *
    * @return boolean fail_on_hash_mismatch
    */
   @JsonProperty("fail_on_hash_mismatch")
-  Optional<Boolean> internalFailOnHashMisMatch();
-
-  /**
-   * Making the (ignored) fail_on_hash_mismatch default to true
-   *
-   * @return boolean (ignored) fail_on_hash_mismatch or true if not set
-   */
-  @Derived
-  @JsonIgnore
-  default boolean failOnHashMisMatch() {
-    return internalFailOnHashMisMatch().orElse(true);
-  }
+  Optional<Boolean> failOnHashMisMatch();
 
   /**
    * The config file MUST contain a run_metadata section to specify the coderun details
@@ -180,7 +167,7 @@ public interface Config {
     Optional<String> default_input_namespace();
 
     /**
-     * In which namespace to search for WRITE data products. this can be overridden in the {@link
+     * In which namespace to place the WRITE data products. this can be overridden in the {@link
      * Config.ConfigUseItem ConfigUseItem}. Optional.
      *
      * @return String the default output namespace, if given.
@@ -197,7 +184,7 @@ public interface Config {
     Optional<String> write_data_store();
 
     /**
-     * This is ignored; should it actually be here?
+     * This is ignored.
      *
      * @return String local_repo - this is ignored.
      */
@@ -205,19 +192,18 @@ public interface Config {
     Optional<String> local_repo();
 
     /**
-     * This is ignored; should it actually be here?
+     * This is the location of the repository of the analysis code. For example:
+     * https://github.com/FAIRDataPipeline/javaExampleModel
      *
-     * @return String remote_repo - this is ignored.
+     * @return String remote_repo - this must be a valid URL.
      */
     @JsonProperty
     Optional<String> remote_repo();
 
     /**
-     * you can give the path to the submission script (to be stored in the code run) here, or in
-     * {@link Coderun#Coderun(Path, Path)} FileApi constructor. Constructor will override the
-     * config.
+     * This is ignored.
      *
-     * @return String script_path - the location of the 'submission script', if given.
+     * @return String script - this is ignored.
      */
     @JsonProperty
     Optional<String> script();
@@ -233,11 +219,10 @@ public interface Config {
     Optional<String> script_path();
 
     /**
-     * you can give the path to the submission script (to be stored in the code run) here, or in
-     * {@link Coderun#Coderun(Path, Path)} FileApi constructor. Constructor will override the
-     * config.
+     * The commit hash of the remote_repo, in order to store the exact version of the analysis code.
      *
-     * @return String script_path - the location of the 'submission script', if given.
+     * @return String latest_commit - the commit hash of the remote_repo, in order to store the
+     *     exact version of the analysis code.
      */
     @JsonProperty
     Optional<String> latest_commit();

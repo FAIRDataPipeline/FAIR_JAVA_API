@@ -6,7 +6,10 @@ import java.util.Map;
 import org.fairdatapipeline.dataregistry.content.RegistryObject_component;
 import org.fairdatapipeline.file.CleanableFileChannel;
 
-/** */
+/**
+ * This represents an object_component to read from or write to (or raise issues with) An
+ * object_component without a name is the 'whole_object' component.
+ */
 public abstract class Object_component {
   protected String component_name;
   protected boolean whole_object = false;

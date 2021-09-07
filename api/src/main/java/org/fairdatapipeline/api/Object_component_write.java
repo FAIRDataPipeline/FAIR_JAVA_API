@@ -10,7 +10,13 @@ import org.fairdatapipeline.estimate.ImmutableEstimate;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.samples.Samples;
 
-/** the object component class for reading data from data product (components or whole objects) */
+/**
+ * This represents an object_component to write to (or raise issues with) An object_component
+ * without a name is the 'whole_object' component. Ideally the user should only write to named
+ * components on toml and h5 files, and only write to the 'whole_object' on any other files. This is
+ * not enforced at the moment. You should only ever either write to the whole_object, OR to the
+ * named components, not both. This also is not enforced at the moment.
+ */
 public class Object_component_write extends Object_component {
 
   Object_component_write(Data_product dp, String component_name) {

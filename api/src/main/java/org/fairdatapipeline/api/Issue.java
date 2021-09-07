@@ -18,7 +18,7 @@ import org.fairdatapipeline.dataregistry.content.RegistryIssue;
  * <pre>
  *       Object_component_write oc1 = dp.getComponent(component1);
  *       oc1.raise_issue("something is terribly wrong with this component", 10);
- *     </pre>
+ * </pre>
  *
  * </blockquote>
  *
@@ -27,9 +27,9 @@ import org.fairdatapipeline.dataregistry.content.RegistryIssue;
  * <blockquote>
  *
  * <pre>
- *      Issue i = FileApi.raise_issue("moderately bad data", 7);
+ *      Issue i = coderun.raise_issue("moderately bad data", 7);
  *      i.add_components(oc1, oc2, oc3);
- *     </pre>
+ * </pre>
  *
  * </blockquote>
  */
@@ -39,6 +39,10 @@ public class Issue {
   Integer severity;
   List<Object_component> components;
 
+  /**
+   * @param description
+   * @param severity an integer indicating the severity of the issue - high is more severe
+   */
   Issue(String description, Integer severity) {
     this.description = description;
     this.severity = severity;
@@ -55,7 +59,7 @@ public class Issue {
   }
 
   /**
-   * When we have created an issue using FileApi.raise_issue() we still need to attach this issue to
+   * When we have created an issue using coderun.raise_issue() we still need to attach this issue to
    * one or more object components. Note: attach the issue to the 'whole_object' component to
    * indicate that it is linked to the object rather than a specific component.
    *

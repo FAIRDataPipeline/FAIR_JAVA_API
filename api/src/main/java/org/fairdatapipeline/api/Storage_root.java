@@ -5,9 +5,16 @@ import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
 
+/** retrieve or create the RegistryStorage_root with a given 'root'. */
 public class Storage_root {
   RegistryStorage_root registryStorage_root;
 
+  /**
+   * Retrieve or create the RegistryStorage_root with the given storageRootPath.
+   *
+   * @param storageRootPath
+   * @param restClient
+   */
   Storage_root(String storageRootPath, RestClient restClient) {
     this.registryStorage_root =
         (RegistryStorage_root)
@@ -30,6 +37,12 @@ public class Storage_root {
     return this.registryStorage_root.getPath();
   }
 
+  /**
+   * split the repository URL into a storage root (proto://authority/ part) and path (/xxx/xxx) part
+   *
+   * @param url
+   * @return string array of length 2.
+   */
   static String[] url_to_root(URL url) {
     // url.getPath()
     // Pattern p = Pattern.compile("([a-z]*://[a-z]*.[a-z]*/).*");

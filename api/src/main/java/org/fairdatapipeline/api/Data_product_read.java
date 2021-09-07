@@ -14,8 +14,8 @@ import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 import org.fairdatapipeline.file.CleanableFileChannel;
 
 /**
- * Data_product_read is created by the consumer: {@link Coderun#get_dp_for_read(String)} Upon {@link
- * Coderun#close()} it will register itself in the coderun. (
+ * Data_product_read is created by Coderun: {@link Coderun#get_dp_for_read(String)} Upon {@link
+ * Coderun#close()} it will register its components in the coderun.
  */
 public class Data_product_read extends Data_product {
   private boolean hash_checked = false;

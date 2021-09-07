@@ -57,7 +57,9 @@ public class CoderunIntegrationTest2 {
   private Path coderunPath = datastorePath.resolve("coderun");
   private Path coderunTSpath = coderunPath.resolve(coderun_ts);
   private String ns = "standardAPItest";
+  private String altns = "alternativeNS";
   private Path nsPath = datastorePath.resolve(ns);
+  private Path altnsPath = datastorePath.resolve(altns);
   private Path ori_configPath;
   private Path ori_scriptPath;
   private RandomGenerator rng;
@@ -141,6 +143,8 @@ public class CoderunIntegrationTest2 {
     FileUtils.deleteDirectory(coderunTSpath.toFile());
     FileUtils.deleteDirectory(
         nsPath.toFile()); // remove the whole namespace in the local datastore.
+    FileUtils.deleteDirectory(
+        altnsPath.toFile()); // remove the whole alternative namespace in the local datastore.
     Files.createDirectories(coderunTSpath);
     Files.copy(ori_configPath, configPath);
     Files.copy(ori_scriptPath, scriptPath);

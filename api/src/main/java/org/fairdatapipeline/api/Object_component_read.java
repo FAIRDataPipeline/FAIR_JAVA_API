@@ -7,7 +7,12 @@ import org.fairdatapipeline.distribution.Distribution;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.parameters.ReadComponent;
 
-/** An object_component for reading from. */
+/**
+ * This represents an object_component to read from (or raise issues with) An object_component
+ * without a name is the 'whole_object' component. Ideally the user should only read from named
+ * components on toml and h5 files, and only read from the 'whole_object' on any other files. This
+ * is not enforced at the moment.
+ */
 public class Object_component_read extends Object_component {
 
   Object_component_read(Data_product_read dp, String component_name) {

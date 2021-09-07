@@ -6,6 +6,7 @@ import org.fairdatapipeline.dataregistry.content.RegistryUser_author;
 import org.fairdatapipeline.dataregistry.content.RegistryUsers;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
 
+/** This is used to retrieve the author from the local registry. */
 public class Author {
   RegistryAuthor registryAuthor;
 

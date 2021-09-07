@@ -29,6 +29,12 @@ public class CleanableFileChannel
 
   private final FileChannelWrapper fileChannelWrapper;
 
+  /**
+   * Create a filechannel with a runnable closer to perform the close action.
+   *
+   * @param fileChannel
+   * @param runOnClose
+   */
   public CleanableFileChannel(FileChannel fileChannel, Runnable runOnClose) {
     this.fileChannelWrapper = new FileChannelWrapper(fileChannel, runOnClose);
     this.cleanable = cleaner.register(this, fileChannelWrapper);

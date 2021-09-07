@@ -15,7 +15,11 @@ import org.fairdatapipeline.config.ImmutableConfigItem;
 import org.fairdatapipeline.dataregistry.content.*;
 import org.fairdatapipeline.file.CleanableFileChannel;
 
-/** Class representing a data product for writing. */
+/**
+ * Data_product_write is created by Coderun: {@link Coderun#get_dp_for_write(String, String)} Upon
+ * {@link Coderun#close()} it will register itself and its components in the registry, and then
+ * register its components in the coderun.
+ */
 public class Data_product_write extends Data_product {
   private boolean is_hashed;
 
