@@ -1,5 +1,8 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +22,6 @@ public class populateLocal {
   @BeforeAll
   public void setUp() throws Exception {
     lc = new RestClient(localReg);
-    System.out.println("Created the RestClient in setup()");
   }
 
   @ParameterizedTest
@@ -27,8 +29,79 @@ public class populateLocal {
   @DisabledIf("keyvalueExists")
   public void createObjects(Registry_Updateable o) {
     Registry_Updateable r = lc.post(o);
-    System.out.println("createObj.. statusinfo: " + r);
     Assertions.assertNotNull(r);
+    switch (o.getClass().getSimpleName()) {
+      case ("RegistryCode_run"):
+        assertThat(
+            r,
+            samePropertyValuesAs(
+                o,
+                "uuid",
+                "url",
+                "updated_by",
+                "last_updated",
+                "_id",
+                "inputs",
+                "outputs",
+                "prov_report",
+                "run_date"));
+        break;
+      case ("RegistryIssue"):
+        assertThat(
+            r,
+            samePropertyValuesAs(
+                o, "uuid", "url", "updated_by", "last_updated", "_id", "component_issues"));
+        break;
+      case ("RegistryObject"):
+        assertThat(
+            r,
+            samePropertyValuesAs(
+                o,
+                "uuid",
+                "url",
+                "updated_by",
+                "last_updated",
+                "_id",
+                "authors",
+                "components",
+                "data_products",
+                "licenses",
+                "keywords"));
+        break;
+      case ("RegistryObject_component"):
+        assertThat(
+            r,
+            samePropertyValuesAs(
+                o,
+                "uuid",
+                "url",
+                "updated_by",
+                "last_updated",
+                "_id",
+                "issues",
+                "inputs_of",
+                "outputs_of"));
+        break;
+      case ("RegistryStorage_root"):
+        assertThat(
+            r,
+            samePropertyValuesAs(
+                o, "uuid", "url", "updated_by", "last_updated", "_id", "locations"));
+        break;
+      case ("RegistryUsers"):
+        assertThat(
+            r, samePropertyValuesAs(o, "uuid", "url", "updated_by", "last_updated", "_id", "orgs"));
+        break;
+      case ("RegistryExternal_object"):
+        assertThat(
+            r,
+            samePropertyValuesAs(
+                o, "uuid", "url", "updated_by", "last_updated", "_id", "release_date", "version"));
+        break;
+      default:
+        assertThat(r, samePropertyValuesAs(o, "uuid", "url", "updated_by", "last_updated", "_id"));
+        break;
+    }
   }
 
   private Stream<Registry_Updateable> objectsToBeCreated() {
@@ -49,11 +122,6 @@ public class populateLocal {
     sl.setStorage_root(localReg + "storage_root/1/");
     sl.setHash("myHash");
     al.add(sl);
-    /*Source s = new Source();
-    s.setName("Test source");
-    s.setAbbreviation("tstsrc");
-    s.setWebsite("http://github.com/testsource/");
-    al.add(s);*/
     RegistryObject o = new RegistryObject();
     o.setDescription("my new object description");
     o.setStorage_location(localReg + "storage_location/1/");
@@ -101,17 +169,13 @@ public class populateLocal {
     kv.setKey("the key");
     kv.setValue("the value");
     al.add(kv);
-    // al.add(new Text_file("this is the contents of the text file."));
 
-    System.out.println(
-        "Created the ArrayList with FDP_Objects to be created.. number of elements: " + al.size());
     return al.stream();
   }
 
   private boolean keyvalueExists() {
     Registry_ObjectList<?> sr =
         (Registry_ObjectList<?>) lc.getList(RegistryKey_value.class, new HashMap<String, String>());
-    System.out.println("keyvalueExists? " + (sr.getCount() != 0));
     return sr.getCount() != 0;
   }
 }

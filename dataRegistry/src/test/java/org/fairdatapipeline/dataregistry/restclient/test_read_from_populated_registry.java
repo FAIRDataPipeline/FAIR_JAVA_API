@@ -27,12 +27,14 @@ public class test_read_from_populated_registry {
         RegistryCode_run.class,
         RegistryData_product.class,
         RegistryExternal_object.class,
+        RegistryFile_type.class,
         RegistryObject.class,
         RegistryFile_type.class,
         RegistryIssue.class,
         RegistryKey_value.class,
         RegistryKeyword.class,
         RegistryNamespace.class,
+        RegistryObject.class,
         RegistryObject_component.class,
         RegistryStorage_location.class,
         RegistryStorage_root.class,
@@ -40,7 +42,6 @@ public class test_read_from_populated_registry {
       })
   public void get_object(Class c) {
     Registry_RootObject n = lc.getFirst(c, m);
-    System.out.println(c.getName() + " id: " + n.get_id());
     Assertions.assertNotNull(n.getUrl());
   }
 }

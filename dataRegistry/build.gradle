@@ -21,9 +21,9 @@ compileTestJava {
 
 
 dependencies {
-
     testImplementation(platform('org.junit:junit-bom:5.7.2'))
     testImplementation('org.junit.jupiter:junit-jupiter')
+    testImplementation 'org.hamcrest:hamcrest:2.2'
     implementation 'org.glassfish.jersey.core:jersey-client:3.0.1'
     implementation 'org.glassfish.jersey.inject:jersey-hk2:3.0.1'
     implementation 'org.glassfish.jersey:jersey-bom:3.0.1'
@@ -35,6 +35,8 @@ dependencies {
     implementation 'commons-io:commons-io:2.7'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'jakarta.activation:jakarta.activation-api:2.0.1'
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation('org.slf4j:slf4j-simple:1.7.25')
 }
 
 spotless {

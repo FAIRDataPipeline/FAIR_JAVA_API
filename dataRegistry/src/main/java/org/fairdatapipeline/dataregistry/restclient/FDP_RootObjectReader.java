@@ -18,7 +18,7 @@ class FDP_RootObjectReader implements MessageBodyReader<Registry_RootObject> {
   @Override
   public boolean isReadable(
       Class type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    Boolean r = Registry_RootObject.class.isAssignableFrom(type);
+    boolean r = Registry_RootObject.class.isAssignableFrom(type);
     return r;
   }
 

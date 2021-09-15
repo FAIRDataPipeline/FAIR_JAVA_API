@@ -12,7 +12,7 @@ public class RegistryStorage_root extends Registry_Updateable {
 
   @XmlElement
   @JsonFormat(shape = JsonFormat.Shape.NUMBER)
-  private Boolean local;
+  private boolean local;
 
   @XmlElement private List<String> locations;
 
@@ -30,7 +30,7 @@ public class RegistryStorage_root extends Registry_Updateable {
     return this.root;
   }
 
-  public Boolean getLocal() {
+  public boolean isLocal() {
     return this.local;
   }
 
@@ -42,7 +42,7 @@ public class RegistryStorage_root extends Registry_Updateable {
     this.root = root;
   }
 
-  public void setLocal(Boolean local) {
+  public void setLocal(boolean local) {
     this.local = local;
   }
 

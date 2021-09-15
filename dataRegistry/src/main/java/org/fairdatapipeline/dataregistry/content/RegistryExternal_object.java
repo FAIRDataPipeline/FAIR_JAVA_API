@@ -15,7 +15,7 @@ public class RegistryExternal_object extends Registry_Updateable {
 
   @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   @XmlElement
-  private Boolean primary_not_supplement;
+  private boolean primary_not_supplement;
 
   @XmlElement private LocalDateTime release_date;
 
@@ -29,7 +29,7 @@ public class RegistryExternal_object extends Registry_Updateable {
 
   @XmlElement private String version;
 
-  public RegistryExternal_object() {};
+  public RegistryExternal_object() {}
 
   public String getIdentifier() {
     return identifier;
@@ -43,7 +43,7 @@ public class RegistryExternal_object extends Registry_Updateable {
     return alternate_identifier_type;
   }
 
-  public Boolean isPrimary_not_supplement() {
+  public boolean isPrimary_not_supplement() {
     return primary_not_supplement;
   }
 
@@ -83,7 +83,7 @@ public class RegistryExternal_object extends Registry_Updateable {
     this.alternate_identifier_type = alternate_identifier_type;
   }
 
-  public void setPrimary_not_supplement(Boolean primary_not_supplement) {
+  public void setPrimary_not_supplement(boolean primary_not_supplement) {
     this.primary_not_supplement = primary_not_supplement;
   }
 

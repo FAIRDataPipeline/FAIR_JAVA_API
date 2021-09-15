@@ -1,12 +1,9 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.fairdatapipeline.dataregistry.content.*;
@@ -16,95 +13,109 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class testPatchAndDelete {
   String localReg = "http://localhost:8000/api/";
-  String remoteReg = "https://data.scrc.uk/api/";
-  RestClient lc, lcr;
-  RegistryCode_run crput, crpatch;
+  RestClient lc;
+  RegistryCode_run cr;
 
   @BeforeAll
   public void setUp() throws Exception {
     lc = new RestClient(localReg);
-    lcr = new RestClient(remoteReg);
+  }
 
-    this.crput = new RegistryCode_run();
-    this.crput.setDescription("test coderun for PUT");
-    this.crput.setRun_date(LocalDateTime.now());
-    this.crput.setInputs(List.of(getObject_component().getUrl()));
+  private void fresh_cr() {
+    this.cr = new RegistryCode_run();
+    this.cr.setDescription("test code_run for put patch delete");
+    this.cr.setRun_date(LocalDateTime.now());
+    this.cr.setInputs(List.of(getObject_component().getUrl()));
+    this.cr.setOutputs(List.of(getObject_component().getUrl()));
     RegistryObject o = getObject();
-    this.crput.setCode_repo(o.getUrl());
-    this.crput.setSubmission_script(o.getUrl());
-    this.crput = (RegistryCode_run) lc.post(this.crput);
-    if (this.crput == null) throw (new IllegalArgumentException("failed to post a fresh Coderun"));
-
-    this.crpatch = new RegistryCode_run();
-    this.crpatch.setDescription("test coderun for PATCH");
-    this.crpatch.setRun_date(LocalDateTime.now());
-    this.crpatch.setInputs(List.of(getObject_component().getUrl()));
-    // RegistryObject o = getObject();
-    this.crpatch.setCode_repo(o.getUrl());
-    this.crpatch.setSubmission_script(o.getUrl());
-    this.crpatch = (RegistryCode_run) lc.post(this.crpatch);
-    if (this.crpatch == null)
-      throw (new IllegalArgumentException("failed to post a fresh Coderun"));
+    this.cr.setCode_repo(o.getUrl());
+    this.cr.setSubmission_script(o.getUrl());
+    this.cr = (RegistryCode_run) lc.post(this.cr);
+    if (this.cr == null)
+      throw (new IllegalArgumentException("failed to post a fresh RegistryCode_run"));
   }
 
   @Test
-  void putCoderun() {
-    crput.setDescription("test coderun for PatchAndDelete after put");
-    crput.setInputs(new ArrayList<>());
-    RegistryCode_run cr2 = (RegistryCode_run) lc.put(crput);
-    Assertions.assertEquals(crput.getUrl(), cr2.getUrl());
-    Assertions.assertEquals(crput.getUuid(), cr2.getUuid());
-    Assertions.assertEquals(crput.getDescription(), cr2.getDescription());
-    // Assertions.assertNull(cr2.getInputs());
-    System.out.println("input on cr2 returned from the put method: " + cr2.getInputs().size());
-    // the null inputs does not override the existing inputs, so PUT behaves like PATCH
-    Assertions.assertEquals(crput.getOutputs().size(), cr2.getOutputs().size());
-    Assertions.assertTrue(crput.getOutputs().containsAll(cr2.getOutputs()));
-
-    RegistryCode_run cr3 = (RegistryCode_run) lc.get(RegistryCode_run.class, crput.getUrl());
-    Assertions.assertEquals(crput.getUrl(), cr3.getUrl());
-    Assertions.assertEquals(crput.getUuid(), cr3.getUuid());
-    Assertions.assertEquals(crput.getDescription(), cr3.getDescription());
-    Assertions.assertNotEquals(crput.getLast_updated(), cr3.getLast_updated());
-    // Assertions.assertNull(cr3.getInputs());
-    System.out.println("input on cr3 retrieved after put method: " + cr3.getInputs().size());
-    Assertions.assertEquals(crput.getOutputs().size(), cr3.getOutputs().size());
-    Assertions.assertTrue(crput.getOutputs().containsAll(cr3.getOutputs()));
-  }
-
-  String get_json(Registry_RootObject o) {
-    ObjectMapper om = new ObjectMapper();
-    JavaTimeModule jtm = new JavaTimeModule();
-    jtm.addSerializer(
-        LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME));
-    om.registerModule(jtm);
-    om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    try {
-      return om.writeValueAsString(o);
-    } catch (Exception e) {
-      return "**FAIL**";
-    }
-  }
-
-  @Test
-  void PutAndPatchCoderun() {
+  @Order(1)
+  void putCode_run() {
+    fresh_cr();
     RegistryCode_run cr2 = new RegistryCode_run();
-    cr2.setUrl(crpatch.getUrl());
-    cr2.setDescription("changed desc");
+    cr2.setUrl(cr.getUrl());
+    cr2.setRun_date(LocalDateTime.now());
+    cr2.setSubmission_script(getObject().getUrl());
+    cr2.setDescription("changed desc for put");
     cr2.setInputs(getObject_components_2());
-    System.out.println("JSON to patch or put:\n" + get_json(cr2));
-    System.out.println("PATCH URL: " + cr2.getUrl());
-    lc.patch(cr2);
+    RegistryCode_run cr3 = (RegistryCode_run) lc.put(cr2);
+    assertThat(
+        cr3,
+        samePropertyValuesAs(
+            cr2,
+            "last_updated",
+            "inputs",
+            "outputs",
+            "code_repo",
+            "prov_report",
+            "run_date",
+            "updated_by",
+            "uuid"));
+    Assertions.assertEquals(
+        cr3.getCode_repo(), cr.getCode_repo()); // this indicates PATCH behaviour..
+    Assertions.assertEquals(
+        cr3.getInputs().size(), cr2.getInputs().size()); // inputs have been over-written
+    Assertions.assertEquals(
+        cr3.getOutputs().size(),
+        cr.getOutputs().size()); // outputs have not.. this indicates PATCH behaviour..
+    //
   }
 
   @Test
+  @Order(2)
+  void patchCode_run() {
+    fresh_cr();
+    RegistryCode_run cr2 = new RegistryCode_run();
+    cr2.setUrl(cr.getUrl());
+    cr2.setRun_date(LocalDateTime.now());
+    cr2.setSubmission_script(getObject().getUrl());
+    cr2.setDescription("changed desc for patch");
+    cr2.setInputs(getObject_components_2());
+    RegistryCode_run cr3 = (RegistryCode_run) lc.patch(cr2);
+    assertThat(
+        cr3,
+        samePropertyValuesAs(
+            cr2,
+            "last_updated",
+            "inputs",
+            "outputs",
+            "code_repo",
+            "prov_report",
+            "run_date",
+            "updated_by",
+            "uuid"));
+    Assertions.assertEquals(
+        cr3.getCode_repo(), cr.getCode_repo()); // this indicates PATCH behaviour..
+    Assertions.assertEquals(
+        cr3.getInputs().size(), cr2.getInputs().size()); // inputs have been over-written
+    Assertions.assertEquals(
+        cr3.getOutputs().size(),
+        cr.getOutputs().size()); // outputs have not.. this indicates PATCH behaviour..
+  }
+
+  @Test
+  @Order(3)
   void delete_object() {
-    lc.delete(crput);
+    fresh_cr();
+    String url = cr.getUrl();
+    lc.delete(cr);
+    Assertions.assertNull(lc.get(RegistryCode_run.class, url));
   }
 
   @Test
+  @Order(4)
   void delete_by_id() {
-    lc.delete(RegistryCode_run.class, crpatch.get_id());
+    fresh_cr();
+    String url = cr.getUrl();
+    lc.delete(RegistryCode_run.class, cr.get_id());
+    Assertions.assertNull(lc.get(RegistryCode_run.class, url));
   }
 
   RegistryObject_component getObject_component() {

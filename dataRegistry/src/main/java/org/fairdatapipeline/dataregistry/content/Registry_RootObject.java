@@ -60,8 +60,6 @@ public abstract class Registry_RootObject {
 
   @JsonIgnore
   public boolean allow_method(String method) {
-    System.out.println("testing for method " + method);
-    System.out.println("this obj allows methods: " + this.methods_allowed);
     return this.methods_allowed.stream().anyMatch(s -> s.equals(method));
   }
 }
