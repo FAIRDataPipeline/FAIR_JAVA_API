@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id "com.diffplug.gradle.spotless" version "4.4.0"
     id "maven-publish"
-    id "jacoco"
+    //id "jacoco"
 }
 
 group 'uk.ramp'
@@ -22,10 +22,14 @@ compileTestJava {
 
 dependencies {
     implementation files('libs/hdfobject.jar')
-/*    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'*/
+    implementation files('libs/jarhdf5-1.10.7.jar')
+    implementation files('libs/jarhdf-4.2.15.jar')
+    implementation files('libs/HDFView.jar')
+    implementation('org.slf4j:slf4j-api:1.7.25')
+
     testImplementation(platform('org.junit:junit-bom:5.7.2'))
     testImplementation('org.junit.jupiter:junit-jupiter')
+    implementation group: 'gov.nasa.gsfc.heasarc', name: 'nom-tam-fits', version: '1.15.2'
 }
 
 spotless {
@@ -40,12 +44,12 @@ spotless {
 
 test {
     useJUnitPlatform()
-    finalizedBy jacocoTestReport
+    //finalizedBy jacocoTestReport
 }
-jacocoTestReport {
+/*jacocoTestReport {
     dependsOn test
     reports {
         xml.enabled true
         html.enabled false
     }
-}
+}*/
