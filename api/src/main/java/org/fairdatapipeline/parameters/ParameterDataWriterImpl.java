@@ -17,7 +17,6 @@ public class ParameterDataWriterImpl implements ParameterDataWriter {
 
   @Override
   public void write(CleanableFileChannel fileChannel, String component, Component data) {
-    System.out.println("component: " + component);
     try {
       fileChannel.position(fileChannel.size());
     } catch (IOException e) {

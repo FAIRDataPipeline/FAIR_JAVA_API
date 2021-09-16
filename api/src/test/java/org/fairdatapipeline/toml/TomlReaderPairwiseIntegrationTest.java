@@ -13,6 +13,7 @@ import org.fairdatapipeline.parameters.Components;
 import org.fairdatapipeline.parameters.ImmutableComponents;
 import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TomlReaderPairwiseIntegrationTest {
   private final String toml =
       "[example-estimate]\n" + "type = \"point-estimate\"\n" + "value = 1.0";

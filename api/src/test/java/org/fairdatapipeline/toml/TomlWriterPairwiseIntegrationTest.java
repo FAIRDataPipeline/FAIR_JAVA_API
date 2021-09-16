@@ -17,6 +17,7 @@ import org.fairdatapipeline.samples.ImmutableSamples;
 import org.json.JSONException;
 import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TomlWriterPairwiseIntegrationTest {
   private final String expectedToml =
       "[\"example estimate\"]\n"

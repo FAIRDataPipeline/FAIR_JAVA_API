@@ -9,6 +9,8 @@ import java.util.Map;
 import org.fairdatapipeline.config.ImmutableConfigItem;
 import org.fairdatapipeline.dataregistry.content.*;
 import org.fairdatapipeline.file.CleanableFileChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Data product is created by the consumer: {@link Coderun#get_dp_for_write(String, String)} or
@@ -16,6 +18,7 @@ import org.fairdatapipeline.file.CleanableFileChannel;
  * itself and its components in the registry, and then register itself in the coderun.
  */
 public abstract class Data_product implements AutoCloseable {
+  private static final Logger logger = LoggerFactory.getLogger(Data_product.class);
   protected Coderun coderun;
   protected RegistryNamespace registryNamespace;
   protected String namespace_name;
@@ -23,7 +26,7 @@ public abstract class Data_product implements AutoCloseable {
   protected String version;
   protected String description;
   protected RegistryData_product registryData_product;
-  protected RegistryObject fdpObject;
+  protected RegistryObject registryObject;
   protected RegistryStorage_location registryStorage_location;
   protected RegistryStorage_root registryStorage_root;
   protected Path filePath;
@@ -61,8 +64,7 @@ public abstract class Data_product implements AutoCloseable {
     }
     if (configItem.file_type().isPresent()) {
       if (extension != null && !configItem.file_type().get().equals(extension)) {
-        // TODO: logger WARNING conflict between 2 file_types
-        System.out.println(
+        logger.warn(
             "file type conflict: code says "
                 + extension
                 + ", config says "
@@ -73,7 +75,7 @@ public abstract class Data_product implements AutoCloseable {
     this.description = configItem.description().orElse("");
     this.version = configItem.use().version();
     this.registryNamespace = this.getRegistryNamespace(this.namespace_name);
-    this.populate_dataproduct();
+    this.populate_data_product();
   }
 
   /*
@@ -81,7 +83,7 @@ public abstract class Data_product implements AutoCloseable {
    * for READ: by reading these from the registry
    * for WRITE: by preparing empty ones that can later by posted to registry
    */
-  abstract void populate_dataproduct();
+  abstract void populate_data_product();
 
   abstract List<ImmutableConfigItem> getConfigItems();
 
@@ -106,13 +108,11 @@ public abstract class Data_product implements AutoCloseable {
   }
 
   ImmutableConfigItem getConfigItem(String dataProduct_name) {
-    ImmutableConfigItem configItem =
-        this.getConfigItems().stream()
-            .filter(ci -> ci.data_product().equals(dataProduct_name))
-            .findFirst()
-            .orElse(null);
 
-    return configItem;
+    return this.getConfigItems().stream()
+        .filter(ci -> ci.data_product().equals(dataProduct_name))
+        .findFirst()
+        .orElse(null);
   }
 
   /*
@@ -138,11 +138,7 @@ public abstract class Data_product implements AutoCloseable {
 
   void InputsOutputsToCoderun() {
     if (this.whole_obj_oc != null) this.whole_obj_oc.register_me_in_code_run();
-    this.componentMap.entrySet().stream()
-        .forEach(
-            obj_comp -> {
-              obj_comp.getValue().register_me_in_code_run();
-            });
+    this.componentMap.forEach((key, value) -> value.register_me_in_code_run());
   }
 
   @Override

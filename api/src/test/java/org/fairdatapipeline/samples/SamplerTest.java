@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SamplerTest {
   private Random random;
 

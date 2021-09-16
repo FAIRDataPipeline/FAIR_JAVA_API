@@ -1,5 +1,7 @@
 package org.fairdatapipeline.api;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.*;
@@ -10,12 +12,16 @@ import java.util.*;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.fairdatapipeline.config.Config;
+import org.fairdatapipeline.config.ConfigException;
 import org.fairdatapipeline.config.ConfigFactory;
 import org.fairdatapipeline.dataregistry.content.RegistryCode_run;
+import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
 import org.fairdatapipeline.hash.Hasher;
 import org.fairdatapipeline.yaml.YamlFactory;
 import org.fairdatapipeline.yaml.YamlReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Java implementation of the FAIR Data Pipeline API
@@ -42,24 +48,20 @@ import org.fairdatapipeline.yaml.YamlReader;
  * </blockquote>
  */
 public class Coderun implements AutoCloseable {
+  private static final Logger logger = LoggerFactory.getLogger(Coderun.class);
   final Config config;
-  static final boolean DP_READ = true;
-  static final boolean DP_WRITE = false;
   final RestClient restClient;
-  private Map<String, Data_product>
+  private final Map<String, Data_product>
       dp_info_map; // TODO: if we can have one and the same DP open for read & write we need 2 maps
   RegistryCode_run registryCode_run;
   Hasher hasher = new Hasher();
   Storage_location script_storage_location;
   Storage_location config_storage_location;
-  // private Path scriptPath;
-  // private Path configFilePath;
-  private Storage_root write_data_store_root; // i happen to store each local dataregistry stolo
-  // with a storage root corresponding to the
-  // 'write_data_store' location from config.
+  private final Storage_root write_data_store_root;
   StandardApi stdApi;
   RandomGenerator rng;
   List<Issue> issues;
+  Path coderuns_txt;
 
   /**
    * Constructor using only configFilePath - scriptPath is read from the config.
@@ -86,7 +88,7 @@ public class Coderun implements AutoCloseable {
   Coderun(Clock clock, Path configFilePath, Path scriptPath) {
     Instant openTimestamp = clock.instant();
     YamlReader yamlReader = new YamlFactory().yamlReader();
-    this.hasher = new Hasher();
+    this.coderuns_txt = configFilePath.getParent().resolve("coderuns.txt");
     this.rng = new RandomDataGenerator().getRandomGenerator();
     this.stdApi = new StandardApi(this.rng);
 
@@ -99,15 +101,22 @@ public class Coderun implements AutoCloseable {
                 .local_data_registry_url()
                 .orElse("http://localhost:8000/api/"));
 
-    // TODO: i don't think write_data_store is optional..
     this.write_data_store_root =
-        new Storage_root(config.run_metadata().write_data_store().orElse(""), restClient);
+        new Storage_root(
+            config
+                .run_metadata()
+                .write_data_store()
+                .orElse(configFilePath.getParent().getParent().getParent().toString()),
+            restClient);
 
     if (scriptPath == null) {
       if (config.run_metadata().script_path().isPresent()) {
         scriptPath = Path.of(config.run_metadata().script_path().get());
       } else {
-        throw (new IllegalArgumentException("No script path given."));
+        String msg =
+            "Coderun() -- Script path must be given either in constructor args or in config.";
+        logger.error(msg);
+        throw (new ConfigException(msg));
       }
     }
     this.config_storage_location =
@@ -117,6 +126,10 @@ public class Coderun implements AutoCloseable {
     prepare_code_run();
     dp_info_map = new HashMap<>();
     this.issues = new ArrayList<>();
+  }
+
+  public RegistryStorage_root getWriteStorage_root() {
+    return this.write_data_store_root.registryStorage_root;
   }
 
   private void prepare_code_run() {
@@ -146,8 +159,9 @@ public class Coderun implements AutoCloseable {
     try {
       remote_repo_url = new URL(remote_repo);
     } catch (MalformedURLException e) {
-      throw (new IllegalArgumentException(
-          "remote repo must be a valid URL; (" + remote_repo + " isn't)"));
+      String msg = "Remote repo must be a valid URL; (" + remote_repo + " isn't)";
+      logger.error(msg);
+      throw (new ConfigException(msg, e));
     }
     this.registryCode_run.setCode_repo(
         new Coderepo(
@@ -173,8 +187,10 @@ public class Coderun implements AutoCloseable {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_read.class) {
-        throw (new IllegalArgumentException(
-            "You are trying to open the same data product twice in the same coderun, first for write and then for read. Please don't."));
+        String msg =
+            "You are trying to open the same data product twice in the same coderun, first for write and then for read. Please don't.";
+        logger.error(msg);
+        throw (new IllegalActionException(msg));
       }
       return (Data_product_read) dp_info_map.get(dataProduct_name);
     }
@@ -194,12 +210,16 @@ public class Coderun implements AutoCloseable {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write.class) {
-        throw (new IllegalArgumentException(
-            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't."));
+        String msg =
+            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't.";
+        logger.error(msg);
+        throw (new IllegalActionException(msg));
       }
-      if (dp_info_map.get(dataProduct_name).extension != extension) {
-        throw (new IllegalArgumentException(
-            "You are trying to open the same data product using two different file types. Please don't."));
+      if (!dp_info_map.get(dataProduct_name).extension.equals(extension)) {
+        String msg =
+            "You are trying to open the same data product using two different file types. Please don't.";
+        logger.error(msg);
+        throw (new IllegalActionException(msg));
       }
       return (Data_product_write) dp_info_map.get(dataProduct_name);
     }
@@ -218,8 +238,10 @@ public class Coderun implements AutoCloseable {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write.class) {
-        throw (new IllegalArgumentException(
-            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't."));
+        String msg =
+            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't.";
+        logger.error(msg);
+        throw (new IllegalActionException(msg));
       }
       return (Data_product_write) dp_info_map.get(dataProduct_name);
     }
@@ -257,22 +279,30 @@ public class Coderun implements AutoCloseable {
     this.registryCode_run.addOutput(output);
   }
 
+  void append_code_run_uuid(String uuid) {
+    try {
+      FileWriter fw = new FileWriter(this.coderuns_txt.toString(), true);
+      fw.write(uuid + "\n");
+      fw.close();
+    } catch (IOException e) {
+      logger.error("IOException: append_code_run_uuid() failed: " + e);
+    }
+  }
+
   /**
    * Finalize and register the coderun. (this gets called automatically when using Coderun in a
    * try-with-resources block)
    */
   @Override
   public void close() {
-    dp_info_map.entrySet().stream()
-        .forEach(
-            li -> {
-              li.getValue().close();
-            });
-    if (restClient.post(this.registryCode_run) == null) {
-      throw (new IllegalArgumentException(
-          "failed to create in registry: " + this.registryCode_run));
+    dp_info_map.forEach((key, value) -> value.close());
+    RegistryCode_run coderun = (RegistryCode_run) restClient.post(this.registryCode_run);
+    if (coderun == null) {
+      String msg = "Failed to create Code_run in registry: " + this.registryCode_run;
+      logger.error(msg);
+      throw (new RegistryException(msg));
     }
-    // code_run_session.finish();
     this.register_issues();
+    this.append_code_run_uuid(coderun.getUuid());
   }
 }

@@ -13,6 +13,7 @@ import org.fairdatapipeline.samples.Samples;
 import org.fairdatapipeline.toml.TomlReader;
 import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ParameterDataReaderTest {
   private CleanableFileChannel fileChannel;
   private TomlReader tomlReader;

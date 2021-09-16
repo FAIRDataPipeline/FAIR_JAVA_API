@@ -14,6 +14,7 @@ import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.toml.TomlWriter;
 import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ParameterDataWriterImplTest {
   private CleanableFileChannel fileChannel;
   private TomlWriter tomlWriter;

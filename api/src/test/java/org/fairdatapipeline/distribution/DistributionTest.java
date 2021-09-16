@@ -13,6 +13,7 @@ import org.apache.commons.math3.random.Well512a;
 import org.fairdatapipeline.distribution.Distribution.DistributionType;
 import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class DistributionTest {
   private Distribution gammaDistribution;
   private Distribution categoricalDistribution;

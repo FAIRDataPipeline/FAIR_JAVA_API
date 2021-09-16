@@ -8,12 +8,15 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import org.fairdatapipeline.config.ConfigException;
 import org.fairdatapipeline.config.ImmutableConfigItem;
 import org.fairdatapipeline.dataregistry.content.*;
 import org.fairdatapipeline.file.CleanableFileChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Data_product_write is created by Coderun: {@link Coderun#get_dp_for_write(String, String)} Upon
@@ -21,6 +24,7 @@ import org.fairdatapipeline.file.CleanableFileChannel;
  * register its components in the coderun.
  */
 public class Data_product_write extends Data_product {
+  private static final Logger logger = LoggerFactory.getLogger(Data_product_write.class);
   private boolean is_hashed;
 
   Data_product_write(String dataProduct_name, Coderun coderun) {
@@ -31,20 +35,23 @@ public class Data_product_write extends Data_product {
     super(dataProduct_name, coderun, extension);
   }
 
-  void populate_dataproduct() {
+  void populate_data_product() {
     // called from the constructor
     if (this.getRegistryData_product() != null) {
-      throw (new IllegalArgumentException(
-          "Data Product already exists: "
+      String msg =
+          "You can't write to a Data Product that already exists: "
               + this.actualDataProduct_name
               + ", version "
               + this.version
               + ", namespace: "
-              + this.namespace_name));
+              + this.namespace_name;
+      logger.error(msg);
+      throw (new IllegalActionException(msg));
     }
     File_type file_type = new File_type(this.extension, coderun.restClient);
 
-    this.registryStorage_root = this.getStorageRoot();
+    // this.registryStorage_root = this.getStorageRoot();
+    this.registryStorage_root = this.coderun.getWriteStorage_root();
     this.registryStorage_location = new RegistryStorage_location();
     this.registryStorage_location.setStorage_root(this.registryStorage_root.getUrl());
     String filename = this.version + "." + this.extension;
@@ -52,13 +59,11 @@ public class Data_product_write extends Data_product {
         Paths.get(this.namespace_name).resolve(this.actualDataProduct_name).resolve(filename);
     this.filePath = Paths.get(this.registryStorage_root.getRoot()).resolve(my_stolo_path);
     this.registryStorage_location.setPath(my_stolo_path.toString());
-    this.fdpObject = new RegistryObject();
-    this.fdpObject.setDescription(this.description);
-    this.fdpObject.setFile_type(file_type.getUrl());
+    this.registryObject = new RegistryObject();
+    this.registryObject.setDescription(this.description);
+    this.registryObject.setFile_type(file_type.getUrl());
     // o.setAuthors();
-    this.registryData_product =
-        new RegistryData_product(); // sorry for the confusion but this is a restclient Object for
-    // registry.
+    this.registryData_product = new RegistryData_product();
     this.registryData_product.setName(this.actualDataProduct_name);
     this.registryData_product.setNamespace(this.registryNamespace.getUrl());
     this.registryData_product.setVersion(this.version);
@@ -77,26 +82,12 @@ public class Data_product_write extends Data_product {
     if (ns == null) {
       ns = (RegistryNamespace) coderun.restClient.post(new RegistryNamespace(namespace_name));
       if (ns == null) {
-        throw (new IllegalArgumentException(
-            "failed to create in registry: namespace '" + namespace_name + "'"));
+        String msg = "Failed to create in registry: namespace '" + namespace_name + "'";
+        logger.error(msg);
+        throw (new RegistryException(msg));
       }
     }
     return ns;
-  }
-
-  RegistryData_product getRegistryData_product() {
-    // for a write DP we just make sure the DP should not exist yet:
-    RegistryData_product dp = super.getRegistryData_product();
-    if (dp != null) {
-      throw (new IllegalArgumentException(
-          "Trying to write to existing data_product "
-              + this.actualDataProduct_name
-              + "; NS "
-              + this.registryNamespace.get_id().toString()
-              + "; version "
-              + version));
-    }
-    return dp;
   }
 
   private boolean globMatch(String pattern, String dataProduct_name) {
@@ -117,8 +108,9 @@ public class Data_product_write extends Data_product {
               .orElse(null);
     }
     if (configItem == null) {
-      throw (new IllegalArgumentException(
-          "dataProduct " + dataProduct_name + " not found in config"));
+      String msg = "DataProduct " + dataProduct_name + " not found in config";
+      logger.error(msg);
+      throw (new ConfigException(msg));
     }
     return configItem;
   }
@@ -141,7 +133,8 @@ public class Data_product_write extends Data_product {
       try {
         Files.createDirectories(this.filePath.getParent());
       } catch (IOException e) {
-        System.out.println("failed to create directory " + this.filePath.getParent().toString());
+        logger.error("failed to create directory " + this.filePath.getParent().toString());
+        // throw, or continue?
         return null;
       }
     }
@@ -184,11 +177,9 @@ public class Data_product_write extends Data_product {
     if (componentMap.containsKey(component_name))
       return (Object_component_write) componentMap.get(component_name);
     Object_component_write dc;
-    if (component_name == null) {
-      dc = new Object_component_write(this, "whole_object");
-    } else {
-      dc = new Object_component_write(this, component_name);
-    }
+    dc =
+        new Object_component_write(
+            this, Objects.requireNonNullElse(component_name, "whole_object"));
     componentMap.put(component_name, dc);
     return dc;
   }
@@ -199,8 +190,7 @@ public class Data_product_write extends Data_product {
    * @return the Object_component class
    */
   public Object_component_write getComponent() {
-    if (this.whole_obj_oc == null)
-      this.whole_obj_oc = (Object_component) new Object_component_write(this);
+    if (this.whole_obj_oc == null) this.whole_obj_oc = new Object_component_write(this);
     // componentMap.put(component_name, dc);
     return (Object_component_write) this.whole_obj_oc;
   }
@@ -222,67 +212,51 @@ public class Data_product_write extends Data_product {
           (RegistryStorage_location)
               this.coderun.restClient.getFirst(RegistryStorage_location.class, find_identical);
       if (identical_sl != null) {
-        // we've found an existing stolo with matching hash.. delete this one.
-        this.filePath.toFile().delete();
+        // we've found an existing stolo with matching hash. delete this one.
+        if (!this.filePath.toFile().delete()) {
+          logger.warn(
+              "Failed to delete current data file which is identical to a file already in the local registry.");
+        }
         this.registryStorage_location = identical_sl;
         // my FilePath is now wrong!
       } else {
-        // we've not found an existing stolo with matching hash.. store this one.
+        // we've not found an existing stolo with matching hash. store this one.
         RegistryStorage_location sl =
             (RegistryStorage_location) this.coderun.restClient.post(this.registryStorage_location);
         if (sl == null) {
-          throw (new IllegalArgumentException(
+          String msg =
               "Failed to create in registry: new storage location "
-                  + this.registryStorage_location.getPath()));
+                  + this.registryStorage_location.getPath();
+          logger.error(msg);
+          throw (new RegistryException(msg));
         } else {
           this.registryStorage_location = sl;
         }
       }
     }
-    this.fdpObject.setStorage_location(this.registryStorage_location.getUrl());
-    final RegistryObject o = (RegistryObject) this.coderun.restClient.post(this.fdpObject);
-    if (o == null)
-      throw (new IllegalArgumentException(
-          "Failed to create in registry: Object " + this.fdpObject.getDescription()));
-    this.fdpObject = o;
+    this.registryObject.setStorage_location(this.registryStorage_location.getUrl());
+    final RegistryObject o = (RegistryObject) this.coderun.restClient.post(this.registryObject);
+    if (o == null) {
+      String msg = "Failed to create in registry: Object " + this.registryObject.getDescription();
+      logger.error(msg);
+      throw (new RegistryException(msg));
+    }
+    this.registryObject = o;
     this.registryData_product.setObject(o.getUrl());
     RegistryData_product dp =
         (RegistryData_product) this.coderun.restClient.post(this.registryData_product);
     if (dp == null) {
-      throw (new IllegalArgumentException(
-          "Failed to create in registry: Data_product " + this.registryData_product.getName()));
+      String msg =
+          "Failed to create in registry: Data_product " + this.registryData_product.getName();
+      logger.error(msg);
+      throw (new RegistryException(msg));
     }
     this.registryData_product = dp;
   }
 
   void components_to_registry() {
     if (this.whole_obj_oc != null) this.whole_obj_oc.register_me_in_registry();
-    this.componentMap.entrySet().stream()
-        .forEach(
-            component -> {
-              component.getValue().register_me_in_registry();
-            });
-  }
-
-  RegistryStorage_root getStorageRoot() {
-    String storage_root_path = coderun.config.run_metadata().write_data_store().orElse("");
-    if (storage_root_path == "") {
-      throw (new IllegalArgumentException("No write_data_store given in config."));
-    }
-    RegistryStorage_root sr =
-        (RegistryStorage_root)
-            coderun.restClient.getFirst(
-                RegistryStorage_root.class, Collections.singletonMap("root", storage_root_path));
-    if (sr == null) {
-      sr =
-          (RegistryStorage_root)
-              coderun.restClient.post(new RegistryStorage_root(storage_root_path));
-      if (sr == null) {
-        throw (new IllegalArgumentException(
-            "failed to create in registry: storage root " + storage_root_path));
-      }
-    }
-    return sr;
+    this.componentMap.forEach((key, value) -> value.register_me_in_registry());
   }
 
   void objects_to_registry() {

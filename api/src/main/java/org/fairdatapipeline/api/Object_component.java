@@ -12,7 +12,7 @@ import org.fairdatapipeline.file.CleanableFileChannel;
  */
 public abstract class Object_component {
   protected String component_name;
-  protected boolean whole_object = false;
+  protected boolean whole_object;
   protected Data_product dp;
   protected RegistryObject_component registryObject_component;
   protected boolean been_used = false;
@@ -56,7 +56,7 @@ public abstract class Object_component {
       objcompmap =
           new HashMap<>() {
             {
-              put("object", dp.fdpObject.get_id().toString());
+              put("object", dp.registryObject.get_id().toString());
               put("whole_object", "true");
             }
           };
@@ -64,17 +64,13 @@ public abstract class Object_component {
       objcompmap =
           new HashMap<>() {
             {
-              put("object", dp.fdpObject.get_id().toString());
+              put("object", dp.registryObject.get_id().toString());
               put("name", component_name);
             }
           };
     }
     return (RegistryObject_component)
         dp.coderun.restClient.getFirst(RegistryObject_component.class, objcompmap);
-  }
-
-  RegistryObject_component getObject_component() {
-    return this.registryObject_component;
   }
 
   protected abstract void register_me_in_registry();

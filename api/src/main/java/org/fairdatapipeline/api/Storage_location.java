@@ -7,9 +7,12 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_location;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** This is used to store a file or a remote repo to the registry as a RegistryStorage_location. */
 public class Storage_location {
+  private static final Logger logger = LoggerFactory.getLogger(Storage_location.class);
   RegistryStorage_location registryStorage_location;
 
   /**
@@ -19,7 +22,7 @@ public class Storage_location {
    *     stored as storage_root)
    * @param latest_commit the unique hash of the repository. if the repo/hash combo already exists,
    *     we will use the existing one instead of storing this one.
-   * @param coderun
+   * @param coderun link back to the Coderun that created us.
    */
   Storage_location(URL remote_repo, String latest_commit, Coderun coderun) {
     String[] split_repo = Storage_root.url_to_root(remote_repo);
@@ -32,7 +35,7 @@ public class Storage_location {
    *
    * @param filePath the filePath of the file to store.
    * @param storage_root the storage root.
-   * @param coderun
+   * @param coderun link back to Coderun that created us.
    * @param delete_if_hash_exists we'll only create the RegistryStorage_location if the root/hash
    *     combo is unique, but if delete_if_hash_exists we will also delete the file if the root/hash
    *     combo already exists.
@@ -67,11 +70,18 @@ public class Storage_location {
             coderun.restClient.getFirst(RegistryStorage_location.class, find_stolo_from_hash);
     if (this.registryStorage_location != null) {
       // there is an already existing StorageLocation for this hash; we may need to delete the file
-      if (filePath_to_delete_if_hash_exists != null) {
+      if (filePath_to_delete_if_hash_exists == null) {
+        logger.trace(
+            "Not deleting file after finding existing storage location with identical hash.");
+      } else {
         try {
           Files.delete(filePath_to_delete_if_hash_exists);
+          logger.trace(
+              "Deleting file after finding existing storage location with identical hash.");
         } catch (IOException e) {
-          // logger - log failure to delete configFile
+          logger.error(
+              "Failed to delete file after finding existing storage location with identical hash: "
+                  + filePath_to_delete_if_hash_exists);
         }
       }
     } else {
@@ -84,7 +94,9 @@ public class Storage_location {
       this.registryStorage_location =
           (RegistryStorage_location) coderun.restClient.post(this.registryStorage_location);
       if (this.registryStorage_location == null) {
-        throw (new IllegalArgumentException("failed to create StorageLocation for " + path));
+        String msg = "Failed to create in registry: StorageLocation for " + path;
+        logger.error(msg);
+        throw (new RegistryException(msg));
       }
     }
   }

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class EstimateTest {
   private RandomGenerator rng;
 

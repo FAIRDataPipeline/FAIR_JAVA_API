@@ -15,6 +15,7 @@ import org.fairdatapipeline.mapper.DataPipelineMapper;
 import org.fairdatapipeline.samples.ImmutableSamples;
 import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ComponentsDeserializerTest {
   private final String json =
       "{\n"

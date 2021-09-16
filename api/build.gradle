@@ -28,7 +28,6 @@ dependencies {
     annotationProcessor 'org.immutables:value:2.8.8'
     implementation 'commons-codec:commons-codec:1.14'
     implementation 'com.google.guava:guava:29.0-jre'
-    //implementation 'com.google.guava:guava:30.1.1-jre'
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
     implementation 'commons-io:commons-io:2.7'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.0.0'
@@ -44,12 +43,15 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
     implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.12.4'
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'org.slf4j:slf4j-simple:1.7.25'
     testAnnotationProcessor 'org.immutables:value:2.8.8'
     testImplementation(platform('org.junit:junit-bom:5.7.2'))
     testImplementation('org.junit.jupiter:junit-jupiter')
     testImplementation 'org.skyscreamer:jsonassert:1.5.0'
     testImplementation 'org.mockito:mockito-core:2.28.2'
     testImplementation 'org.assertj:assertj-core:3.16.1'
+    testImplementation 'org.javatuples:javatuples:1.2'
 
 }
 

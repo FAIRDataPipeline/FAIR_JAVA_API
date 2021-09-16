@@ -6,6 +6,8 @@ import java.util.List;
 import org.fairdatapipeline.distribution.Distribution;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.parameters.ReadComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This represents an object_component to read from (or raise issues with) An object_component
@@ -14,6 +16,7 @@ import org.fairdatapipeline.parameters.ReadComponent;
  * is not enforced at the moment.
  */
 public class Object_component_read extends Object_component {
+  private static final Logger logger = LoggerFactory.getLogger(Object_component_read.class);
 
   Object_component_read(Data_product_read dp, String component_name) {
     super(dp, component_name);
@@ -26,12 +29,14 @@ public class Object_component_read extends Object_component {
   protected void populate_component() {
     this.registryObject_component = this.retrieveObject_component();
     if (this.registryObject_component == null) {
-      throw (new IllegalArgumentException(
+      String msg =
           "Object Component '"
               + this.component_name
-              + "' for FDPObj "
-              + this.dp.fdpObject.get_id().toString()
-              + " not found in registry."));
+              + "' for Object "
+              + this.dp.registryObject.get_id().toString()
+              + " not found in registry.";
+      logger.error(msg);
+      throw (new RegistryObjectNotfoundException(msg));
     }
   }
 
@@ -42,8 +47,9 @@ public class Object_component_read extends Object_component {
    */
   public Path readLink() {
     if (!this.whole_object) {
-      throw (new IllegalArgumentException(
-          "you shouldn't try to read directly from a Data Product with named components."));
+      String msg = "You shouldn't try to read directly from a Data Product with named components.";
+      logger.error(msg);
+      throw (new IllegalActionException(msg));
     }
     this.been_used = true;
     return this.dp.getFilePath();
@@ -53,12 +59,13 @@ public class Object_component_read extends Object_component {
    * get the CleanableFileChannel to read directly from the file. only for whole_object component.
    *
    * @return CleanableFileChannel the filechannel to read from.
-   * @throws IOException
+   * @throws IOException if the file can't be opened.
    */
   public CleanableFileChannel readFileChannel() throws IOException {
     if (!this.whole_object) {
-      throw (new IllegalArgumentException(
-          "you shouldn't try to read directly from a Data Product with named components."));
+      String msg = "You shouldn't try to read directly from a Data Product with named components.";
+      logger.error(msg);
+      throw (new IllegalActionException(msg));
     }
     this.been_used = true;
     return this.getFileChannel();
@@ -76,7 +83,9 @@ public class Object_component_read extends Object_component {
           dp.coderun.stdApi.parameterDataReader.read(
               fileChannel, this.registryObject_component.getName());
     } catch (IOException e) {
-      throw (new IllegalArgumentException("failed to open the file."));
+      String msg = "readEstimate() -- IOException trying to read from file";
+      logger.error(msg + "\n" + e);
+      throw (new RuntimeException(msg, e));
     }
     return data.getEstimate();
   }
@@ -91,7 +100,9 @@ public class Object_component_read extends Object_component {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       data = this.dp.coderun.stdApi.parameterDataReader.read(fileChannel, this.component_name);
     } catch (IOException e) {
-      throw (new IllegalArgumentException("failed to open file for read " + e.toString()));
+      String msg = "readDistribution() -- IOException trying to read from file.";
+      logger.error(msg + "\n" + e);
+      throw (new RuntimeException(msg, e));
     }
     return data.getDistribution();
   }
@@ -106,23 +117,15 @@ public class Object_component_read extends Object_component {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       data = this.dp.coderun.stdApi.parameterDataReader.read(fileChannel, this.component_name);
     } catch (IOException e) {
-      throw (new IllegalArgumentException("failed to open file for read " + e.toString()));
+      String msg = "readSamples() -- IOException trying to read from file.";
+      logger.error(msg + "\n" + e);
+      throw (new RuntimeException(msg, e));
     }
     return data.getSamples();
   }
 
-  /*public NumericalArray readArray(String dataProduct, String component) {
-      Path filepath = fileApi.fileApi.getFilePathForRead(dataProduct, component);
-      // HDF5 hdf5 = new HDF5(filepath);
-      return null; // hdf5.read(component);
-  }
-
-  public Table<Integer, String, Number> readTable(String dataProduct, String component) {
-      throw new UnsupportedOperationException();
-  }*/
-
   protected void register_me_in_registry() {
-    // i am a read component, so i am already registered.
+    // I am a read component, so I am already registered.
   }
 
   protected void register_me_in_code_run() {

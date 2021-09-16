@@ -40,7 +40,7 @@ public class Issue {
   List<Object_component> components;
 
   /**
-   * @param description
+   * @param description the text (description) for this issue
    * @param severity an integer indicating the severity of the issue - high is more severe
    */
   Issue(String description, Integer severity) {
@@ -51,10 +51,9 @@ public class Issue {
   }
 
   RegistryIssue getRegistryIssue() {
-    this.components.stream()
-        .forEach(
-            component ->
-                this.registryIssue.addComponent_issue(component.registryObject_component.getUrl()));
+    this.components.forEach(
+        component ->
+            this.registryIssue.addComponent_issue(component.registryObject_component.getUrl()));
     return registryIssue;
   }
 
@@ -66,10 +65,6 @@ public class Issue {
    * @param components - any number of components can be listed as arguments
    */
   public void add_components(Object_component... components) {
-    Arrays.stream(components)
-        .forEach(
-            component -> {
-              this.components.add(component);
-            });
+    this.components.addAll(Arrays.asList(components));
   }
 }

@@ -25,38 +25,43 @@ public class ConfigTester {
   @Test
   public void testConfig() throws URISyntaxException {
     Path cfilepath = Path.of(getClass().getResource("/config.yaml").toURI());
-    System.out.println("path: " + cfilepath.toString());
-    System.out.println("yamlReader: " + yamlReader);
-    var config = new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
-    System.out.println(config);
+    Assertions.assertDoesNotThrow(
+        () -> {
+          new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
+        });
   }
 
   @Test
   public void testConfig1() throws URISyntaxException {
     Path cfilepath = Path.of(getClass().getResource("/config1.yaml").toURI());
-    var config = new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
-    System.out.println(config);
+    Assertions.assertDoesNotThrow(
+        () -> {
+          new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
+        });
   }
 
   @Test
   public void testConfig2() throws URISyntaxException {
     Path cfilepath = Path.of(getClass().getResource("/config2.yaml").toURI());
-    var config = new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
-    System.out.println(config);
+    Assertions.assertDoesNotThrow(
+        () -> {
+          new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
+        });
   }
 
   @Disabled // config 3 uses Register; we don't need to be able to parse this.
   @Test
   public void testConfig3() throws URISyntaxException {
     Path cfilepath = Path.of(getClass().getResource("/config3.yaml").toURI());
-    var config = new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
-    System.out.println(config);
+    new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
   }
 
   @Test
   public void testConfigStdApi() throws URISyntaxException {
     Path cfilepath = Path.of(getClass().getResource("/config-stdapi.yaml").toURI());
-    var config = new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
-    System.out.println(config);
+    Assertions.assertDoesNotThrow(
+        () -> {
+          new ConfigFactory().config(yamlReader, hasher, openTimestamp, cfilepath);
+        });
   }
 }

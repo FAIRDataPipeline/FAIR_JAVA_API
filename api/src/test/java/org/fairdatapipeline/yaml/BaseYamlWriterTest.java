@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BaseYamlWriterTest {
   private Writer underlyingWriter;
 
