@@ -31,7 +31,7 @@ public class RegistryUsers extends Registry_RootObject {
   }
 
   public List<String> getOrgs() {
-    return (orgs == null) ? new ArrayList<>() {} : new ArrayList<String>(orgs);
+    return (orgs == null) ? new ArrayList<>() {} : new ArrayList<>(orgs);
   }
 
   public void setUsername(String username) {
@@ -47,6 +47,6 @@ public class RegistryUsers extends Registry_RootObject {
   }
 
   public void setOrgs(List<String> orgs) {
-    this.orgs = new ArrayList<String>(orgs);
+    this.orgs = new ArrayList<>(orgs);
   }
 }

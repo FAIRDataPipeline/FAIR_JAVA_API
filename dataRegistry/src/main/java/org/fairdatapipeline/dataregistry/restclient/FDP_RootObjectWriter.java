@@ -9,7 +9,6 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyWriter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -24,8 +23,7 @@ class FDP_RootObjectWriter implements MessageBodyWriter<Registry_RootObject> {
   @Override
   public boolean isWriteable(
       Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    boolean r = Registry_RootObject.class.isAssignableFrom(type);
-    return r;
+    return Registry_RootObject.class.isAssignableFrom(type);
   }
 
   @Override
@@ -37,7 +35,7 @@ class FDP_RootObjectWriter implements MessageBodyWriter<Registry_RootObject> {
       MediaType mediaType,
       MultivaluedMap<String, Object> httpHeaders,
       OutputStream outStream)
-      throws IOException, WebApplicationException {
+      throws WebApplicationException {
 
     try {
       ObjectMapper om = new ObjectMapper();

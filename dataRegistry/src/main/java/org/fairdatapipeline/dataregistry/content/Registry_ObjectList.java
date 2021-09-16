@@ -15,7 +15,7 @@ public class Registry_ObjectList<T extends Registry_RootObject> {
 
   @XmlElement private List<Registry_RootObject> results;
 
-  public Registry_ObjectList() {};
+  public Registry_ObjectList() {}
 
   public Integer getCount() {
     return count;
@@ -30,9 +30,7 @@ public class Registry_ObjectList<T extends Registry_RootObject> {
   }
 
   public List<Registry_RootObject> getResults() {
-    return (this.results == null)
-        ? new ArrayList<Registry_RootObject>() {}
-        : new ArrayList<Registry_RootObject>(results);
+    return (this.results == null) ? new ArrayList<>() {} : new ArrayList<>(results);
   }
 
   public void setCount(Integer count) {

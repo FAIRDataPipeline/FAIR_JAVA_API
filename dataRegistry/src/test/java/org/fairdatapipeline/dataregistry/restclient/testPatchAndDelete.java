@@ -17,7 +17,7 @@ public class testPatchAndDelete {
   RegistryCode_run cr;
 
   @BeforeAll
-  public void setUp() throws Exception {
+  public void setUp() {
     lc = new RestClient(localReg);
   }
 
@@ -59,12 +59,12 @@ public class testPatchAndDelete {
             "updated_by",
             "uuid"));
     Assertions.assertEquals(
-        cr3.getCode_repo(), cr.getCode_repo()); // this indicates PATCH behaviour..
+        cr3.getCode_repo(), cr.getCode_repo()); // this indicates PATCH behaviour.
     Assertions.assertEquals(
         cr3.getInputs().size(), cr2.getInputs().size()); // inputs have been over-written
     Assertions.assertEquals(
         cr3.getOutputs().size(),
-        cr.getOutputs().size()); // outputs have not.. this indicates PATCH behaviour..
+        cr.getOutputs().size()); // outputs have not. this indicates PATCH behaviour.
     //
   }
 
@@ -92,12 +92,12 @@ public class testPatchAndDelete {
             "updated_by",
             "uuid"));
     Assertions.assertEquals(
-        cr3.getCode_repo(), cr.getCode_repo()); // this indicates PATCH behaviour..
+        cr3.getCode_repo(), cr.getCode_repo()); // this indicates PATCH behaviour.
     Assertions.assertEquals(
         cr3.getInputs().size(), cr2.getInputs().size()); // inputs have been over-written
     Assertions.assertEquals(
         cr3.getOutputs().size(),
-        cr.getOutputs().size()); // outputs have not.. this indicates PATCH behaviour..
+        cr.getOutputs().size()); // outputs have not. this indicates PATCH behaviour.
   }
 
   @Test

@@ -9,7 +9,7 @@ public class RegistryFile_type extends Registry_Updateable {
 
   @XmlElement private String extension;
 
-  public RegistryFile_type() {};
+  public RegistryFile_type() {}
 
   public RegistryFile_type(String name, String extension) {
     this.name = name;

@@ -92,11 +92,11 @@ public class RegistryCode_run extends Registry_Updateable {
   }
 
   public void setInputs(List<String> inputs) {
-    this.inputs = (inputs == null) ? null : new ArrayList<String>(inputs);
+    this.inputs = (inputs == null) ? null : new ArrayList<>(inputs);
   }
 
   public void setOutputs(List<String> outputs) {
-    this.outputs = (outputs == null) ? null : new ArrayList<String>(outputs);
+    this.outputs = (outputs == null) ? null : new ArrayList<>(outputs);
   }
 
   public void addOutput(String output) {

@@ -41,7 +41,7 @@ public class RegistryObject extends Registry_Updateable {
   }
 
   public List<String> getAuthors() {
-    return (this.authors == null) ? new ArrayList<>() {} : new ArrayList<String>(authors);
+    return (this.authors == null) ? new ArrayList<>() {} : new ArrayList<>(authors);
   }
 
   public String getUuid() {
@@ -53,13 +53,11 @@ public class RegistryObject extends Registry_Updateable {
   }
 
   public List<String> getComponents() {
-    return (this.components == null) ? new ArrayList<>() {} : new ArrayList<String>(components);
+    return (this.components == null) ? new ArrayList<>() {} : new ArrayList<>(components);
   }
 
   public List<String> getData_products() {
-    return (this.data_products == null)
-        ? new ArrayList<>() {}
-        : new ArrayList<String>(data_products);
+    return (this.data_products == null) ? new ArrayList<>() {} : new ArrayList<>(data_products);
   }
 
   public String getCode_repo_release() {
@@ -71,11 +69,11 @@ public class RegistryObject extends Registry_Updateable {
   }
 
   public List<String> getLicences() {
-    return (this.licences == null) ? new ArrayList<>() {} : new ArrayList<String>(licences);
+    return (this.licences == null) ? new ArrayList<>() {} : new ArrayList<>(licences);
   }
 
   public List<String> getKeywords() {
-    return (this.keywords == null) ? new ArrayList<>() {} : new ArrayList<String>(keywords);
+    return (this.keywords == null) ? new ArrayList<>() {} : new ArrayList<>(keywords);
   }
 
   public void setDescription(String description) {

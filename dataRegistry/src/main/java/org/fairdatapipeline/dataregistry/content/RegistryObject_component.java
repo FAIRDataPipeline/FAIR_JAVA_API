@@ -21,7 +21,7 @@ public class RegistryObject_component extends Registry_Updateable {
 
   @XmlElement private List<String> outputs_of;
 
-  public RegistryObject_component() {};
+  public RegistryObject_component() {}
 
   public RegistryObject_component(String name) {
     this.name = name;
@@ -58,15 +58,15 @@ public class RegistryObject_component extends Registry_Updateable {
   }
 
   public List<String> getIssues() {
-    return (this.issues == null) ? new ArrayList<>() {} : new ArrayList<String>(this.issues);
+    return (this.issues == null) ? new ArrayList<>() {} : new ArrayList<>(this.issues);
   }
 
   public List<String> getInputs_of() {
-    return (inputs_of == null) ? new ArrayList<>() {} : new ArrayList<String>(this.inputs_of);
+    return (inputs_of == null) ? new ArrayList<>() {} : new ArrayList<>(this.inputs_of);
   }
 
   public List<String> getOutputs_of() {
-    return (outputs_of == null) ? new ArrayList<>() {} : new ArrayList<String>(this.outputs_of);
+    return (outputs_of == null) ? new ArrayList<>() {} : new ArrayList<>(this.outputs_of);
   }
 
   public void setObject(String object) {

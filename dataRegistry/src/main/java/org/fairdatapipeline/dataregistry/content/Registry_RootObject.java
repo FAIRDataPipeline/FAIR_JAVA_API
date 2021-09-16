@@ -28,7 +28,7 @@ public abstract class Registry_RootObject {
 
   @JsonIgnore
   public String get_django_path() {
-    return this.get_django_path(this.getClass().getSimpleName());
+    return Registry_RootObject.get_django_path(this.getClass().getSimpleName());
   }
 
   @JsonIgnore

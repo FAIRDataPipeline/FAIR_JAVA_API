@@ -12,7 +12,7 @@ import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class file_typeTest {
-  String jsonstring =
+  String JSONString =
       "{\"url\":\"https://data.scrc.uk/api/file_type/5/?format=json\",\"last_updated\":\"2021-03-04T14:43:57.160401Z\",\"name\":\"YAML Ain't Markup Language\",\"extension\":\"yaml\",\"updated_by\":\"https://data.scrc.uk/api/users/13/?format=json\"}";
   String url = "https://data.scrc.uk/api/file_type/5/?format=json";
   String updated_by = "https://data.scrc.uk/api/users/13/?format=json";
@@ -22,7 +22,7 @@ public class file_typeTest {
   RegistryFile_type expected;
 
   @BeforeAll
-  public void setUp() throws Exception {
+  public void setUp() {
     expected = new RegistryFile_type();
     expected.setUrl(url);
     expected.setLast_updated(d);
@@ -36,7 +36,7 @@ public class file_typeTest {
     RegistryFile_type from_json;
     ObjectMapper om = new ObjectMapper();
     om.registerModule(new JavaTimeModule());
-    from_json = om.readValue(jsonstring, RegistryFile_type.class);
+    from_json = om.readValue(JSONString, RegistryFile_type.class);
     assertThat(from_json, samePropertyValuesAs(expected));
   }
 

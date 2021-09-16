@@ -14,7 +14,7 @@ public class test_read_from_populated_registry {
   Map<String, String> m;
 
   @BeforeAll
-  public void setUp() throws Exception {
+  public void setUp() {
     this.lc = new RestClient(registry);
     this.m = Collections.emptyMap();
   }
@@ -40,7 +40,7 @@ public class test_read_from_populated_registry {
         RegistryStorage_root.class,
         RegistryUsers.class
       })
-  public void get_object(Class c) {
+  public void get_object(Class<Registry_RootObject> c) {
     Registry_RootObject n = lc.getFirst(c, m);
     Assertions.assertNotNull(n.getUrl());
   }

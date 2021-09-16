@@ -7,7 +7,6 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -18,8 +17,7 @@ class FDP_RootObjectReader implements MessageBodyReader<Registry_RootObject> {
   @Override
   public boolean isReadable(
       Class type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    boolean r = Registry_RootObject.class.isAssignableFrom(type);
-    return r;
+    return Registry_RootObject.class.isAssignableFrom(type);
   }
 
   @Override
@@ -30,11 +28,11 @@ class FDP_RootObjectReader implements MessageBodyReader<Registry_RootObject> {
       MediaType mediaType,
       MultivaluedMap<String, String> httpHeaders,
       InputStream entityStream)
-      throws IOException, WebApplicationException {
+      throws WebApplicationException {
     try {
       ObjectMapper om = new ObjectMapper();
       om.registerModule(new JavaTimeModule());
-      return (Registry_RootObject) om.readValue(entityStream, type);
+      return om.readValue(entityStream, type);
     } catch (Exception e) {
       throw new ProcessingException("Error deserializing ", e);
     }

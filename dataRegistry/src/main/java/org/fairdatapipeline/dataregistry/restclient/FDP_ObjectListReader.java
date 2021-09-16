@@ -8,7 +8,6 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
@@ -31,7 +30,7 @@ class FDP_ObjectListReader implements MessageBodyReader<Registry_ObjectList> {
       MediaType mediaType,
       MultivaluedMap<String, String> httpHeaders,
       InputStream entityStream)
-      throws IOException, WebApplicationException {
+      throws WebApplicationException {
 
     try {
       ObjectMapper om = new ObjectMapper();
@@ -40,7 +39,7 @@ class FDP_ObjectListReader implements MessageBodyReader<Registry_ObjectList> {
       JavaType ptype =
           om.getTypeFactory()
               .constructParametricType(Registry_ObjectList.class, (Class) MyTypeParameter);
-      return (Registry_ObjectList) om.readValue(entityStream, ptype);
+      return om.readValue(entityStream, ptype);
     } catch (Exception e) {
       throw new ProcessingException("Error deserializing Registry_ObjectList", e);
     }

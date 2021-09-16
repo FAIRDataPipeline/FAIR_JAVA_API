@@ -7,7 +7,6 @@ import jakarta.ws.rs.client.*;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -43,7 +42,7 @@ public class RestClient {
   }
 
   public RestClient(String registry_url) {
-    try (java.io.FileReader fileReader = new java.io.FileReader(new File("D:\\SCRCtokenLocal"))) {
+    try (java.io.FileReader fileReader = new java.io.FileReader("D:\\SCRCtokenLocal")) {
       init(registry_url, IOUtils.toString(fileReader));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -76,16 +75,14 @@ public class RestClient {
 
     Registry_ObjectList<?> o;
     try {
-      o =
-          (Registry_ObjectList)
-              wt2.request(MediaType.APPLICATION_JSON).get(new GenericType<Registry_ObjectList>(p));
+      o = wt2.request(MediaType.APPLICATION_JSON).get(new GenericType<>(p));
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
         String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
         logger.error(msg);
         throw (new ConnectException(msg, e));
       } else {
-        logger.error("getFirst(Class, Map) -- " + e.toString());
+        logger.error("getFirst(Class, Map) -- " + e);
         throw (e);
       }
     } catch (jakarta.ws.rs.ForbiddenException e) {
@@ -94,10 +91,10 @@ public class RestClient {
       throw (new ForbiddenException(msg, e));
     }
     if (o.getCount() == 0) {
-      logger.warn("getFirst() returned 0 items");
+      logger.trace("getFirst(" + c.getSimpleName() + ", " + m + ") returned 0 items");
       return null;
     }
-    return (Registry_RootObject) o.getResults().get(0);
+    return o.getResults().get(0);
   }
 
   /**
@@ -119,11 +116,9 @@ public class RestClient {
       wt2 = wt2.queryParam(e.getKey(), e.getValue());
     }
     ParameterizedType p = TypeUtils.parameterize(Registry_ObjectList.class, c);
-    GenericType<Registry_ObjectList> gt = new GenericType<Registry_ObjectList>(p);
+    GenericType<Registry_ObjectList<?>> gt = new GenericType<>(p);
     try {
-      Registry_ObjectList<?> o =
-          (Registry_ObjectList<?>) wt2.request(MediaType.APPLICATION_JSON).get(gt);
-      return o;
+      return wt2.request(MediaType.APPLICATION_JSON).get(gt);
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
         String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
@@ -134,9 +129,8 @@ public class RestClient {
           .getCanonicalName()
           .startsWith("com.fasterxml.jackson.databind.exc.")) {
         String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?\n"
-                + e.toString();
-        logger.error(msg);
+            "Error processing JSON response from registry.\nAre you using the correct registry version?";
+        logger.error(msg + "\n" + e);
         throw (new RegistryJSONException(msg, e));
       } else {
         logger.error(e.toString());
@@ -165,8 +159,7 @@ public class RestClient {
     WebTarget wt2 =
         wt.path(Registry_RootObject.get_django_path(c.getSimpleName())).path(Integer.toString(i));
     try {
-      Registry_RootObject o = (Registry_RootObject) wt2.request(MediaType.APPLICATION_JSON).get(c);
-      return o;
+      return (Registry_RootObject) wt2.request(MediaType.APPLICATION_JSON).get(c);
     } catch (NotFoundException e) {
       logger.warn("get(Class, Int) " + e);
       return null;
@@ -180,9 +173,8 @@ public class RestClient {
           .getCanonicalName()
           .startsWith("com.fasterxml.jackson.databind.exc.")) {
         String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?\n"
-                + e.toString();
-        logger.error(msg);
+            "Error processing JSON response from registry.\nAre you using the correct registry version?";
+        logger.error(msg + "\n" + e);
         throw (new RegistryJSONException(msg, e));
       } else {
         logger.error(e.toString());
@@ -196,7 +188,7 @@ public class RestClient {
   }
 
   /**
-   * retrieve the FDP registry entry with URI URI
+   * retrieve the FDP registry entry with given URI
    *
    * @param c The Class of the FDP Object we're trying to retrieve
    * @param URI The URI of the Object we are trying to retrieve
@@ -210,8 +202,7 @@ public class RestClient {
     }
     WebTarget wt2 = client.target(URI);
     try {
-      Registry_RootObject o = (Registry_RootObject) wt2.request(MediaType.APPLICATION_JSON).get(c);
-      return o;
+      return (Registry_RootObject) wt2.request(MediaType.APPLICATION_JSON).get(c);
     } catch (NotFoundException e) {
       logger.warn("get(Class, URI) " + e);
       return null;
@@ -225,9 +216,8 @@ public class RestClient {
           .getCanonicalName()
           .startsWith("com.fasterxml.jackson.databind.exc.")) {
         String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?\n"
-                + e.toString();
-        logger.error(msg);
+            "Error processing JSON response from registry.\nAre you using the correct registry version?";
+        logger.error(msg + "\n" + e);
         throw (new RegistryJSONException(msg, e));
       } else {
         logger.error(e.toString());
@@ -272,9 +262,8 @@ public class RestClient {
           .getCanonicalName()
           .startsWith("com.fasterxml.jackson.databind.exc.")) {
         String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?\n"
-                + e.toString();
-        logger.error(msg);
+            "Error processing JSON response from registry.\nAre you using the correct registry version?";
+        logger.error(msg + "\n" + e);
         throw (new RegistryJSONException(msg, e));
       } else {
         logger.error(e.toString());
@@ -298,7 +287,7 @@ public class RestClient {
       }
       return null;
     } else {
-      return (Registry_Updateable) r.readEntity(o.getClass());
+      return r.readEntity(o.getClass());
     }
   }
 
@@ -342,9 +331,8 @@ public class RestClient {
           .getCanonicalName()
           .startsWith("com.fasterxml.jackson.databind.exc.")) {
         String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?\n"
-                + e.toString();
-        logger.error(msg);
+            "Error processing JSON response from registry.\nAre you using the correct registry version?";
+        logger.error(msg + "\n" + e);
         throw (new RegistryJSONException(msg, e));
       } else {
         logger.error(e.toString());
@@ -355,8 +343,7 @@ public class RestClient {
       logger.error(msg);
       throw (new ForbiddenException(msg, e));
     }
-    if (r.getStatus() >= 200 && r.getStatus() < 300)
-      return (Registry_Updateable) r.readEntity(o.getClass());
+    if (r.getStatus() >= 200 && r.getStatus() < 300) return r.readEntity(o.getClass());
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
@@ -404,9 +391,8 @@ public class RestClient {
           .getCanonicalName()
           .startsWith("com.fasterxml.jackson.databind.exc.")) {
         String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?\n"
-                + e.toString();
-        logger.error(msg);
+            "Error processing JSON response from registry.\nAre you using the correct registry version?";
+        logger.error(msg + "\n" + e);
         throw (new RegistryJSONException(msg, e));
       } else {
         logger.error(e.toString());
@@ -417,8 +403,7 @@ public class RestClient {
       logger.error(msg);
       throw (new ForbiddenException(msg, e));
     }
-    if (r.getStatus() >= 200 && r.getStatus() < 300)
-      return (Registry_Updateable) r.readEntity(o.getClass());
+    if (r.getStatus() >= 200 && r.getStatus() < 300) return r.readEntity(o.getClass());
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
@@ -478,9 +463,8 @@ public class RestClient {
           .getCanonicalName()
           .startsWith("com.fasterxml.jackson.databind.exc.")) {
         String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?\n"
-                + e.toString();
-        logger.error(msg);
+            "Error processing JSON response from registry.\nAre you using the correct registry version?";
+        logger.error(msg + "\n" + e);
         throw (new RegistryJSONException(msg, e));
       } else {
         logger.error(e.toString());

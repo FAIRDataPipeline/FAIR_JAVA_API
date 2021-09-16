@@ -36,8 +36,8 @@ public class RegistryIssue extends Registry_Updateable {
 
   public List<String> getComponent_issues() {
     return (this.component_issues == null)
-        ? new ArrayList<String>() {}
-        : new ArrayList<String>(this.component_issues);
+        ? new ArrayList<>() {}
+        : new ArrayList<>(this.component_issues);
   }
 
   public String getUuid() {
@@ -53,7 +53,7 @@ public class RegistryIssue extends Registry_Updateable {
   }
 
   public void setComponent_issues(List<String> component_issues) {
-    this.component_issues = new ArrayList<String>(component_issues);
+    this.component_issues = new ArrayList<>(component_issues);
   }
 
   public void addComponent_issue(String object_component_url) {

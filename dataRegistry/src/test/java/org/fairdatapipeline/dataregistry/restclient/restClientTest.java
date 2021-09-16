@@ -20,19 +20,14 @@ public class restClientTest {
     RestClient lc2 = new RestClient(localReg, "bad token");
     Assertions.assertThrows(
         org.fairdatapipeline.dataregistry.restclient.ForbiddenException.class,
-        () -> {
-          lc2.getFirst(RegistryUsers.class, Collections.emptyMap());
-        });
+        () -> lc2.getFirst(RegistryUsers.class, Collections.emptyMap()));
   }
 
   @Test
   void wrongRegistry() {
     // i'm faking a JSON error by interpreting a user as a code_run..
     Assertions.assertThrows(
-        RegistryJSONException.class,
-        () -> {
-          lc.get(RegistryCode_run.class, localReg + "users/1/");
-        });
+        RegistryJSONException.class, () -> lc.get(RegistryCode_run.class, localReg + "users/1/"));
   }
 
   @Test
@@ -40,9 +35,7 @@ public class restClientTest {
     RestClient lc2 = new RestClient(badReg);
     Assertions.assertThrows(
         org.fairdatapipeline.dataregistry.restclient.ConnectException.class,
-        () -> {
-          lc2.getFirst(RegistryUsers.class, Collections.emptyMap());
-        });
+        () -> lc2.getFirst(RegistryUsers.class, Collections.emptyMap()));
   }
 
   @Test
@@ -81,10 +74,6 @@ public class restClientTest {
 
   @Test
   public void get_wrongClass() {
-    Assertions.assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          lc.get(Object.class, 1);
-        });
+    Assertions.assertThrows(IllegalArgumentException.class, () -> lc.get(Object.class, 1));
   }
 }

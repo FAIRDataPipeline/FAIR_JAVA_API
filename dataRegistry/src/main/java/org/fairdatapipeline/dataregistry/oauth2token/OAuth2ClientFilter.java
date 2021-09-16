@@ -52,7 +52,6 @@ import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.core.HttpHeaders;
-import java.io.IOException;
 
 /**
  * Client filter that adds access token to the {@code Authorization} http header. The filter uses
@@ -84,7 +83,7 @@ class OAuth2ClientFilter implements ClientRequestFilter {
   }
 
   @Override
-  public void filter(ClientRequestContext request) throws IOException {
+  public void filter(ClientRequestContext request) {
     String token = this.accessToken;
     final String propertyToken =
         (String) request.getProperty(OAuth2ClientSupport.OAUTH2_PROPERTY_ACCESS_TOKEN);

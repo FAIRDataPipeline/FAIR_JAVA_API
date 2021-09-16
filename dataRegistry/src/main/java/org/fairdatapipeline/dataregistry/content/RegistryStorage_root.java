@@ -47,6 +47,6 @@ public class RegistryStorage_root extends Registry_Updateable {
   }
 
   public void setLocations(List<String> locations) {
-    this.locations = new ArrayList<String>(locations);
+    this.locations = new ArrayList<>(locations);
   }
 }

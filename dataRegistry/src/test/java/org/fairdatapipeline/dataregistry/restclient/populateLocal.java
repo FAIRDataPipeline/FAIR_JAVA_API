@@ -20,7 +20,7 @@ public class populateLocal {
   String localReg = "http://localhost:8000/api/";
 
   @BeforeAll
-  public void setUp() throws Exception {
+  public void setUp() {
     lc = new RestClient(localReg);
   }
 
@@ -105,7 +105,7 @@ public class populateLocal {
   }
 
   private Stream<Registry_Updateable> objectsToBeCreated() {
-    ArrayList<Registry_Updateable> al = new ArrayList<Registry_Updateable>();
+    ArrayList<Registry_Updateable> al = new ArrayList<>();
     al.add(new RegistryNamespace("test namespace"));
     al.add(new RegistryFile_type("Test filetype", ".tst"));
     RegistryIssue i = new RegistryIssue();
@@ -174,8 +174,7 @@ public class populateLocal {
   }
 
   private boolean keyvalueExists() {
-    Registry_ObjectList<?> sr =
-        (Registry_ObjectList<?>) lc.getList(RegistryKey_value.class, new HashMap<String, String>());
+    Registry_ObjectList<?> sr = lc.getList(RegistryKey_value.class, new HashMap<>());
     return sr.getCount() != 0;
   }
 }
