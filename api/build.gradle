@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id "com.diffplug.gradle.spotless" version "4.4.0"
     id "maven-publish"
-    //id "jacoco"
 }
 
 
@@ -24,7 +23,6 @@ compileTestJava {
 
 dependencies {
     implementation project(':dataRegistry')
-    implementation project(':HDF5')
     annotationProcessor 'org.immutables:value:2.8.8'
     implementation 'commons-codec:commons-codec:1.14'
     implementation 'com.google.guava:guava:29.0-jre'
