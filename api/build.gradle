@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':dataRegistry')
+    implementation project(':dataregistry')
     annotationProcessor 'org.immutables:value:2.8.8'
     implementation 'commons-codec:commons-codec:1.14'
     implementation 'com.google.guava:guava:29.0-jre'
