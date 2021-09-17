@@ -105,7 +105,7 @@ public class Coderun implements AutoCloseable {
                 .run_metadata()
                 .local_data_registry_url()
                 .orElse("http://localhost:8000/api/"),
-                registryToken);
+            registryToken);
 
     this.write_data_store_root =
         new Storage_root(
