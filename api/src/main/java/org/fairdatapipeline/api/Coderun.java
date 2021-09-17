@@ -17,6 +17,7 @@ import org.fairdatapipeline.config.ConfigFactory;
 import org.fairdatapipeline.dataregistry.content.RegistryCode_run;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
+import org.fairdatapipeline.file.FileReader;
 import org.fairdatapipeline.hash.Hasher;
 import org.fairdatapipeline.yaml.YamlFactory;
 import org.fairdatapipeline.yaml.YamlReader;
@@ -85,7 +86,11 @@ public class Coderun implements AutoCloseable {
     this(Clock.systemUTC(), configFilePath, scriptPath);
   }
 
-  Coderun(Clock clock, Path configFilePath, Path scriptPath) {
+  public Coderun(Clock clock, Path configFilePath, Path scriptPath) {
+    this(clock, configFilePath, scriptPath, new FileReader().read("~/.fair/registry/token"));
+  }
+
+  Coderun(Clock clock, Path configFilePath, Path scriptPath, String registryToken) {
     Instant openTimestamp = clock.instant();
     YamlReader yamlReader = new YamlFactory().yamlReader();
     this.coderuns_txt = configFilePath.getParent().resolve("coderuns.txt");
@@ -99,7 +104,8 @@ public class Coderun implements AutoCloseable {
             this.config
                 .run_metadata()
                 .local_data_registry_url()
-                .orElse("http://localhost:8000/api/"));
+                .orElse("http://localhost:8000/api/"),
+                registryToken);
 
     this.write_data_store_root =
         new Storage_root(
