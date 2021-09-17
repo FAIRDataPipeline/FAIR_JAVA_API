@@ -90,6 +90,10 @@ public class Coderun implements AutoCloseable {
     this(clock, configFilePath, scriptPath, new FileReader().read("~/.fair/registry/token"));
   }
 
+  public Coderun(Path configFilePath, Path scriptPath, String token) {
+    this(Clock.systemUTC(), configFilePath, scriptPath, token);
+  }
+
   Coderun(Clock clock, Path configFilePath, Path scriptPath, String registryToken) {
     Instant openTimestamp = clock.instant();
     YamlReader yamlReader = new YamlFactory().yamlReader();
