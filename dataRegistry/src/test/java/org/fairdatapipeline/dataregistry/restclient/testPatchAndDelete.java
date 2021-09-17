@@ -8,7 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
+@EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class testPatchAndDelete {

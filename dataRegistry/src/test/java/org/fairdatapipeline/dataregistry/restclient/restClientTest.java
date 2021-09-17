@@ -3,7 +3,9 @@ package org.fairdatapipeline.dataregistry.restclient;
 import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
+@EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class restClientTest {
   String localReg = "http://localhost:8000/api/";

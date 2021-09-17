@@ -5,20 +5,17 @@ plugins {
     //id "jacoco"
 }
 
-group 'uk.ramp'
-version '1.0-SNAPSHOT'
+group 'org.fairdatapipeline'
+version '0.0.1'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
 repositories {
     mavenCentral()
 }
-
-compileJava {
-    options.compilerArgs += ["-Xlint:unchecked"]
-}
-compileTestJava {
-    options.compilerArgs += ["-Xlint:unchecked"]
-}
-
 
 dependencies {
     testImplementation(platform('org.junit:junit-bom:5.7.2'))
@@ -45,9 +42,6 @@ spotless {
     }
 }
 
-/*test {
-    useJUnitPlatform()
-}*/
 test {
     useJUnitPlatform()
     testLogging {

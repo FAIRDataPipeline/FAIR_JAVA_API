@@ -4,9 +4,11 @@ import java.util.Collections;
 import java.util.Map;
 import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+@EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class test_read_from_populated_registry {
   String registry = "http://localhost:8000/api/";

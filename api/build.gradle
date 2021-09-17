@@ -4,21 +4,11 @@ plugins {
     id "maven-publish"
 }
 
-
-
-group 'uk.ramp'
-version '1.0-SNAPSHOT'
+group 'org.fairdatapipeline'
+version '0.0.1'
 
 repositories {
     mavenCentral()
-}
-
-compileJava {
-    options.compilerArgs += ["-Xlint:unchecked"]
-}
-
-compileTestJava {
-    options.compilerArgs += ["-Xlint:unchecked"]
 }
 
 dependencies {
@@ -50,7 +40,6 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:2.28.2'
     testImplementation 'org.assertj:assertj-core:3.16.1'
     testImplementation 'org.javatuples:javatuples:1.2'
-
 }
 
 test {
@@ -70,7 +59,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/scottishcovidresponse/data_pipeline_api")
+            url = uri("https://maven.pkg.github.com/FAIRDataPipeline/javaDataPipeline")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("JAVA_API_PUBLISH_USERNAME")
                 password = project.findProperty("gpr.key") ?: System.getenv("JAVA_API_PUBLISH_TOKEN")

@@ -11,9 +11,11 @@ import org.fairdatapipeline.dataregistry.content.*;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_location;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIf;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class populateLocal {
   RestClient lc;
