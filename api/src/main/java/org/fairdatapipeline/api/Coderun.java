@@ -98,15 +98,15 @@ public class Coderun implements AutoCloseable {
   Coderun(Clock clock, Path configFilePath, Path scriptPath, String registryToken) {
     Instant openTimestamp = clock.instant();
     YamlReader yamlReader = new YamlFactory().yamlReader();
-    if(!new File(configFilePath.toString()).isFile()) {
+    if (!new File(configFilePath.toString()).isFile()) {
       String msg = "Coderun -- configFilePath argument must be a Path to a config file.";
       logger.error(msg);
-      throw(new IllegalArgumentException(msg));
+      throw (new IllegalArgumentException(msg));
     }
-    if(scriptPath != null && !new File(scriptPath.toString()).isFile()) {
+    if (scriptPath != null && !new File(scriptPath.toString()).isFile()) {
       String msg = "Coderun -- scriptPath argument must be a Path to a script file.";
       logger.error(msg);
-      throw(new IllegalArgumentException(msg));
+      throw (new IllegalArgumentException(msg));
     }
 
     this.coderuns_txt = configFilePath.getParent().resolve("coderuns.txt");
