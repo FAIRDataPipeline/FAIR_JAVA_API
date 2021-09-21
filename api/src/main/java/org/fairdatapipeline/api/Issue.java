@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.fairdatapipeline.dataregistry.content.RegistryIssue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An issue that can be raised with objects or their components.
@@ -34,12 +36,15 @@ import org.fairdatapipeline.dataregistry.content.RegistryIssue;
  * </blockquote>
  */
 public class Issue {
+  private static final Logger logger = LoggerFactory.getLogger(Issue.class);
   RegistryIssue registryIssue;
   String description;
   Integer severity;
   List<Object_component> components;
 
   /**
+   * Constructor is not public, for issues should be created by coderun.
+   *
    * @param description the text (description) for this issue
    * @param severity an integer indicating the severity of the issue - high is more severe
    */
@@ -50,6 +55,12 @@ public class Issue {
     this.components = new ArrayList<>();
   }
 
+  /**
+   * at the end of coderun the obj_components have been registered, and the registryIssue can
+   * receive the obj_component URLs to put in its component_issues List.
+   *
+   * @return
+   */
   RegistryIssue getRegistryIssue() {
     this.components.forEach(
         component ->
@@ -66,5 +77,15 @@ public class Issue {
    */
   public void add_components(Object_component... components) {
     this.components.addAll(Arrays.asList(components));
+  }
+
+  public void add_fileObjects(FileObject... objects) {
+    Arrays.asList(objects)
+        .forEach(
+            object -> this.registryIssue.addComponent_issue(object.getWholeObjectComponentUrl()));
+  }
+
+  void add_registryObject_component(String objectComponentUrl) {
+    this.registryIssue.addComponent_issue(objectComponentUrl);
   }
 }

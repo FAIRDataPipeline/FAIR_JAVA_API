@@ -64,6 +64,9 @@ public class Coderun implements AutoCloseable {
   RandomGenerator rng;
   List<Issue> issues;
   Path coderuns_txt;
+  FileObject script_object;
+  FileObject config_object;
+  Coderepo codeRepo;
 
   /**
    * Constructor using only configFilePath - scriptPath is read from the config.
@@ -88,7 +91,7 @@ public class Coderun implements AutoCloseable {
   }
 
   public Coderun(Clock clock, Path configFilePath, Path scriptPath) {
-    this(clock, configFilePath, scriptPath, new FileReader().read("~/.fair/registry/token"));
+    this(clock, configFilePath, scriptPath, null);
   }
 
   public Coderun(Path configFilePath, Path scriptPath, String token) {
@@ -115,6 +118,20 @@ public class Coderun implements AutoCloseable {
 
     this.config =
         new ConfigFactory().config(yamlReader, this.hasher, openTimestamp, configFilePath);
+    if (registryToken == null) {
+      if (config.run_metadata().token().isPresent()) {
+        registryToken = config.run_metadata().token().get();
+      } else {
+        String filename = "~/.fair/registry/token";
+        if (Files.isReadable(Path.of(filename))) {
+          registryToken = new FileReader().read(filename);
+        } else {
+          String msg = "No registry token given. Giving up.";
+          logger.error(msg);
+          throw (new IllegalActionException(msg));
+        }
+      }
+    }
     restClient =
         new RestClient(
             this.config
@@ -157,7 +174,7 @@ public class Coderun implements AutoCloseable {
   private void prepare_code_run() {
     Author a = new Author(this.restClient);
     List<String> authors = List.of(a.getUrl());
-    FileObject config_object =
+    this.config_object =
         new FileObject(
             new File_type("yaml", restClient),
             this.config_storage_location,
@@ -165,16 +182,16 @@ public class Coderun implements AutoCloseable {
             authors,
             this);
     this.registryCode_run = new RegistryCode_run();
-    this.registryCode_run.setModel_config(config_object.getUrl());
+    this.registryCode_run.setModel_config(this.config_object.getUrl());
 
-    FileObject script_object =
+    this.script_object =
         new FileObject(
             new File_type("sh", restClient),
             this.script_storage_location,
             "Submission script location in local datastore",
             authors,
             this);
-    this.registryCode_run.setSubmission_script(script_object.getUrl());
+    this.registryCode_run.setSubmission_script(this.script_object.getUrl());
     String latest_commit = this.config.run_metadata().latest_commit().orElse("");
     String remote_repo = this.config.run_metadata().remote_repo().orElse("");
     URL remote_repo_url;
@@ -185,18 +202,28 @@ public class Coderun implements AutoCloseable {
       logger.error(msg);
       throw (new ConfigException(msg, e));
     }
-    this.registryCode_run.setCode_repo(
+
+    this.codeRepo =
         new Coderepo(
-                latest_commit,
-                remote_repo_url,
-                "Analysis / processing script location",
-                authors,
-                this)
-            .getUrl());
-    this.registryCode_run.setModel_config(config_object.getUrl());
+            latest_commit, remote_repo_url, "Analysis / processing script location", authors, this);
+
+    this.registryCode_run.setCode_repo(this.codeRepo.getUrl());
+    this.registryCode_run.setModel_config(this.config_object.getUrl());
     this.registryCode_run.setRun_date(
         LocalDateTime.now()); // or should this be config.openTimestamp??
     this.registryCode_run.setDescription(this.config.run_metadata().description().orElse(""));
+  }
+
+  public FileObject getScript() {
+    return this.script_object;
+  }
+
+  public FileObject getConfig() {
+    return this.config_object;
+  }
+
+  public FileObject getCode_repo() {
+    return this.codeRepo.getFileObject();
   }
 
   /**
@@ -289,7 +316,10 @@ public class Coderun implements AutoCloseable {
 
   private void register_issues() {
     this.issues.stream()
-        .filter(issue -> !issue.components.isEmpty())
+        .filter(
+            issue ->
+                !(issue.components.isEmpty()
+                    && issue.registryIssue.getComponent_issues().isEmpty()))
         .forEach(issue -> restClient.post(issue.getRegistryIssue()));
   }
 

@@ -22,6 +22,10 @@ public class Coderepo {
     this.fileObject = new FileObject(this.storage_location, description, authors, coderun);
   }
 
+  public FileObject getFileObject() {
+    return this.fileObject;
+  }
+
   String getUrl() {
     return this.fileObject.getUrl();
   }

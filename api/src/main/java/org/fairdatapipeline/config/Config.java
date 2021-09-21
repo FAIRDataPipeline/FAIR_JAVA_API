@@ -226,5 +226,11 @@ public interface Config {
      */
     @JsonProperty
     Optional<String> latest_commit();
+
+    @JsonProperty
+    Optional<String> token();
+
+    @JsonProperty("public")
+    Optional<Boolean> isPublic();
   }
 }

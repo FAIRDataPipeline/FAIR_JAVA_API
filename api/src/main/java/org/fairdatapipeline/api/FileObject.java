@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 /** create a new registryObject with given storage_location, description, authors, file_type. */
 public class FileObject {
   private static final Logger logger = LoggerFactory.getLogger(FileObject.class);
+  Coderun coderun;
   RegistryObject o;
 
   /**
@@ -27,6 +28,7 @@ public class FileObject {
       String description,
       List<String> authors,
       Coderun coderun) {
+    this.coderun = coderun;
     this.o = new RegistryObject();
     this.o.setStorage_location(storage_location.getUrl());
     this.o.setDescription(description);
@@ -55,6 +57,26 @@ public class FileObject {
       List<String> authors,
       Coderun coderun) {
     this(null, storage_location, description, authors, coderun);
+  }
+
+  /**
+   * raise an issue with this component
+   *
+   * @param description the text description of this issue
+   * @param severity Integer - higher means more severe
+   */
+  public void raise_issue(String description, Integer severity) {
+    if (o.getComponents().isEmpty()) {
+      String msg = "Object component not found.";
+      logger.error(msg);
+      throw (new IllegalActionException(msg));
+    }
+    Issue i = this.coderun.raise_issue(description, severity);
+    i.add_registryObject_component(getWholeObjectComponentUrl());
+  }
+
+  String getWholeObjectComponentUrl() {
+    return this.o.getComponents().get(0);
   }
 
   String getUrl() {

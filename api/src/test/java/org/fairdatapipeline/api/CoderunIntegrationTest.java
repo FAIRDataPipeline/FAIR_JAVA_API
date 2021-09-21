@@ -69,6 +69,10 @@ public class CoderunIntegrationTest {
   private Path configPath;
   private Path scriptPath;
   private Path coderuns_txt;
+  private String token;
+  private String repo_desc = "Analysis / processing script location";
+  private String script_desc = "Submission script location in local datastore";
+  private String config_desc = "Working config.yaml file location in local datastore";
 
   void setup_paths() throws URISyntaxException {
     ori_configPath =
@@ -150,7 +154,9 @@ public class CoderunIntegrationTest {
 
   @BeforeAll
   public void setUp() throws Exception {
-    restClient = new RestClient("http://localhost:8000/api/");
+    this.token = System.getenv("REGTOKEN");
+    restClient = new RestClient("http://localhost:8000/api/", token);
+
     rng = mock(RandomGenerator.class);
     when(rng.nextDouble()).thenReturn(0D);
     // rng = new RandomDataGenerator().getRandomGenerator();
@@ -205,10 +211,15 @@ public class CoderunIntegrationTest {
               if (oc.isWhole_object()) {
                 RegistryObject o =
                     (RegistryObject) restClient.get(RegistryObject.class, oc.getObject());
-                RegistryData_product dp =
-                    (RegistryData_product)
-                        restClient.get(RegistryData_product.class, o.getData_products().get(0));
-                assertThat(dp.getName()).isIn((Object[]) components);
+                if (o.getData_products().isEmpty()) {
+                  // for script, config, repo, we just check the description
+                  assertThat(o.getDescription()).isIn((Object[]) components);
+                } else {
+                  RegistryData_product dp =
+                      (RegistryData_product)
+                          restClient.get(RegistryData_product.class, o.getData_products().get(0));
+                  assertThat(dp.getName()).isIn((Object[]) components);
+                }
               } else {
                 assertThat(oc.getName()).isIn((Object[]) components);
               }
@@ -294,7 +305,7 @@ public class CoderunIntegrationTest {
   public void testWriteEstimate() {
     String dataProduct = "human/population";
     String component = "estimate-component";
-    try (Coderun coderun = new Coderun(configPath, scriptPath)) {
+    try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeEstimate(estimate);
@@ -308,7 +319,7 @@ public class CoderunIntegrationTest {
   public void testReadEstimate() {
     String dataProduct = "human/population";
     String component = "estimate-component";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dp = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent(component);
       assertThat(oc.readEstimate()).isEqualTo(estimate);
@@ -322,7 +333,7 @@ public class CoderunIntegrationTest {
   public void testWriteDistribution() {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeDistribution(distribution);
@@ -336,7 +347,7 @@ public class CoderunIntegrationTest {
   public void testReadDistribution() {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dc = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dc.getComponent(component);
       assertThat(oc.readDistribution()).isEqualTo(distribution);
@@ -350,7 +361,7 @@ public class CoderunIntegrationTest {
   public void testWriteCategoricalDistribution() {
     String dataProduct = "human/cdistribution";
     String component = "cdistribution-component";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeDistribution(categoricalDistribution);
@@ -364,7 +375,7 @@ public class CoderunIntegrationTest {
   public void testReadCategoricalDistribution() {
     String dataProduct = "human/cdistribution";
     String component = "cdistribution-component";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dc = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dc.getComponent(component);
       assertThat(oc.readDistribution()).isEqualTo(categoricalDistribution);
@@ -378,7 +389,7 @@ public class CoderunIntegrationTest {
   public void testWriteSamples() {
     String dataProduct = "human/samples";
     String component = "example-samples-w";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeSamples(samples);
@@ -392,7 +403,7 @@ public class CoderunIntegrationTest {
   public void testReadSamples() {
     String dataProduct = "human/samples";
     String component = "example-samples-w";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dc = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dc.getComponent(component);
       assertThat(oc.readSamples()).containsExactly(1, 2, 3);
@@ -407,7 +418,7 @@ public class CoderunIntegrationTest {
     String dataProduct = "human/multicomp";
     String component1 = "example-samples-w1";
     String component2 = "example-samples-w2";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
 
       Object_component_write oc1 = dp.getComponent(component1);
@@ -430,7 +441,7 @@ public class CoderunIntegrationTest {
     String dataProduct = "human/multicomp";
     String component1 = "example-samples-w1";
     String component2 = "example-samples-w2";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dc = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc1 = dc.getComponent(component1);
       Object_component_read oc2 = dc.getComponent(component2);
@@ -450,7 +461,7 @@ public class CoderunIntegrationTest {
   public void testWriteGlobDP() {
     String dataProduct = "animal/dog";
     String component = "example-samples";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeSamples(samples2);
@@ -464,7 +475,7 @@ public class CoderunIntegrationTest {
   public void testReadNoGlob() {
     String dataProduct = "animal/dog";
     String component = "example-samples";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dc = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dc.getComponent(component);
       assertThat(oc.readSamples()).containsExactly(4, 5, 6);
@@ -479,7 +490,7 @@ public class CoderunIntegrationTest {
     String dataProduct1 = "animal/horse";
     String dataProduct2 = "animal/mouse";
     String component = "example-samples";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp1 = coderun.get_dp_for_write(dataProduct1, "toml");
       Data_product_write dp2 = coderun.get_dp_for_write(dataProduct2, "toml");
       Object_component_write oc = dp1.getComponent(component);
@@ -497,6 +508,45 @@ public class CoderunIntegrationTest {
   }
 
   @Test
+  public void testIssueWithScript() {
+    String issue = "I don't like this script";
+    System.out.println(configPath);
+    try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
+      coderun.getScript().raise_issue(issue, 10);
+    }
+    check_issue(issue, script_desc);
+  }
+
+  @Test
+  public void testIssueWithConfig() {
+    String issue = "I don't like this config";
+    System.out.println(configPath);
+    try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
+      coderun.getConfig().raise_issue(issue, 10);
+    }
+    check_issue(issue, config_desc);
+  }
+
+  @Test
+  public void testIssueWithRepo() {
+    String issue = "I don't like this repo";
+    try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
+      coderun.getCode_repo().raise_issue(issue, 10);
+    }
+    check_issue(issue, repo_desc);
+  }
+
+  @Test
+  public void testIssueWithFileObjects() {
+    String issue = "I don't like any of these FileObjects";
+    try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
+      Issue i = coderun.raise_issue(issue, 10);
+      i.add_fileObjects(coderun.getCode_repo(), coderun.getScript(), coderun.getCode_repo());
+    }
+    check_issue(issue, repo_desc, config_desc, script_desc);
+  }
+
+  @Test
   @Order(14)
   public void testWriteSamplesMultipleComponentsAndIssues() {
     String dataProduct = "animal/dodo";
@@ -505,7 +555,7 @@ public class CoderunIntegrationTest {
     String issue1 = "something is terribly wrong with this component";
     String issue2 = "very bad component";
     String issue3 = "this one is not so bad";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
 
       Object_component_write oc1 = dp.getComponent(component1);
@@ -536,7 +586,7 @@ public class CoderunIntegrationTest {
     String component2 = "example-samples-dodo2";
     String issue1 = "upon re-reading this component we found even more problems";
     String issue2 = "upon re-reading this component we found it's actually OK";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dc = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc1 = dc.getComponent(component1);
       oc1.raise_issue(issue1, 10);
@@ -557,12 +607,13 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(16)
-  public void testRead_oneIssueToMultipleComp() {
+  public void testRead_oneIssueToMultipleComp_and_script() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
     String component2 = "example-samples-dodo2";
     String issue = "one issue for 2 comps";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    String issue2 = "this issue attached itself to the comps";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dc = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc1 = dc.getComponent(component1);
       Issue i = coderun.raise_issue(issue, 2);
@@ -571,8 +622,9 @@ public class CoderunIntegrationTest {
       i.add_components(oc2);
       assertThat(oc1.readSamples()).containsExactly(1, 2, 3);
       assertThat(oc2.readSamples()).containsExactly(1, 2, 3);
-      Issue i2 = coderun.raise_issue("this issue attached itself to the comps", 3);
+      Issue i2 = coderun.raise_issue(issue2, 3);
       i2.add_components(oc1, oc2);
+      i2.add_fileObjects(coderun.getScript());
     }
     String hash = "b1f907976527b9b3f54667505a4141ecb1942dd2";
     check_last_coderun(
@@ -581,13 +633,14 @@ public class CoderunIntegrationTest {
             new Triplet<>(dataProduct, component2, hash)),
         null);
     check_issue(issue, component1, component2);
+    check_issue(issue2, component1, component2, script_desc);
   }
 
   @Test
   @Order(17)
   public void testCSV_writeLink() throws IOException {
     String dataProduct = "animal/ant";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "csv");
       Object_component_write oc = dp.getComponent();
       Path p = oc.writeLink();
@@ -618,7 +671,7 @@ public class CoderunIntegrationTest {
   @Order(18)
   public void testCSV_readLink() throws IOException {
     String dataProduct = "animal/ant";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dp = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent();
       Path p = oc.readLink();
@@ -639,7 +692,7 @@ public class CoderunIntegrationTest {
   public void testCSV_writeLink_withIssue() throws IOException {
     String dataProduct = "animal/monkey";
     String issue = "this does not seem to contain anything monkey-related";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "csv");
       Object_component_write oc = dp.getComponent();
       Path p = oc.writeLink();
@@ -659,7 +712,7 @@ public class CoderunIntegrationTest {
   public void testCSV_readLink_withIssue() throws IOException {
     String dataProduct = "animal/ant";
     String issue = "not enough orange";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dp = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent();
       oc.raise_issue(issue, 10);
@@ -682,7 +735,7 @@ public class CoderunIntegrationTest {
   public void testRewriteDPname() {
     String dataProduct = "animal/canine";
     String component = "NumberOfLegs";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeSamples(samples);
@@ -698,7 +751,7 @@ public class CoderunIntegrationTest {
   public void testReadRewrittenDPname() {
     String dataProduct = "animal/canine";
     String component = "NumberOfLegs";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dp = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent(component);
       oc.readSamples();
@@ -713,7 +766,7 @@ public class CoderunIntegrationTest {
   public void testAltNS() {
     String dataProduct = "test/altns";
     String component = "altNScompo";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
       Object_component_write oc = dp.getComponent(component);
       oc.writeSamples(samples);
@@ -728,7 +781,7 @@ public class CoderunIntegrationTest {
   public void testAltNSread() {
     String dataProduct = "test/altns";
     String component = "altNScompo";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dp = coderun.get_dp_for_read(dataProduct);
       Object_component_read oc = dp.getComponent(component);
       oc.readSamples();
@@ -741,7 +794,7 @@ public class CoderunIntegrationTest {
   @Order(25)
   public void testConfigFiletype() {
     String dataProduct = "animal/chicken";
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct);
       Object_component_write oc = dp.getComponent();
       try (CleanableFileChannel f = oc.getFileChannel()) {
@@ -754,7 +807,7 @@ public class CoderunIntegrationTest {
     String hash = "e19e3f4697ddf60aa09552a5f4390aed11ffd35f";
     check_last_coderun(null, List.of(new Triplet<>(dataProduct, "", hash)));
 
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dp = coderun.get_dp_for_read(dataProduct);
       RegistryFile_type ft =
           (RegistryFile_type)
@@ -776,7 +829,7 @@ public class CoderunIntegrationTest {
   @Test
   @Order(26)
   public void emptyCoderun() {
-    try (var coderun = new Coderun(configPath, scriptPath)) {
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
       // do nothing
     }
     check_last_coderun(null, null);

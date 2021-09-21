@@ -22,6 +22,8 @@ public class RegistryData_product extends Registry_Updateable {
   @XmlElement
   private boolean internal_format;
 
+  @XmlElement private String prov_report;
+
   public RegistryData_product() {
     this.methods_allowed = List.of("GET", "PUT", "PATCH", "HEAD", "OPTIONS");
   }
@@ -50,6 +52,10 @@ public class RegistryData_product extends Registry_Updateable {
     return this.internal_format;
   }
 
+  public String getProv_report() {
+    return this.prov_report;
+  }
+
   public void setName(String name) {
     this.name = name;
   }
@@ -72,5 +78,9 @@ public class RegistryData_product extends Registry_Updateable {
 
   public void setInternal_format(boolean internal_format) {
     this.internal_format = internal_format;
+  }
+
+  public void setProv_report(String prov_report) {
+    this.prov_report = prov_report;
   }
 }
