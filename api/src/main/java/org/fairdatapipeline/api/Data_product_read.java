@@ -3,6 +3,7 @@ package org.fairdatapipeline.api;
 import static java.nio.file.StandardOpenOption.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.List;
@@ -84,7 +85,7 @@ public class Data_product_read extends Data_product {
       throw (new RegistryObjectNotfoundException(msg));
     }
     this.filePath =
-        Path.of(this.registryStorage_root.getRoot())
+        Path.of(URI.create(this.registryStorage_root.getRoot()).getPath())
             .resolve(Path.of(this.registryStorage_location.getPath()));
   }
 

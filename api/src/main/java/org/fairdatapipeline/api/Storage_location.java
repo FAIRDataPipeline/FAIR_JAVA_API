@@ -1,6 +1,7 @@
 package org.fairdatapipeline.api;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,7 +45,7 @@ public class Storage_location {
       Path filePath, Storage_root storage_root, Coderun coderun, boolean delete_if_hash_exists) {
     String hash = coderun.hasher.fileHash(filePath.toString());
 
-    Path relativePath = Path.of(storage_root.getPath()).relativize(filePath);
+    Path relativePath = Path.of(URI.create(storage_root.getRoot()).getPath()).relativize(filePath);
     Path filePath_to_delete = null;
     if (delete_if_hash_exists) filePath_to_delete = filePath;
     create_storagelocation(

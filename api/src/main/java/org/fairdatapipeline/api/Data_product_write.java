@@ -4,6 +4,7 @@ import static java.nio.file.StandardOpenOption.*;
 import static java.nio.file.StandardOpenOption.APPEND;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,7 +58,8 @@ public class Data_product_write extends Data_product {
     String filename = this.version + "." + this.extension;
     Path my_stolo_path =
         Paths.get(this.namespace_name).resolve(this.actualDataProduct_name).resolve(filename);
-    this.filePath = Paths.get(this.registryStorage_root.getRoot()).resolve(my_stolo_path);
+    this.filePath =
+        Paths.get(URI.create(this.registryStorage_root.getRoot()).getPath()).resolve(my_stolo_path);
     this.registryStorage_location.setPath(my_stolo_path.toString());
     this.registryObject = new RegistryObject();
     this.registryObject.setDescription(this.description);

@@ -38,8 +38,8 @@ public class Storage_root {
     return this.registryStorage_root.getUrl();
   }
 
-  String getPath() {
-    return this.registryStorage_root.getPath();
+  String getRoot() {
+    return this.registryStorage_root.getRoot();
   }
 
   /**
