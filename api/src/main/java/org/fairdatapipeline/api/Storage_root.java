@@ -1,6 +1,8 @@
 package org.fairdatapipeline.api;
 
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
@@ -13,33 +15,38 @@ public class Storage_root {
   RegistryStorage_root registryStorage_root;
 
   /**
-   * Retrieve or create the RegistryStorage_root with the given storageRootPath.
+   * Retrieve or create the RegistryStorage_root with the given storageRootURI.
    *
-   * @param storageRootPath the path/root for this Storage_root
+   * @param storageRootURI the path/root for this Storage_root
    * @param restClient link to the restClient to access the registry.
    */
-  Storage_root(String storageRootPath, RestClient restClient) {
+  Storage_root(URI storageRootURI, RestClient restClient) {
     this.registryStorage_root =
         (RegistryStorage_root)
             restClient.getFirst(
-                RegistryStorage_root.class, Collections.singletonMap("root", storageRootPath));
+                RegistryStorage_root.class,
+                Collections.singletonMap("root", storageRootURI.toString()));
     if (this.registryStorage_root == null) {
       this.registryStorage_root =
-          (RegistryStorage_root) restClient.post(new RegistryStorage_root(storageRootPath));
+          (RegistryStorage_root) restClient.post(new RegistryStorage_root(storageRootURI));
       if (this.registryStorage_root == null) {
-        String msg = "Failed to create in registry:  Storage_root " + storageRootPath;
+        String msg = "Failed to create in registry:  Storage_root " + storageRootURI;
         logger.error(msg);
         throw (new RegistryException(msg));
       }
     }
   }
 
-  String getUrl() {
+  URL getUrl() {
     return this.registryStorage_root.getUrl();
   }
 
-  String getRoot() {
+  URI getRoot() {
     return this.registryStorage_root.getRoot();
+  }
+
+  Path getPath() {
+    return this.registryStorage_root.getPath();
   }
 
   /**

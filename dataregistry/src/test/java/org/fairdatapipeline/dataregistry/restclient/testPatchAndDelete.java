@@ -3,6 +3,9 @@ package org.fairdatapipeline.dataregistry.restclient;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -106,7 +109,7 @@ public class testPatchAndDelete {
   @Order(3)
   void delete_object() {
     fresh_cr();
-    String url = cr.getUrl();
+    URL url = cr.getUrl();
     lc.delete(cr);
     Assertions.assertNull(lc.get(RegistryCode_run.class, url));
   }
@@ -115,7 +118,7 @@ public class testPatchAndDelete {
   @Order(4)
   void delete_by_id() {
     fresh_cr();
-    String url = cr.getUrl();
+    URL url = cr.getUrl();
     lc.delete(RegistryCode_run.class, cr.get_id());
     Assertions.assertNull(lc.get(RegistryCode_run.class, url));
   }
@@ -136,7 +139,7 @@ public class testPatchAndDelete {
     return oc;
   }
 
-  List<String> getObject_components_2() {
+  List<URL> getObject_components_2() {
     RegistryObject o = getObject();
     RegistryObject_component wo =
         (RegistryObject_component)
@@ -188,7 +191,11 @@ public class testPatchAndDelete {
         (RegistryStorage_root) lc.getFirst(RegistryStorage_root.class, Collections.emptyMap());
     if (sr == null) {
       sr = new RegistryStorage_root();
-      sr.setRoot("http://bikehub.com");
+      try {
+        sr.setRoot(new URI("http://bikehub.com"));
+      } catch (URISyntaxException e) {
+
+      }
       sr.setLocal(true);
       sr = (RegistryStorage_root) lc.post(sr);
       if (sr == null) throw (new IllegalArgumentException("couldn't post storageRoot"));

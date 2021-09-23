@@ -1,5 +1,6 @@
 package org.fairdatapipeline.api;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +60,7 @@ public class Issue {
    * at the end of coderun the obj_components have been registered, and the registryIssue can
    * receive the obj_component URLs to put in its component_issues List.
    *
-   * @return
+   * @return the registryIssue with its Component_issues filled in
    */
   RegistryIssue getRegistryIssue() {
     this.components.forEach(
@@ -85,7 +86,7 @@ public class Issue {
             object -> this.registryIssue.addComponent_issue(object.getWholeObjectComponentUrl()));
   }
 
-  void add_registryObject_component(String objectComponentUrl) {
+  void add_registryObject_component(URL objectComponentUrl) {
     this.registryIssue.addComponent_issue(objectComponentUrl);
   }
 }

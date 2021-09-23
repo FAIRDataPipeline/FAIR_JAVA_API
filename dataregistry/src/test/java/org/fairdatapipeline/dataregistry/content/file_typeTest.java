@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.*;
@@ -14,15 +16,17 @@ import org.junit.jupiter.api.*;
 public class file_typeTest {
   String JSONString =
       "{\"url\":\"https://data.scrc.uk/api/file_type/5/?format=json\",\"last_updated\":\"2021-03-04T14:43:57.160401Z\",\"name\":\"YAML Ain't Markup Language\",\"extension\":\"yaml\",\"updated_by\":\"https://data.scrc.uk/api/users/13/?format=json\"}";
-  String url = "https://data.scrc.uk/api/file_type/5/?format=json";
-  String updated_by = "https://data.scrc.uk/api/users/13/?format=json";
+  URL url;
+  URL updated_by;
   LocalDateTime d = LocalDateTime.of(2021, 3, 4, 14, 43, 57, 160401000);
   String name = "YAML Ain't Markup Language";
   String extension = "yaml";
   RegistryFile_type expected;
 
   @BeforeAll
-  public void setUp() {
+  public void setUp() throws MalformedURLException {
+    url = new URL("https://data.scrc.uk/api/file_type/5/?format=json");
+    updated_by = new URL("https://data.scrc.uk/api/users/13/?format=json");
     expected = new RegistryFile_type();
     expected.setUrl(url);
     expected.setLast_updated(d);

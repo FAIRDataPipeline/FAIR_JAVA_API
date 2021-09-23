@@ -1,7 +1,6 @@
 package org.fairdatapipeline.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
@@ -14,15 +13,15 @@ import org.apache.commons.lang3.NotImplementedException;
 public abstract class Registry_RootObject {
   @JsonIgnore List<String> methods_allowed = List.of("GET", "HEAD", "OPTIONS");
 
-  @XmlElement private String url;
+  @XmlElement private URL url;
 
   public Registry_RootObject() {}
 
-  public String getUrl() {
+  public URL getUrl() {
     return url;
   }
 
-  public void setUrl(String url) {
+  public void setUrl(URL url) {
     this.url = url;
   }
 
@@ -40,13 +39,9 @@ public abstract class Registry_RootObject {
   }
 
   @JsonIgnore
-  public static Integer get_id(String url) {
+  public static Integer get_id(URL url) {
     String id_part;
-    try {
-      id_part = Paths.get(new URL(url).getPath()).getFileName().toString();
-    } catch (MalformedURLException e) {
-      throw (new IllegalArgumentException("Trying to parse a bad URL " + url + " (" + e + ")"));
-    }
+    id_part = Paths.get(url.getPath()).getFileName().toString();
     return Integer.parseInt(id_part);
   }
 

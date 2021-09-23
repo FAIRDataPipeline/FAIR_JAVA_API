@@ -1,5 +1,6 @@
 package org.fairdatapipeline.dataregistry.content;
 
+import java.net.URL;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -9,9 +10,9 @@ public class RegistryCode_repo_release extends Registry_Updateable {
 
   @XmlElement private String version;
 
-  @XmlElement private String website;
+  @XmlElement private URL website;
 
-  @XmlElement private String object;
+  @XmlElement private URL object;
 
   public RegistryCode_repo_release() {}
 
@@ -23,11 +24,11 @@ public class RegistryCode_repo_release extends Registry_Updateable {
     return this.version;
   }
 
-  public String getWebsite() {
+  public URL getWebsite() {
     return this.website;
   }
 
-  public String getObject() {
+  public URL getObject() {
     return this.object;
   }
 
@@ -39,11 +40,11 @@ public class RegistryCode_repo_release extends Registry_Updateable {
     this.version = version;
   }
 
-  public void setWebsite(String website) {
+  public void setWebsite(URL website) {
     this.website = website;
   }
 
-  public void setObject(String object) {
+  public void setObject(URL object) {
     this.object = object;
   }
 }

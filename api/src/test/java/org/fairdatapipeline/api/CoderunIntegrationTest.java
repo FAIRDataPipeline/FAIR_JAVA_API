@@ -10,6 +10,7 @@ import com.google.common.collect.Table;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -80,7 +81,7 @@ public class CoderunIntegrationTest {
     ori_scriptPath =
         Paths.get(Objects.requireNonNull(getClass().getResource("/script.sh")).toURI());
     datastorePath = ori_configPath.getParent().resolve("datastore");
-    coderun_ts = "20210808T123456";
+    coderun_ts = "20210807T123456";
     coderunPath = datastorePath.resolve("coderun");
     coderunTSPath = coderunPath.resolve(coderun_ts);
     ns = "CoderunTest";
@@ -245,7 +246,8 @@ public class CoderunIntegrationTest {
       RegistryObject code_repo =
           (RegistryObject) restClient.get(RegistryObject.class, cr.getCode_repo());
       assertNotNull(code_repo);
-      assertThat(code_repo.getAuthors()).containsExactly("http://localhost:8000/api/author/1/");
+      assertThat(code_repo.getAuthors())
+          .containsExactly(new URL("http://localhost:8000/api/author/1/"));
 
       assertThat(cr.getDescription()).isEqualTo("Coderun Integration test");
       if (inputs == null) assertThat(cr.getInputs()).isEmpty();

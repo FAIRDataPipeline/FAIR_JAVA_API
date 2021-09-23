@@ -1,5 +1,6 @@
 package org.fairdatapipeline.dataregistry.content;
 
+import java.net.URL;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -9,7 +10,7 @@ public class RegistryNamespace extends Registry_Updateable {
 
   @XmlElement private String full_name;
 
-  @XmlElement private String website;
+  @XmlElement private URL website;
 
   public RegistryNamespace() {}
 
@@ -25,7 +26,7 @@ public class RegistryNamespace extends Registry_Updateable {
     return this.full_name;
   }
 
-  public String getWebsite() {
+  public URL getWebsite() {
     return this.website;
   }
 
@@ -37,7 +38,7 @@ public class RegistryNamespace extends Registry_Updateable {
     this.full_name = full_name;
   }
 
-  public void setWebsite(String website) {
+  public void setWebsite(URL website) {
     this.website = website;
   }
 }

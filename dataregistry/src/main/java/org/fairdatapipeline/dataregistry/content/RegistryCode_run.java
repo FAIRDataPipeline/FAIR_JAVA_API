@@ -1,5 +1,6 @@
 package org.fairdatapipeline.dataregistry.content;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,19 +14,19 @@ public class RegistryCode_run extends Registry_Updateable {
 
   @XmlElement private String description;
 
-  @XmlElement private String code_repo;
+  @XmlElement private URL code_repo;
 
-  @XmlElement private String model_config;
+  @XmlElement private URL model_config;
 
-  @XmlElement private String submission_script;
+  @XmlElement private URL submission_script;
 
-  @XmlElement private List<String> inputs;
+  @XmlElement private List<URL> inputs;
 
-  @XmlElement private List<String> outputs;
+  @XmlElement private List<URL> outputs;
 
   @XmlElement private String uuid;
 
-  @XmlElement private String prov_report;
+  @XmlElement private URL prov_report;
 
   public RegistryCode_run() {
     methods_allowed = List.of("GET", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS");
@@ -39,25 +40,25 @@ public class RegistryCode_run extends Registry_Updateable {
     return this.description;
   }
 
-  public String getCode_repo() {
+  public URL getCode_repo() {
     return this.code_repo;
   }
 
-  public String getModel_config() {
+  public URL getModel_config() {
     return this.model_config;
   }
 
-  public String getSubmission_script() {
+  public URL getSubmission_script() {
     return this.submission_script;
   }
 
-  public List<String> getInputs() {
+  public List<URL> getInputs() {
     // return (this.inputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.inputs);
     // we're more likely to be able to use the PATCH method if unset items are null.
     return (this.inputs == null) ? null : new ArrayList<>(this.inputs);
   }
 
-  public List<String> getOutputs() {
+  public List<URL> getOutputs() {
     // return (this.outputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.outputs);
     // we're more likely to be able to use the PATCH method if unset items are null.
     return (this.outputs == null) ? null : new ArrayList<>(this.outputs);
@@ -67,7 +68,7 @@ public class RegistryCode_run extends Registry_Updateable {
     return this.uuid;
   }
 
-  public String getProv_report() {
+  public URL getProv_report() {
     return this.prov_report;
   }
 
@@ -79,34 +80,34 @@ public class RegistryCode_run extends Registry_Updateable {
     this.description = description;
   }
 
-  public void setCode_repo(String code_repo) {
+  public void setCode_repo(URL code_repo) {
     this.code_repo = code_repo;
   }
 
-  public void setModel_config(String model_config) {
+  public void setModel_config(URL model_config) {
     this.model_config = model_config;
   }
 
-  public void setSubmission_script(String submission_script) {
+  public void setSubmission_script(URL submission_script) {
     this.submission_script = submission_script;
   }
 
-  public void setInputs(List<String> inputs) {
+  public void setInputs(List<URL> inputs) {
     this.inputs = (inputs == null) ? null : new ArrayList<>(inputs);
   }
 
-  public void setOutputs(List<String> outputs) {
+  public void setOutputs(List<URL> outputs) {
     this.outputs = (outputs == null) ? null : new ArrayList<>(outputs);
   }
 
-  public void addOutput(String output) {
+  public void addOutput(URL output) {
     if (this.outputs == null) {
       this.outputs = new ArrayList<>();
     }
     this.outputs.add(output);
   }
 
-  public void addInput(String input) {
+  public void addInput(URL input) {
     if (this.inputs == null) {
       this.inputs = new ArrayList<>();
     }
@@ -117,7 +118,7 @@ public class RegistryCode_run extends Registry_Updateable {
     this.uuid = uuid;
   }
 
-  public void setProv_report(String prov_report) {
+  public void setProv_report(URL prov_report) {
     this.prov_report = prov_report;
   }
 }

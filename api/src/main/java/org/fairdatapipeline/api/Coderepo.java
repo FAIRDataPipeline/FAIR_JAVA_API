@@ -13,11 +13,7 @@ public class Coderepo {
   FileObject fileObject;
 
   Coderepo(
-      String latest_commit,
-      URL repo_url,
-      String description,
-      List<String> authors,
-      Coderun coderun) {
+      String latest_commit, URL repo_url, String description, List<URL> authors, Coderun coderun) {
     this.storage_location = new Storage_location(repo_url, latest_commit, coderun);
     this.fileObject = new FileObject(this.storage_location, description, authors, coderun);
   }
@@ -26,7 +22,7 @@ public class Coderepo {
     return this.fileObject;
   }
 
-  String getUrl() {
+  URL getUrl() {
     return this.fileObject.getUrl();
   }
 }

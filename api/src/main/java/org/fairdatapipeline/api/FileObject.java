@@ -1,5 +1,6 @@
 package org.fairdatapipeline.api;
 
+import java.net.URL;
 import java.util.List;
 import org.fairdatapipeline.dataregistry.content.RegistryObject;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class FileObject {
       File_type file_type,
       Storage_location storage_location,
       String description,
-      List<String> authors,
+      List<URL> authors,
       Coderun coderun) {
     this.coderun = coderun;
     this.o = new RegistryObject();
@@ -52,10 +53,7 @@ public class FileObject {
    * @param coderun link back to the coderun; to access its restClient.
    */
   FileObject(
-      Storage_location storage_location,
-      String description,
-      List<String> authors,
-      Coderun coderun) {
+      Storage_location storage_location, String description, List<URL> authors, Coderun coderun) {
     this(null, storage_location, description, authors, coderun);
   }
 
@@ -75,11 +73,11 @@ public class FileObject {
     i.add_registryObject_component(getWholeObjectComponentUrl());
   }
 
-  String getWholeObjectComponentUrl() {
+  URL getWholeObjectComponentUrl() {
     return this.o.getComponents().get(0);
   }
 
-  String getUrl() {
+  URL getUrl() {
     return this.o.getUrl();
   }
 }

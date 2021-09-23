@@ -1,10 +1,9 @@
 run_metadata:
   description: A simple analysis
   local_data_registry_url: http://localhost:8000/api/
-  remote_data_registry_url: https://data.scrc.uk/api/
-  default_input_namespace: outputNS
-  default_output_namespace: outputNS
-  write_data_store: D:\datastore
+  default_input_namespace: test
+  default_output_namespace: test
+  write_data_store: /home/bram/datastore/
   local_repo: local_repo
   script: ''
   latest_commit: 988637ffb95381375f6b22e2281fea1bcb6c8fe0
@@ -14,10 +13,10 @@ write:
   - data_product: human/example
     description: example write data file
     use:
-      version: 0.0.15
+      version: 0.0.1
 
 
 read:
   - data_product: human/example
     use:
-      version: 0.0.15
+      version: 0.0.1

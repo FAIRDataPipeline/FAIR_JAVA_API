@@ -1,5 +1,6 @@
 package org.fairdatapipeline.api;
 
+import java.net.URL;
 import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.RegistryAuthor;
 import org.fairdatapipeline.dataregistry.content.RegistryUser_author;
@@ -38,7 +39,7 @@ public class Author {
     RegistryUser_author ua =
         (RegistryUser_author)
             restClient.getFirst(
-                RegistryUser_author.class, Collections.singletonMap("user", u.getUrl()));
+                RegistryUser_author.class, Collections.singletonMap("user", u.getUrl().toString()));
     if (ua == null) {
       String msg = "Couldn't find a User_author in the local registry!";
       logger.error(msg);
@@ -47,7 +48,7 @@ public class Author {
     this.registryAuthor = (RegistryAuthor) restClient.get(RegistryAuthor.class, ua.getAuthor());
   }
 
-  String getUrl() {
+  URL getUrl() {
     return this.registryAuthor.getUrl();
   }
 }

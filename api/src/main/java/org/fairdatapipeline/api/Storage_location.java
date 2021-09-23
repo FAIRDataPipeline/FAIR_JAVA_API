@@ -27,7 +27,7 @@ public class Storage_location {
    */
   Storage_location(URL remote_repo, String latest_commit, Coderun coderun) {
     String[] split_repo = Storage_root.url_to_root(remote_repo);
-    Storage_root storage_root = new Storage_root(split_repo[0], coderun.restClient);
+    Storage_root storage_root = new Storage_root(URI.create(split_repo[0]), coderun.restClient);
     create_storagelocation(latest_commit, storage_root, coderun, split_repo[1], null);
   }
 
@@ -45,7 +45,8 @@ public class Storage_location {
       Path filePath, Storage_root storage_root, Coderun coderun, boolean delete_if_hash_exists) {
     String hash = coderun.hasher.fileHash(filePath.toString());
 
-    Path relativePath = Path.of(URI.create(storage_root.getRoot()).getPath()).relativize(filePath);
+    Path storageRootPath = storage_root.getPath();
+    Path relativePath = storageRootPath.relativize(filePath);
     Path filePath_to_delete = null;
     if (delete_if_hash_exists) filePath_to_delete = filePath;
     create_storagelocation(
@@ -102,7 +103,7 @@ public class Storage_location {
     }
   }
 
-  String getUrl() {
+  URL getUrl() {
     return this.registryStorage_location.getUrl();
   }
 }

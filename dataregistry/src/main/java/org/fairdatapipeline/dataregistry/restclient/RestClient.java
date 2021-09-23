@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -188,23 +189,23 @@ public class RestClient {
   }
 
   /**
-   * retrieve the FDP registry entry with given URI
+   * retrieve the FDP registry entry with given URL
    *
    * @param c The Class of the FDP Object we're trying to retrieve
-   * @param URI The URI of the Object we are trying to retrieve
+   * @param url The URL of the Object we are trying to retrieve
    * @return The Object, or null if not found.
    */
-  public Registry_RootObject get(Class<?> c, String URI) {
+  public Registry_RootObject get(Class<?> c, URL url) {
     if (!Registry_RootObject.class.isAssignableFrom(c)) {
-      String msg = "get(Class, URI) -- Given Class is not an FDP_RootObject.";
+      String msg = "get(Class, URL) -- Given Class is not an FDP_RootObject.";
       logger.error(msg);
       throw new IllegalArgumentException(msg);
     }
-    WebTarget wt2 = client.target(URI);
+    WebTarget wt2 = client.target(url.toString());
     try {
       return (Registry_RootObject) wt2.request(MediaType.APPLICATION_JSON).get(c);
     } catch (NotFoundException e) {
-      logger.warn("get(Class, URI) " + e);
+      logger.warn("get(Class, URL) " + e);
       return null;
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
@@ -317,7 +318,7 @@ public class RestClient {
     try {
       r =
           client
-              .target(o.getUrl())
+              .target(o.getUrl().toString())
               .request(MediaType.APPLICATION_JSON)
               .build("PATCH", Entity.entity(o, MediaType.APPLICATION_JSON))
               .invoke();
@@ -378,7 +379,7 @@ public class RestClient {
     try {
       r =
           client
-              .target(o.getUrl())
+              .target(o.getUrl().toString())
               .request(MediaType.APPLICATION_JSON)
               .put(Entity.entity(o, MediaType.APPLICATION_JSON));
     } catch (ProcessingException e) {
@@ -452,7 +453,7 @@ public class RestClient {
     }
     Response r;
     try {
-      r = client.target(o.getUrl()).request(MediaType.APPLICATION_JSON).delete();
+      r = client.target(o.getUrl().toString()).request(MediaType.APPLICATION_JSON).delete();
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
         String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";

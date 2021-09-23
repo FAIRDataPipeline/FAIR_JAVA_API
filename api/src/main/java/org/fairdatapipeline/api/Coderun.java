@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
 import java.time.Clock;
@@ -140,13 +141,19 @@ public class Coderun implements AutoCloseable {
                 .orElse("http://localhost:8000/api/"),
             registryToken);
 
-    this.write_data_store_root =
-        new Storage_root(
-            config
-                .run_metadata()
-                .write_data_store()
-                .orElse(configFilePath.getParent().getParent().getParent().toString()),
-            restClient);
+    URI storageRootURI;
+    if (config.run_metadata().write_data_store().isPresent()) {
+      try {
+        storageRootURI = URI.create(config.run_metadata().write_data_store().get());
+      } catch (Exception e) {
+        Path wdsPath = Path.of(config.run_metadata().write_data_store().get());
+        storageRootURI = wdsPath.toUri();
+      }
+    } else {
+      storageRootURI = configFilePath.getParent().getParent().getParent().toUri();
+    }
+    System.out.println("st root URI: " + storageRootURI);
+    this.write_data_store_root = new Storage_root(storageRootURI, restClient);
 
     if (scriptPath == null) {
       if (config.run_metadata().script_path().isPresent()) {
@@ -173,7 +180,7 @@ public class Coderun implements AutoCloseable {
 
   private void prepare_code_run() {
     Author a = new Author(this.restClient);
-    List<String> authors = List.of(a.getUrl());
+    List<URL> authors = List.of(a.getUrl());
     this.config_object =
         new FileObject(
             new File_type("yaml", restClient),
@@ -323,11 +330,11 @@ public class Coderun implements AutoCloseable {
         .forEach(issue -> restClient.post(issue.getRegistryIssue()));
   }
 
-  void addInput(String input) {
+  void addInput(URL input) {
     this.registryCode_run.addInput(input);
   }
 
-  void addOutput(String output) {
+  void addOutput(URL output) {
     this.registryCode_run.addOutput(output);
   }
 

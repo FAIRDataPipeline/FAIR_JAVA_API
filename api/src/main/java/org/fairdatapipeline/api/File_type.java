@@ -1,5 +1,6 @@
 package org.fairdatapipeline.api;
 
+import java.net.URL;
 import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.RegistryFile_type;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
@@ -34,7 +35,7 @@ class File_type {
     }
   }
 
-  String getUrl() {
+  URL getUrl() {
     return this.registryFile_type.getUrl();
   }
 }

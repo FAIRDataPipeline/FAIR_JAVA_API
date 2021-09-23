@@ -1,6 +1,7 @@
 package org.fairdatapipeline.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.net.URL;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -12,17 +13,17 @@ public class RegistryData_product extends Registry_Updateable {
 
   @XmlElement private String version;
 
-  @XmlElement private String object;
+  @XmlElement private URL object;
 
-  @XmlElement private String namespace;
+  @XmlElement private URL namespace;
 
-  @XmlElement private String external_object;
+  @XmlElement private URL external_object;
 
   @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   @XmlElement
   private boolean internal_format;
 
-  @XmlElement private String prov_report;
+  // @XmlElement private String prov_report;
 
   public RegistryData_product() {
     this.methods_allowed = List.of("GET", "PUT", "PATCH", "HEAD", "OPTIONS");
@@ -36,15 +37,15 @@ public class RegistryData_product extends Registry_Updateable {
     return version;
   }
 
-  public String getObject() {
+  public URL getObject() {
     return object;
   }
 
-  public String getNamespace() {
+  public URL getNamespace() {
     return namespace;
   }
 
-  public String getExternal_object() {
+  public URL getExternal_object() {
     return external_object;
   }
 
@@ -52,9 +53,9 @@ public class RegistryData_product extends Registry_Updateable {
     return this.internal_format;
   }
 
-  public String getProv_report() {
-    return this.prov_report;
-  }
+  // public String getProv_report() {
+  //  return this.prov_report;
+  // }
 
   public void setName(String name) {
     this.name = name;
@@ -64,15 +65,15 @@ public class RegistryData_product extends Registry_Updateable {
     this.version = version;
   }
 
-  public void setObject(String object) {
+  public void setObject(URL object) {
     this.object = object;
   }
 
-  public void setNamespace(String namespace) {
+  public void setNamespace(URL namespace) {
     this.namespace = namespace;
   }
 
-  public void setExternal_object(String external_object) {
+  public void setExternal_object(URL external_object) {
     this.external_object = external_object;
   }
 
@@ -80,7 +81,7 @@ public class RegistryData_product extends Registry_Updateable {
     this.internal_format = internal_format;
   }
 
-  public void setProv_report(String prov_report) {
-    this.prov_report = prov_report;
-  }
+  // public void setProv_report(String prov_report) {
+  //  this.prov_report = prov_report;
+  // }
 }
