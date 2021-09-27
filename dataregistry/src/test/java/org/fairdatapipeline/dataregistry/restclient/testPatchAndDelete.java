@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -109,7 +108,7 @@ public class testPatchAndDelete {
   @Order(3)
   void delete_object() {
     fresh_cr();
-    URL url = cr.getUrl();
+    APIURL url = cr.getUrl();
     lc.delete(cr);
     Assertions.assertNull(lc.get(RegistryCode_run.class, url));
   }
@@ -118,7 +117,7 @@ public class testPatchAndDelete {
   @Order(4)
   void delete_by_id() {
     fresh_cr();
-    URL url = cr.getUrl();
+    APIURL url = cr.getUrl();
     lc.delete(RegistryCode_run.class, cr.get_id());
     Assertions.assertNull(lc.get(RegistryCode_run.class, url));
   }
@@ -139,7 +138,7 @@ public class testPatchAndDelete {
     return oc;
   }
 
-  List<URL> getObject_components_2() {
+  List<APIURL> getObject_components_2() {
     RegistryObject o = getObject();
     RegistryObject_component wo =
         (RegistryObject_component)

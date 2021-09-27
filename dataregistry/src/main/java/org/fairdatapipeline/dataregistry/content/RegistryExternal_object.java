@@ -1,10 +1,10 @@
 package org.fairdatapipeline.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import java.net.URL;
 import java.time.LocalDateTime;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryExternal_object extends Registry_Updateable {
@@ -24,9 +24,9 @@ public class RegistryExternal_object extends Registry_Updateable {
 
   @XmlElement private String description;
 
-  @XmlElement private URL data_product;
+  @XmlElement private APIURL data_product;
 
-  @XmlElement private URL original_store;
+  @XmlElement private APIURL original_store;
 
   @XmlElement private String version;
 
@@ -60,11 +60,11 @@ public class RegistryExternal_object extends Registry_Updateable {
     return description;
   }
 
-  public URL getData_product() {
+  public APIURL getData_product() {
     return data_product;
   }
 
-  public URL getOriginal_store() {
+  public APIURL getOriginal_store() {
     return original_store;
   }
 
@@ -100,11 +100,11 @@ public class RegistryExternal_object extends Registry_Updateable {
     this.description = description;
   }
 
-  public void setData_product(URL data_product) {
+  public void setData_product(APIURL data_product) {
     this.data_product = data_product;
   }
 
-  public void setOriginal_store(URL original_store) {
+  public void setOriginal_store(APIURL original_store) {
     this.original_store = original_store;
   }
 

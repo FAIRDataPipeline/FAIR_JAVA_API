@@ -1,10 +1,10 @@
 package org.fairdatapipeline.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import java.net.URL;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryData_product extends Registry_Updateable {
@@ -13,11 +13,11 @@ public class RegistryData_product extends Registry_Updateable {
 
   @XmlElement private String version;
 
-  @XmlElement private URL object;
+  @XmlElement private APIURL object;
 
-  @XmlElement private URL namespace;
+  @XmlElement private APIURL namespace;
 
-  @XmlElement private URL external_object;
+  @XmlElement private APIURL external_object;
 
   @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   @XmlElement
@@ -37,15 +37,15 @@ public class RegistryData_product extends Registry_Updateable {
     return version;
   }
 
-  public URL getObject() {
+  public APIURL getObject() {
     return object;
   }
 
-  public URL getNamespace() {
+  public APIURL getNamespace() {
     return namespace;
   }
 
-  public URL getExternal_object() {
+  public APIURL getExternal_object() {
     return external_object;
   }
 
@@ -65,15 +65,15 @@ public class RegistryData_product extends Registry_Updateable {
     this.version = version;
   }
 
-  public void setObject(URL object) {
+  public void setObject(APIURL object) {
     this.object = object;
   }
 
-  public void setNamespace(URL namespace) {
+  public void setNamespace(APIURL namespace) {
     this.namespace = namespace;
   }
 
-  public void setExternal_object(URL external_object) {
+  public void setExternal_object(APIURL external_object) {
     this.external_object = external_object;
   }
 

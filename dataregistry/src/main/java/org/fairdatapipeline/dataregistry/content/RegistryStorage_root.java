@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryStorage_root extends Registry_Updateable {
@@ -19,7 +19,7 @@ public class RegistryStorage_root extends Registry_Updateable {
   @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   private boolean local;
 
-  @XmlElement private List<URL> locations;
+  @XmlElement private List<APIURL> locations;
 
   public RegistryStorage_root() {}
 
@@ -40,7 +40,7 @@ public class RegistryStorage_root extends Registry_Updateable {
     return this.local;
   }
 
-  public List<URL> getLocations() {
+  public List<APIURL> getLocations() {
     return (this.locations == null) ? new ArrayList<>() {} : new ArrayList<>(this.locations);
   }
 
@@ -52,7 +52,7 @@ public class RegistryStorage_root extends Registry_Updateable {
     this.local = local;
   }
 
-  public void setLocations(List<URL> locations) {
+  public void setLocations(List<APIURL> locations) {
     this.locations = new ArrayList<>(locations);
   }
 }

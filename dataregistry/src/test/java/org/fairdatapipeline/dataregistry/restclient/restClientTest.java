@@ -1,6 +1,5 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
-import java.net.URL;
 import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.*;
@@ -31,7 +30,7 @@ public class restClientTest {
     // i'm faking a JSON error by interpreting a user as a code_run..
     Assertions.assertThrows(
         RegistryJSONException.class,
-        () -> lc.get(RegistryCode_run.class, new URL(localReg + "users/1/")));
+        () -> lc.get(RegistryCode_run.class, lc.makeAPIURL(RegistryUsers.class, 1)));
   }
 
   @Test

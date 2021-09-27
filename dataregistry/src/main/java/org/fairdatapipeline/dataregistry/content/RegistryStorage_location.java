@@ -2,9 +2,9 @@ package org.fairdatapipeline.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.net.URL;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryStorage_location extends Registry_Updateable {
@@ -16,7 +16,7 @@ public class RegistryStorage_location extends Registry_Updateable {
   @JsonProperty("public")
   private boolean is_public = true;
 
-  @XmlElement private URL storage_root;
+  @XmlElement private APIURL storage_root;
 
   public RegistryStorage_location() {}
 
@@ -32,7 +32,7 @@ public class RegistryStorage_location extends Registry_Updateable {
     return this.is_public;
   }
 
-  public URL getStorage_root() {
+  public APIURL getStorage_root() {
     return storage_root;
   }
 
@@ -48,7 +48,7 @@ public class RegistryStorage_location extends Registry_Updateable {
     this.is_public = is_public;
   }
 
-  public void setStorage_root(URL storage_root) {
+  public void setStorage_root(APIURL storage_root) {
     this.storage_root = storage_root;
   }
 }

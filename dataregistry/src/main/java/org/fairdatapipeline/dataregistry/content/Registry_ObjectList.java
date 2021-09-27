@@ -1,18 +1,18 @@
 package org.fairdatapipeline.dataregistry.content;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class Registry_ObjectList<T extends Registry_RootObject> {
   @XmlElement private Integer count;
 
-  @XmlElement private URL next;
+  @XmlElement private APIURL next;
 
-  @XmlElement private URL previous;
+  @XmlElement private APIURL previous;
 
   @XmlElement private List<Registry_RootObject> results;
 
@@ -22,11 +22,11 @@ public class Registry_ObjectList<T extends Registry_RootObject> {
     return count;
   }
 
-  public URL getNext() {
+  public APIURL getNext() {
     return next;
   }
 
-  public URL getPrevious() {
+  public APIURL getPrevious() {
     return previous;
   }
 
@@ -38,11 +38,11 @@ public class Registry_ObjectList<T extends Registry_RootObject> {
     this.count = count;
   }
 
-  public void setNext(URL next) {
+  public void setNext(APIURL next) {
     this.next = next;
   }
 
-  public void setPrevious(URL previous) {
+  public void setPrevious(APIURL previous) {
     this.previous = previous;
   }
 

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_location;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,7 @@ public class Storage_location {
     }
   }
 
-  URL getUrl() {
+  APIURL getUrl() {
     return this.registryStorage_location.getUrl();
   }
 }

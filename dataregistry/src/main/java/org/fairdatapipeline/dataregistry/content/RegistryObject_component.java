@@ -1,14 +1,14 @@
 package org.fairdatapipeline.dataregistry.content;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryObject_component extends Registry_Updateable {
-  @XmlElement private URL object;
+  @XmlElement private APIURL object;
 
   @XmlElement private String name;
 
@@ -16,11 +16,11 @@ public class RegistryObject_component extends Registry_Updateable {
 
   @XmlElement private boolean whole_object;
 
-  @XmlElement private List<URL> issues;
+  @XmlElement private List<APIURL> issues;
 
-  @XmlElement private List<URL> inputs_of;
+  @XmlElement private List<APIURL> inputs_of;
 
-  @XmlElement private List<URL> outputs_of;
+  @XmlElement private List<APIURL> outputs_of;
 
   public RegistryObject_component() {}
 
@@ -32,17 +32,22 @@ public class RegistryObject_component extends Registry_Updateable {
     this.whole_object = whole_object;
   }
 
-  public RegistryObject_component(URL object, String name) {
+  public RegistryObject_component(APIURL object, String name) {
     this.object = object;
     this.name = name;
   }
 
-  public RegistryObject_component(URL object, boolean whole_object) {
+  public RegistryObject_component(APIURL object, boolean whole_object) {
     this.object = object;
     this.whole_object = whole_object;
   }
 
-  public URL getObject() {
+  @Override
+  public APIURL getUrl() {
+    return super.getUrl();
+  }
+
+  public APIURL getObject() {
     return this.object;
   }
 
@@ -58,19 +63,19 @@ public class RegistryObject_component extends Registry_Updateable {
     return this.whole_object;
   }
 
-  public List<URL> getIssues() {
+  public List<APIURL> getIssues() {
     return (this.issues == null) ? new ArrayList<>() {} : new ArrayList<>(this.issues);
   }
 
-  public List<URL> getInputs_of() {
+  public List<APIURL> getInputs_of() {
     return (inputs_of == null) ? new ArrayList<>() {} : new ArrayList<>(this.inputs_of);
   }
 
-  public List<URL> getOutputs_of() {
+  public List<APIURL> getOutputs_of() {
     return (outputs_of == null) ? new ArrayList<>() {} : new ArrayList<>(this.outputs_of);
   }
 
-  public void setObject(URL object) {
+  public void setObject(APIURL object) {
     this.object = object;
   }
 
@@ -86,15 +91,15 @@ public class RegistryObject_component extends Registry_Updateable {
     this.whole_object = whole_object;
   }
 
-  public void setIssues(List<URL> issues) {
+  public void setIssues(List<APIURL> issues) {
     this.issues = new ArrayList<>(issues);
   }
 
-  public void setInputs_of(List<URL> inputs_of) {
+  public void setInputs_of(List<APIURL> inputs_of) {
     this.inputs_of = new ArrayList<>(inputs_of);
   }
 
-  public void setOutputs_of(List<URL> outputs_of) {
+  public void setOutputs_of(List<APIURL> outputs_of) {
     this.outputs_of = new ArrayList<>(outputs_of);
   }
 }

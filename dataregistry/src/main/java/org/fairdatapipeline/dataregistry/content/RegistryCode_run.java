@@ -1,11 +1,11 @@
 package org.fairdatapipeline.dataregistry.content;
 
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryCode_run extends Registry_Updateable {
@@ -14,19 +14,19 @@ public class RegistryCode_run extends Registry_Updateable {
 
   @XmlElement private String description;
 
-  @XmlElement private URL code_repo;
+  @XmlElement private APIURL code_repo;
 
-  @XmlElement private URL model_config;
+  @XmlElement private APIURL model_config;
 
-  @XmlElement private URL submission_script;
+  @XmlElement private APIURL submission_script;
 
-  @XmlElement private List<URL> inputs;
+  @XmlElement private List<APIURL> inputs;
 
-  @XmlElement private List<URL> outputs;
+  @XmlElement private List<APIURL> outputs;
 
   @XmlElement private String uuid;
 
-  @XmlElement private URL prov_report;
+  @XmlElement private APIURL prov_report;
 
   public RegistryCode_run() {
     methods_allowed = List.of("GET", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS");
@@ -40,25 +40,25 @@ public class RegistryCode_run extends Registry_Updateable {
     return this.description;
   }
 
-  public URL getCode_repo() {
+  public APIURL getCode_repo() {
     return this.code_repo;
   }
 
-  public URL getModel_config() {
+  public APIURL getModel_config() {
     return this.model_config;
   }
 
-  public URL getSubmission_script() {
+  public APIURL getSubmission_script() {
     return this.submission_script;
   }
 
-  public List<URL> getInputs() {
+  public List<APIURL> getInputs() {
     // return (this.inputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.inputs);
     // we're more likely to be able to use the PATCH method if unset items are null.
     return (this.inputs == null) ? null : new ArrayList<>(this.inputs);
   }
 
-  public List<URL> getOutputs() {
+  public List<APIURL> getOutputs() {
     // return (this.outputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.outputs);
     // we're more likely to be able to use the PATCH method if unset items are null.
     return (this.outputs == null) ? null : new ArrayList<>(this.outputs);
@@ -68,7 +68,7 @@ public class RegistryCode_run extends Registry_Updateable {
     return this.uuid;
   }
 
-  public URL getProv_report() {
+  public APIURL getProv_report() {
     return this.prov_report;
   }
 
@@ -80,34 +80,34 @@ public class RegistryCode_run extends Registry_Updateable {
     this.description = description;
   }
 
-  public void setCode_repo(URL code_repo) {
+  public void setCode_repo(APIURL code_repo) {
     this.code_repo = code_repo;
   }
 
-  public void setModel_config(URL model_config) {
+  public void setModel_config(APIURL model_config) {
     this.model_config = model_config;
   }
 
-  public void setSubmission_script(URL submission_script) {
+  public void setSubmission_script(APIURL submission_script) {
     this.submission_script = submission_script;
   }
 
-  public void setInputs(List<URL> inputs) {
+  public void setInputs(List<APIURL> inputs) {
     this.inputs = (inputs == null) ? null : new ArrayList<>(inputs);
   }
 
-  public void setOutputs(List<URL> outputs) {
+  public void setOutputs(List<APIURL> outputs) {
     this.outputs = (outputs == null) ? null : new ArrayList<>(outputs);
   }
 
-  public void addOutput(URL output) {
+  public void addOutput(APIURL output) {
     if (this.outputs == null) {
       this.outputs = new ArrayList<>();
     }
     this.outputs.add(output);
   }
 
-  public void addInput(URL input) {
+  public void addInput(APIURL input) {
     if (this.inputs == null) {
       this.inputs = new ArrayList<>();
     }
@@ -118,7 +118,7 @@ public class RegistryCode_run extends Registry_Updateable {
     this.uuid = uuid;
   }
 
-  public void setProv_report(URL prov_report) {
+  public void setProv_report(APIURL prov_report) {
     this.prov_report = prov_report;
   }
 }

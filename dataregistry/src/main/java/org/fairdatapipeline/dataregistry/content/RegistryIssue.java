@@ -1,10 +1,10 @@
 package org.fairdatapipeline.dataregistry.content;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryIssue extends Registry_Updateable {
@@ -13,7 +13,7 @@ public class RegistryIssue extends Registry_Updateable {
 
   @XmlElement private String description;
 
-  @XmlElement private List<URL> component_issues;
+  @XmlElement private List<APIURL> component_issues;
 
   @XmlElement private String uuid;
 
@@ -35,7 +35,7 @@ public class RegistryIssue extends Registry_Updateable {
     return this.description;
   }
 
-  public List<URL> getComponent_issues() {
+  public List<APIURL> getComponent_issues() {
     return (this.component_issues == null)
         ? new ArrayList<>() {}
         : new ArrayList<>(this.component_issues);
@@ -53,11 +53,11 @@ public class RegistryIssue extends Registry_Updateable {
     this.description = description;
   }
 
-  public void setComponent_issues(List<URL> component_issues) {
+  public void setComponent_issues(List<APIURL> component_issues) {
     this.component_issues = new ArrayList<>(component_issues);
   }
 
-  public void addComponent_issue(URL object_component_url) {
+  public void addComponent_issue(APIURL object_component_url) {
     if (this.component_issues == null) this.component_issues = new ArrayList<>();
     if (object_component_url != null && !this.component_issues.contains(object_component_url)) {
       this.component_issues.add(object_component_url);

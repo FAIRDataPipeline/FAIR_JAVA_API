@@ -18,6 +18,7 @@ import org.fairdatapipeline.config.ConfigException;
 import org.fairdatapipeline.config.ConfigFactory;
 import org.fairdatapipeline.dataregistry.content.RegistryCode_run;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
 import org.fairdatapipeline.file.FileReader;
 import org.fairdatapipeline.hash.Hasher;
@@ -180,7 +181,7 @@ public class Coderun implements AutoCloseable {
 
   private void prepare_code_run() {
     Author a = new Author(this.restClient);
-    List<URL> authors = List.of(a.getUrl());
+    List<APIURL> authors = List.of(a.getUrl());
     this.config_object =
         new FileObject(
             new File_type("yaml", restClient),
@@ -330,11 +331,11 @@ public class Coderun implements AutoCloseable {
         .forEach(issue -> restClient.post(issue.getRegistryIssue()));
   }
 
-  void addInput(URL input) {
+  void addInput(APIURL input) {
     this.registryCode_run.addInput(input);
   }
 
-  void addOutput(URL output) {
+  void addOutput(APIURL output) {
     this.registryCode_run.addOutput(output);
   }
 

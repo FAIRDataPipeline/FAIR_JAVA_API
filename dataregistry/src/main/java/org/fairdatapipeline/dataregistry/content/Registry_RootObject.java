@@ -1,27 +1,27 @@
 package org.fairdatapipeline.dataregistry.content;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang3.NotImplementedException;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public abstract class Registry_RootObject {
   @JsonIgnore List<String> methods_allowed = List.of("GET", "HEAD", "OPTIONS");
 
-  @XmlElement private URL url;
+  @XmlElement private APIURL url;
 
   public Registry_RootObject() {}
 
-  public URL getUrl() {
+  public APIURL getUrl() {
     return url;
   }
 
-  public void setUrl(URL url) {
+  public void setUrl(APIURL url) {
     this.url = url;
   }
 
@@ -39,7 +39,7 @@ public abstract class Registry_RootObject {
   }
 
   @JsonIgnore
-  public static Integer get_id(URL url) {
+  public static Integer get_id(APIURL url) {
     String id_part;
     id_part = Paths.get(url.getPath()).getFileName().toString();
     return Integer.parseInt(id_part);

@@ -2,6 +2,8 @@ package org.fairdatapipeline.dataregistry.content;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -10,29 +12,49 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class file_typeTest {
+  String json_url = "https://data.scrc.uk/api/file_type/5/?format=json";
+  String json_lastupdated = "2021-03-04T14:43:57.160401Z";
+  String json_name = "YAML Ain't Markup Language";
+  String json_updated_by = "https://data.scrc.uk/api/users/13/?format=json";
+  String json_extension = "yaml";
   String JSONString =
-      "{\"url\":\"https://data.scrc.uk/api/file_type/5/?format=json\",\"last_updated\":\"2021-03-04T14:43:57.160401Z\",\"name\":\"YAML Ain't Markup Language\",\"extension\":\"yaml\",\"updated_by\":\"https://data.scrc.uk/api/users/13/?format=json\"}";
-  URL url;
-  URL updated_by;
+      "{\"url\":\""
+          + json_url
+          + "\",\"last_updated\":\""
+          + json_lastupdated
+          + "\",\"name\":\""
+          + json_name
+          + "\",\"extension\":\""
+          + json_extension
+          + "\",\"updated_by\":\""
+          + json_updated_by
+          + "\"}";
+  APIURL url;
+  APIURL updated_by;
   LocalDateTime d = LocalDateTime.of(2021, 3, 4, 14, 43, 57, 160401000);
-  String name = "YAML Ain't Markup Language";
-  String extension = "yaml";
   RegistryFile_type expected;
 
   @BeforeAll
   public void setUp() throws MalformedURLException {
-    url = new URL("https://data.scrc.uk/api/file_type/5/?format=json");
-    updated_by = new URL("https://data.scrc.uk/api/users/13/?format=json");
+    url = mock(APIURL.class);
+    when(url.getUrl()).thenReturn(new URL(json_url));
+    when(url.toString()).thenReturn(json_url);
+    when(url.getPath()).thenReturn(new URL(json_url).getPath());
+    updated_by = mock(APIURL.class);
+    when(updated_by.getUrl()).thenReturn(new URL(json_updated_by));
+    // when(updated_by.getPath()).thenReturn(new URL(json_updated_by).getPath());
+    when(updated_by.toString()).thenReturn(json_updated_by);
     expected = new RegistryFile_type();
     expected.setUrl(url);
     expected.setLast_updated(d);
     expected.setUpdated_by(updated_by);
-    expected.setName(name);
-    expected.setExtension(extension);
+    expected.setName(json_name);
+    expected.setExtension(json_extension);
   }
 
   @Test

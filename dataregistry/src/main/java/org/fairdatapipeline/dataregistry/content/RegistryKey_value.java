@@ -2,6 +2,7 @@ package org.fairdatapipeline.dataregistry.content;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryKey_value extends Registry_Updateable {
@@ -9,7 +10,7 @@ public class RegistryKey_value extends Registry_Updateable {
 
   @XmlElement private String value;
 
-  @XmlElement private String object;
+  @XmlElement private APIURL object;
 
   public RegistryKey_value() {}
 
@@ -21,7 +22,7 @@ public class RegistryKey_value extends Registry_Updateable {
     return this.value;
   }
 
-  public String getObject() {
+  public APIURL getObject() {
     return this.object;
   }
 
@@ -33,7 +34,7 @@ public class RegistryKey_value extends Registry_Updateable {
     this.value = value;
   }
 
-  public void setObject(String object) {
+  public void setObject(APIURL object) {
     this.object = object;
   }
 }

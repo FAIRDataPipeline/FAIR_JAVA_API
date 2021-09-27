@@ -10,7 +10,6 @@ import com.google.common.collect.Table;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -247,7 +246,7 @@ public class CoderunIntegrationTest {
           (RegistryObject) restClient.get(RegistryObject.class, cr.getCode_repo());
       assertNotNull(code_repo);
       assertThat(code_repo.getAuthors())
-          .containsExactly(new URL("http://localhost:8000/api/author/1/"));
+          .containsExactly(restClient.makeAPIURL(RegistryAuthor.class, 1));
 
       assertThat(cr.getDescription()).isEqualTo("Coderun Integration test");
       if (inputs == null) assertThat(cr.getInputs()).isEmpty();

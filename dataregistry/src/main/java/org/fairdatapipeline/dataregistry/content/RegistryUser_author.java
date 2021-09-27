@@ -1,31 +1,31 @@
 package org.fairdatapipeline.dataregistry.content;
 
-import java.net.URL;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryUser_author extends Registry_RootObject {
 
-  @XmlElement private URL user;
+  @XmlElement private APIURL user;
 
-  @XmlElement private URL author;
+  @XmlElement private APIURL author;
 
   public RegistryUser_author() {}
 
-  public URL getUser() {
+  public APIURL getUser() {
     return user;
   }
 
-  public URL getAuthor() {
+  public APIURL getAuthor() {
     return author;
   }
 
-  public void setUser(URL user) {
+  public void setUser(APIURL user) {
     this.user = user;
   }
 
-  public void setAuthor(URL author) {
+  public void setAuthor(APIURL author) {
     this.author = author;
   }
 }

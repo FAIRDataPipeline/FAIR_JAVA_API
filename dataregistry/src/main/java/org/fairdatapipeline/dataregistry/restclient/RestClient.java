@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
-import java.net.URL;
+import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -189,23 +189,23 @@ public class RestClient {
   }
 
   /**
-   * retrieve the FDP registry entry with given URL
+   * retrieve the FDP registry entry with given APIURL
    *
    * @param c The Class of the FDP Object we're trying to retrieve
-   * @param url The URL of the Object we are trying to retrieve
+   * @param apiurl The APIURL of the Object we are trying to retrieve
    * @return The Object, or null if not found.
    */
-  public Registry_RootObject get(Class<?> c, URL url) {
+  public Registry_RootObject get(Class<?> c, APIURL apiurl) {
     if (!Registry_RootObject.class.isAssignableFrom(c)) {
       String msg = "get(Class, URL) -- Given Class is not an FDP_RootObject.";
       logger.error(msg);
       throw new IllegalArgumentException(msg);
     }
-    WebTarget wt2 = client.target(url.toString());
+    WebTarget wt2 = client.target(apiurl.toString());
     try {
       return (Registry_RootObject) wt2.request(MediaType.APPLICATION_JSON).get(c);
     } catch (NotFoundException e) {
-      logger.warn("get(Class, URL) " + e);
+      logger.warn("get(Class, APIURL) " + e);
       return null;
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
@@ -232,7 +232,7 @@ public class RestClient {
   }
 
   /**
-   * submit the new FDP registry object o; return the created object (with the URL, updated_by,
+   * submit the new FDP registry object o; return the created object (with the APIURL, updated_by,
    * last_updated fields filled in by the registry)
    *
    * @param o The FDP Object we are submitting (should have no URL yet)
@@ -480,6 +480,22 @@ public class RestClient {
       String msg = "delete(Registry_Updateable) -- failed to delete " + o.getUrl();
       logger.error(msg);
       throw (new IllegalArgumentException(msg));
+    }
+  }
+
+  public APIURL makeAPIURL(Class c, int i) {
+    if (!Registry_RootObject.class.isAssignableFrom(c)) {
+      String msg = "makeAPIURL(Class, Int) -- Given Class is not an FDP_RootObject.";
+      logger.error(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    WebTarget wt2 =
+        wt.path(Registry_RootObject.get_django_path(c.getSimpleName())).path(Integer.toString(i));
+    try {
+      return new APIURL(wt2.getUri() + "/");
+    } catch (MalformedURLException e) {
+      logger.error(e.toString());
+      return null;
     }
   }
 }

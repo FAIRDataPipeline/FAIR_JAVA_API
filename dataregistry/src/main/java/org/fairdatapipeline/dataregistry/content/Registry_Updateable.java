@@ -1,16 +1,16 @@
 package org.fairdatapipeline.dataregistry.content;
 
-import java.net.URL;
 import java.time.LocalDateTime;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class Registry_Updateable extends Registry_RootObject {
 
   @XmlElement private LocalDateTime last_updated;
 
-  @XmlElement private URL updated_by;
+  @XmlElement private APIURL updated_by;
 
   public Registry_Updateable() {}
 
@@ -18,7 +18,7 @@ public class Registry_Updateable extends Registry_RootObject {
     return last_updated;
   }
 
-  public URL getUpdated_by() {
+  public APIURL getUpdated_by() {
     return updated_by;
   }
 
@@ -26,7 +26,7 @@ public class Registry_Updateable extends Registry_RootObject {
     this.last_updated = last_updated;
   }
 
-  public void setUpdated_by(URL updated_by) {
+  public void setUpdated_by(APIURL updated_by) {
     this.updated_by = updated_by;
   }
 }

@@ -1,10 +1,10 @@
 package org.fairdatapipeline.api;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.fairdatapipeline.dataregistry.content.RegistryIssue;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +86,7 @@ public class Issue {
             object -> this.registryIssue.addComponent_issue(object.getWholeObjectComponentUrl()));
   }
 
-  void add_registryObject_component(URL objectComponentUrl) {
+  void add_registryObject_component(APIURL objectComponentUrl) {
     this.registryIssue.addComponent_issue(objectComponentUrl);
   }
 }

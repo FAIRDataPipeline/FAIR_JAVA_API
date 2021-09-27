@@ -1,10 +1,10 @@
 package org.fairdatapipeline.api;
 
-import java.net.URL;
 import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.RegistryAuthor;
 import org.fairdatapipeline.dataregistry.content.RegistryUser_author;
 import org.fairdatapipeline.dataregistry.content.RegistryUsers;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class Author {
     this.registryAuthor = (RegistryAuthor) restClient.get(RegistryAuthor.class, ua.getAuthor());
   }
 
-  URL getUrl() {
+  APIURL getUrl() {
     return this.registryAuthor.getUrl();
   }
 }

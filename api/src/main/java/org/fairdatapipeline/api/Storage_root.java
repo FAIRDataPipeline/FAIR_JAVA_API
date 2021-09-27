@@ -5,6 +5,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class Storage_root {
     }
   }
 
-  URL getUrl() {
+  APIURL getUrl() {
     return this.registryStorage_root.getUrl();
   }
 

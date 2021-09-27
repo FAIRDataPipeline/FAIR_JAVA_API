@@ -2,10 +2,11 @@ package org.fairdatapipeline.dataregistry.content;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryKeyword extends Registry_Updateable {
-  @XmlElement private String object;
+  @XmlElement private APIURL object;
 
   @XmlElement private String keyphrase;
 
@@ -13,7 +14,7 @@ public class RegistryKeyword extends Registry_Updateable {
 
   public RegistryKeyword() {}
 
-  public String getObject() {
+  public APIURL getObject() {
     return this.object;
   }
 
@@ -25,7 +26,7 @@ public class RegistryKeyword extends Registry_Updateable {
     return this.identifier;
   }
 
-  public void setObject(String object) {
+  public void setObject(APIURL object) {
     this.object = object;
   }
 

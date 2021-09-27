@@ -3,6 +3,7 @@ package org.fairdatapipeline.dataregistry.content;
 import java.net.URL;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 @XmlRootElement
 public class RegistryCode_repo_release extends Registry_Updateable {
@@ -12,7 +13,7 @@ public class RegistryCode_repo_release extends Registry_Updateable {
 
   @XmlElement private URL website;
 
-  @XmlElement private URL object;
+  @XmlElement private APIURL object;
 
   public RegistryCode_repo_release() {}
 
@@ -28,7 +29,7 @@ public class RegistryCode_repo_release extends Registry_Updateable {
     return this.website;
   }
 
-  public URL getObject() {
+  public APIURL getObject() {
     return this.object;
   }
 
@@ -44,7 +45,7 @@ public class RegistryCode_repo_release extends Registry_Updateable {
     this.website = website;
   }
 
-  public void setObject(URL object) {
+  public void setObject(APIURL object) {
     this.object = object;
   }
 }
