@@ -17,8 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Data_product_read is created by Coderun: {@link Coderun#get_dp_for_read(String)} Upon {@link
- * Coderun#close()} it will register its components in the coderun.
+ * Data_product_read is created by Coderun: {@link Coderun#get_dp_for_read(String)}
+ *
+ * <p>Upon {@link Coderun#close()} it will register its components in the coderun.
  */
 public class Data_product_read extends Data_product {
   private static final Logger logger = LoggerFactory.getLogger(Data_product_read.class);

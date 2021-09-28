@@ -11,13 +11,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class test_read_from_populated_registry {
-  String registry = "http://localhost:8000/api/";
+  String localReg = "http://localhost:8000/api/";
   RestClient lc;
   Map<String, String> m;
 
   @BeforeAll
   public void setUp() {
-    this.lc = new RestClient(registry);
+    Assertions.assertNotNull(System.getenv("FDP_LOCAL_TOKEN"));
+    lc = new RestClient(localReg, System.getenv("FDP_LOCAL_TOKEN"));
     this.m = Collections.emptyMap();
   }
 

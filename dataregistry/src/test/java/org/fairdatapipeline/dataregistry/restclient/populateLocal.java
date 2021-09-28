@@ -27,7 +27,8 @@ public class populateLocal {
 
   @BeforeAll
   public void setUp() {
-    lc = new RestClient(localReg);
+    Assertions.assertNotNull(System.getenv("FDP_LOCAL_TOKEN"));
+    lc = new RestClient(localReg, System.getenv("FDP_LOCAL_TOKEN"));
   }
 
   @ParameterizedTest
@@ -122,7 +123,6 @@ public class populateLocal {
     RegistryStorage_root sr = new RegistryStorage_root();
     sr.setRoot(Path.of("D:\\Datastore").toUri());
     sr.setLocal(true);
-    sr.setLocations(new ArrayList<>() {});
     al.add(sr);
     RegistryStorage_location sl = new RegistryStorage_location();
     sl.setPath("StorageLocation");
@@ -141,7 +141,7 @@ public class populateLocal {
     al.add(dp);
     RegistryExternal_object eo = new RegistryExternal_object();
     eo.setDescription("My test external object");
-    eo.setIdentifier("http://www.bbc.co.uk/");
+    eo.setIdentifier(new URL("http://www.bbc.co.uk/"));
     eo.setRelease_date(LocalDateTime.of(2021, 4, 4, 4, 4, 4, 4));
     eo.setTitle("Initial External Object");
     eo.setData_product(lc.makeAPIURL(RegistryData_product.class, 1));

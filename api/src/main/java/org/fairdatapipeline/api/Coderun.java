@@ -7,12 +7,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.fairdatapipeline.config.Config;
 import org.fairdatapipeline.config.ConfigException;
 import org.fairdatapipeline.config.ConfigFactory;
@@ -22,6 +21,13 @@ import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
 import org.fairdatapipeline.file.FileReader;
 import org.fairdatapipeline.hash.Hasher;
+import org.fairdatapipeline.parameters.ParameterDataReader;
+import org.fairdatapipeline.parameters.ParameterDataReaderImpl;
+import org.fairdatapipeline.parameters.ParameterDataWriter;
+import org.fairdatapipeline.parameters.ParameterDataWriterImpl;
+import org.fairdatapipeline.toml.TOMLMapper;
+import org.fairdatapipeline.toml.TomlReader;
+import org.fairdatapipeline.toml.TomlWriter;
 import org.fairdatapipeline.yaml.YamlFactory;
 import org.fairdatapipeline.yaml.YamlReader;
 import org.slf4j.Logger;
@@ -62,13 +68,14 @@ public class Coderun implements AutoCloseable {
   Storage_location script_storage_location;
   Storage_location config_storage_location;
   private final Storage_root write_data_store_root;
-  StandardApi stdApi;
+  final ParameterDataReader parameterDataReader;
+  final ParameterDataWriter parameterDataWriter;
   RandomGenerator rng;
   List<Issue> issues;
   Path coderuns_txt;
   FileObject script_object;
   FileObject config_object;
-  Coderepo codeRepo;
+  CodeRepo codeRepo;
 
   /**
    * Constructor using only configFilePath - scriptPath is read from the config.
@@ -84,24 +91,29 @@ public class Coderun implements AutoCloseable {
    * Constructor using both configFilePath and ScriptPath
    *
    * @param configFilePath the Path to the {@link Config config.yaml} file
-   * @param scriptPath the Path to the script file
-   *     <p>both startup files must be located in the local data store CodeRun folder with timestamp
-   *     name.
+   * @param scriptPath the Path to the script file - this may be null if the script path is given in
+   *     the config file.
+   *     <p>both startup files are usually provided by <a
+   *     href="https://fairdatapipeline.github.io/docs/interface/fdp/#fair-run">fair run</a> in the
+   *     local data registry jobs/{timestamp} folder.
    */
-  public Coderun(Path configFilePath, Path scriptPath) {
-    this(Clock.systemUTC(), configFilePath, scriptPath);
+  public Coderun(Path configFilePath, @Nullable Path scriptPath) {
+    this(configFilePath, scriptPath, null);
   }
 
-  public Coderun(Clock clock, Path configFilePath, Path scriptPath) {
-    this(clock, configFilePath, scriptPath, null);
-  }
-
-  public Coderun(Path configFilePath, Path scriptPath, String token) {
-    this(Clock.systemUTC(), configFilePath, scriptPath, token);
-  }
-
-  Coderun(Clock clock, Path configFilePath, Path scriptPath, String registryToken) {
-    Instant openTimestamp = clock.instant();
+  /**
+   * Constructor specifying configPath, scriptPath, and registryToken.
+   *
+   * @param configFilePath the Path to the {@link Config config.yaml} file
+   * @param scriptPath the Path to the script file - this may be null if the script path is given in
+   *     the config file.
+   *     <p>both startup files are usually provided by <a
+   *     href="https://fairdatapipeline.github.io/docs/interface/fdp/#fair-run">fair run</a> in the
+   *     local data registry jobs/{timestamp} folder.
+   * @param registryToken the authentication token of the local registry (or null if the token is to
+   *     be read from the config or from ~/.fair/registry/token)
+   */
+  Coderun(Path configFilePath, @Nullable Path scriptPath, @Nullable String registryToken) {
     YamlReader yamlReader = new YamlFactory().yamlReader();
     if (!new File(configFilePath.toString()).isFile()) {
       String msg = "Coderun -- configFilePath argument must be a Path to a config file.";
@@ -116,10 +128,10 @@ public class Coderun implements AutoCloseable {
 
     this.coderuns_txt = configFilePath.getParent().resolve("coderuns.txt");
     this.rng = new RandomDataGenerator().getRandomGenerator();
-    this.stdApi = new StandardApi(this.rng);
+    this.parameterDataReader = new ParameterDataReaderImpl(new TomlReader(new TOMLMapper(rng)));
+    this.parameterDataWriter = new ParameterDataWriterImpl(new TomlWriter(new TOMLMapper(rng)));
 
-    this.config =
-        new ConfigFactory().config(yamlReader, this.hasher, openTimestamp, configFilePath);
+    this.config = new ConfigFactory().config(yamlReader, configFilePath);
     if (registryToken == null) {
       if (config.run_metadata().token().isPresent()) {
         registryToken = config.run_metadata().token().get();
@@ -153,7 +165,6 @@ public class Coderun implements AutoCloseable {
     } else {
       storageRootURI = configFilePath.getParent().getParent().getParent().toUri();
     }
-    System.out.println("st root URI: " + storageRootURI);
     this.write_data_store_root = new Storage_root(storageRootURI, restClient);
 
     if (scriptPath == null) {
@@ -175,7 +186,7 @@ public class Coderun implements AutoCloseable {
     this.issues = new ArrayList<>();
   }
 
-  public RegistryStorage_root getWriteStorage_root() {
+  RegistryStorage_root getWriteStorage_root() {
     return this.write_data_store_root.registryStorage_root;
   }
 
@@ -212,7 +223,7 @@ public class Coderun implements AutoCloseable {
     }
 
     this.codeRepo =
-        new Coderepo(
+        new CodeRepo(
             latest_commit, remote_repo_url, "Analysis / processing script location", authors, this);
 
     this.registryCode_run.setCode_repo(this.codeRepo.getUrl());
@@ -222,14 +233,56 @@ public class Coderun implements AutoCloseable {
     this.registryCode_run.setDescription(this.config.run_metadata().description().orElse(""));
   }
 
+  /**
+   * Access the Submission_script; in order to raise a Submission_script issue.
+   *
+   * @return the FileObject representing the Submission_script.
+   *     <p>Usage:
+   *     <pre>
+   *     coderun.getScript.raise_issue("this is a very bad script", 10);
+   * </pre>
+   *     OR
+   *     <pre>
+   *     Issue i = coderun.raise_issue("Seriously bad stuff", 10);
+   *     i.add_fileObjects(coderun.getScript(), coderun.getConfig());
+   * </pre>
+   */
   public FileObject getScript() {
     return this.script_object;
   }
 
+  /**
+   * Access the configuration file (config.yaml); in order to raise a Config issue.
+   *
+   * @return the FileObject representing the config file.
+   *     <p>Usage:
+   *     <pre>
+   *     coderun.getConfig.raise_issue("this is a very bad config file", 10);
+   * </pre>
+   *     OR
+   *     <pre>
+   *     Issue i = coderun.raise_issue("Seriously bad stuff", 10);
+   *     i.add_fileObjects(coderun.getScript(), coderun.getConfig());
+   * </pre>
+   */
   public FileObject getConfig() {
     return this.config_object;
   }
 
+  /**
+   * Access the code repository in order to raise a code repository issue.
+   *
+   * @return the FileObject representing the code repository (which is given in the config file)
+   *     <p>Usage:
+   *     <pre>
+   *     coderun.getCode_repo.raise_issue("this contains very bad code", 10);
+   * </pre>
+   *     OR
+   *     <pre>
+   *     Issue i = coderun.raise_issue("Seriously bad stuff", 10);
+   *     i.add_fileObjects(coderun.getCode_repo(), coderun.getConfig());
+   * </pre>
+   */
   public FileObject getCode_repo() {
     return this.codeRepo.getFileObject();
   }
@@ -309,7 +362,8 @@ public class Coderun implements AutoCloseable {
   }
 
   /**
-   * create an Issue that can be linked to a number of object components
+   * create an Issue that can be linked to a number of {@link Object_component object components}
+   * and/or {@link FileObject fileObjects}.
    *
    * @param description text description of the issue
    * @param severity integer representing the severity of the issue, larger integer means more

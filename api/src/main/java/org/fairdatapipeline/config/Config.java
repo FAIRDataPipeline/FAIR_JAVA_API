@@ -227,9 +227,19 @@ public interface Config {
     @JsonProperty
     Optional<String> latest_commit();
 
+    /**
+     * The authentication token for the registry.
+     *
+     * @return The authentication token for the registry.
+     */
     @JsonProperty
     Optional<String> token();
 
+    /**
+     * This is ignored.
+     *
+     * @return Boolean 'public' - this is ignored.
+     */
     @JsonProperty("public")
     Optional<Boolean> isPublic();
   }

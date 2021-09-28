@@ -35,6 +35,18 @@ import org.slf4j.LoggerFactory;
  * </pre>
  *
  * </blockquote>
+ *
+ * or
+ *
+ * <blockquote>
+ *
+ * <pre>
+ *      Issue i = coderun.raise_issue("moderately bad data", 7);
+ *      i.add_components(oc1, oc2, oc3);
+ *      i.add_fileObjects(coderun.getCode_repo(), coderun.getScript(), coderun.getConfig());
+ * </pre>
+ *
+ * </blockquote>
  */
 public class Issue {
   private static final Logger logger = LoggerFactory.getLogger(Issue.class);
@@ -80,6 +92,14 @@ public class Issue {
     this.components.addAll(Arrays.asList(components));
   }
 
+  /**
+   * When we have created an issue using coderun.raise_issue() we can also attach FileObjects to
+   * this issue. This can be used to raise issues with Code_repo, Submission Script, and/or Config
+   * File.
+   *
+   * @param objects any number of FileObjects, e.g. coderun.getScript(), coderun.getConfig(),
+   *     coderun.getCode_repo()
+   */
   public void add_fileObjects(FileObject... objects) {
     Arrays.asList(objects)
         .forEach(

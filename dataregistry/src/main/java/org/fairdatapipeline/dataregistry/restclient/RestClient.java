@@ -9,7 +9,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +23,7 @@ import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Jakarta WS client implementation for interacting with the FAIR Data Registry */
 public class RestClient {
   private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
   private WebTarget wt;
@@ -32,9 +32,9 @@ public class RestClient {
   private void init(String registry_url, String token) {
     client =
         ClientBuilder.newBuilder()
-            .register(FDP_RootObjectReader.class)
-            .register(FDP_RootObjectWriter.class)
-            .register(FDP_ObjectListReader.class)
+            .register(Registry_RootObjectReader.class)
+            .register(Registry_RootObjectWriter.class)
+            .register(Registry_ObjectListReader.class)
             .register(new JavaUtilCollectionsDeserializers() {})
             .register(OAuth2ClientSupport.feature(token))
             .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)
@@ -42,14 +42,12 @@ public class RestClient {
     wt = client.target(registry_url);
   }
 
-  public RestClient(String registry_url) {
-    try (java.io.FileReader fileReader = new java.io.FileReader("D:\\SCRCtokenLocal")) {
-      init(registry_url, IOUtils.toString(fileReader));
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
+  /**
+   * Constructor
+   *
+   * @param registry_url The URL of the FAIR Data Registry (usually http://127.0.0.1:8000/api/)
+   * @param token The authentication token to use to access the FAIR Data Registry.
+   */
   public RestClient(String registry_url, String token) {
     init(registry_url, token);
   }
@@ -483,7 +481,14 @@ public class RestClient {
     }
   }
 
-  public APIURL makeAPIURL(Class c, int i) {
+  /**
+   * Create an APIURL (only for testing, I think)
+   *
+   * @param c The RegistryXXX class for the resource we are trying to access.
+   * @param i the ID of the resource we are creating an APIURL for.
+   * @return the APIURL to access the Registry resource.
+   */
+  public APIURL makeAPIURL(Class<?> c, int i) {
     if (!Registry_RootObject.class.isAssignableFrom(c)) {
       String msg = "makeAPIURL(Class, Int) -- Given Class is not an FDP_RootObject.";
       logger.error(msg);

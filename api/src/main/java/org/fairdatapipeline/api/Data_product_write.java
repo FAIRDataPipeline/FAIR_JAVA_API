@@ -19,9 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Data_product_write is created by Coderun: {@link Coderun#get_dp_for_write(String, String)} Upon
- * {@link Coderun#close()} it will register itself and its components in the registry, and then
- * register its components in the coderun.
+ * Data_product_write is created by Coderun: {@link Coderun#get_dp_for_write(String, String)}
+ *
+ * <p>Upon {@link Coderun#close()} it will register itself and its components in the registry, and
+ * then register its components in the coderun.
  */
 public class Data_product_write extends Data_product {
   private static final Logger logger = LoggerFactory.getLogger(Data_product_write.class);
@@ -50,7 +51,6 @@ public class Data_product_write extends Data_product {
     }
     File_type file_type = new File_type(this.extension, coderun.restClient);
 
-    // this.registryStorage_root = this.getStorageRoot();
     this.registryStorage_root = this.coderun.getWriteStorage_root();
     this.registryStorage_location = new RegistryStorage_location();
     this.registryStorage_location.setStorage_root(this.registryStorage_root.getUrl());

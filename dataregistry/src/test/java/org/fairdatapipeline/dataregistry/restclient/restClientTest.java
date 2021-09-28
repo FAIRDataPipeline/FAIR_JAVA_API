@@ -14,7 +14,8 @@ public class restClientTest {
 
   @BeforeAll
   public void setUp() {
-    lc = new RestClient(localReg);
+    Assertions.assertNotNull(System.getenv("FDP_LOCAL_TOKEN"));
+    lc = new RestClient(localReg, System.getenv("FDP_LOCAL_TOKEN"));
   }
 
   @Test
@@ -35,7 +36,7 @@ public class restClientTest {
 
   @Test
   public void wrongReg() {
-    RestClient lc2 = new RestClient(badReg);
+    RestClient lc2 = new RestClient(badReg, "any token");
     Assertions.assertThrows(
         org.fairdatapipeline.dataregistry.restclient.ConnectException.class,
         () -> lc2.getFirst(RegistryUsers.class, Collections.emptyMap()));

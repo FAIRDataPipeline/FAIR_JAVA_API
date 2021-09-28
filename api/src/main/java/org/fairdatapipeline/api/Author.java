@@ -9,11 +9,16 @@ import org.fairdatapipeline.dataregistry.restclient.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** This is used to retrieve the author from the local registry. */
+/** Retrieve the Author from the local registry. */
 public class Author {
   private static final Logger logger = LoggerFactory.getLogger(Author.class);
   RegistryAuthor registryAuthor;
 
+  /**
+   * This implementation just retrieves the first Author it finds in the Registry.
+   *
+   * @param restClient link to the restClient to use.
+   */
   Author(RestClient restClient) {
     this.registryAuthor =
         (RegistryAuthor) restClient.getFirst(RegistryAuthor.class, Collections.emptyMap());
@@ -24,10 +29,14 @@ public class Author {
     }
   }
 
+  /**
+   * Not used. Sonia's version of the Author-retrieval code which finds the admin user, and then
+   * retrieves the Author it links to via the User_author table. (not using this as my user_author
+   * table is empty)
+   *
+   * @param restClient link to the restClient to use.
+   */
   void SoniaAuthor(RestClient restClient) {
-    // sonia's get_author gets the admin user, then find the author linked to this use by the
-    // user_author table.
-    // not using this (yet) as my user_author table is empty.
     RegistryUsers u =
         (RegistryUsers)
             restClient.getFirst(RegistryUsers.class, Collections.singletonMap("username", "admin"));

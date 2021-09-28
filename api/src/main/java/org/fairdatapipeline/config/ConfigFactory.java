@@ -1,17 +1,17 @@
 package org.fairdatapipeline.config;
 
 import java.nio.file.Path;
-import java.time.Instant;
-import org.fairdatapipeline.hash.Hasher;
 import org.fairdatapipeline.yaml.YamlReader;
 
+/** */
 public class ConfigFactory {
-  public Config config(
-      YamlReader yamlReader, Hasher hasher, Instant openTimestamp, Path configFilePath) {
+  /**
+   * @param yamlReader the YamlReader that does the work.
+   * @param configFilePath the config.yaml configuration file.
+   * @return the immutable parsed configuration file.
+   */
+  public Config config(YamlReader yamlReader, Path configFilePath) {
     var config = new ConfigReader(yamlReader, configFilePath).read();
-    var freshHash = hasher.fileHash(configFilePath.toString(), openTimestamp);
-    // var runId = config.runId().orElse(freshHash);
     return config;
-    // .withParentPath(configFilePath.getParent().toString());
   }
 }

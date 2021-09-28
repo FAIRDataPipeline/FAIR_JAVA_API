@@ -7,11 +7,11 @@ import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class test_FDP_RootObjectWriter {
+public class test_Registry_RootObjectWriter {
 
   public String write_json(Registry_RootObject o, Class<?> type) {
     ByteArrayOutputStream ba = new ByteArrayOutputStream();
-    new FDP_RootObjectWriter().writeTo(o, type, null, null, null, null, ba);
+    new Registry_RootObjectWriter().writeTo(o, type, null, null, null, null, ba);
     return ba.toString();
   }
 
@@ -38,7 +38,7 @@ public class test_FDP_RootObjectWriter {
     sl.setPath("/bla/blow");
     sl.setHash("ciouchsduichs");
     sl.setIs_public(true);
-    RestClient rc = new RestClient("https://127.0.0.1:8000/api/");
+    RestClient rc = new RestClient("https://127.0.0.1:8000/api/", "dummy token");
     sl.setStorage_root(rc.makeAPIURL(RegistryStorage_root.class, 1));
     Assertions.assertEquals(
         "{\"path\":\"/bla/blow\",\"hash\":\"ciouchsduichs\",\"storage_root\":\"https://127.0.0.1:8000/api/storage_root/1/\",\"public\":1}",

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value.Derived;
 import org.immutables.value.Value.Immutable;
 
+/** Used for Distributions.bins */
 @JsonSerialize(using = MinMaxSerializer.class)
 @JsonDeserialize(using = MinMaxDeserializer.class)
 @Immutable
@@ -23,7 +24,7 @@ public interface MinMax {
   }
 
   @Derived
-  default int upperIncluive() {
+  default int upperInclusive() {
     return isUpperInclusive() ? upperBoundary() : upperBoundary() - 1;
   }
 

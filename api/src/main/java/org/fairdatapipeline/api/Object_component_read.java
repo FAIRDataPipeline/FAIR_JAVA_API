@@ -80,8 +80,7 @@ public class Object_component_read extends Object_component {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       data =
-          dp.coderun.stdApi.parameterDataReader.read(
-              fileChannel, this.registryObject_component.getName());
+          dp.coderun.parameterDataReader.read(fileChannel, this.registryObject_component.getName());
     } catch (IOException e) {
       String msg = "readEstimate() -- IOException trying to read from file";
       logger.error(msg + "\n" + e);
@@ -98,7 +97,7 @@ public class Object_component_read extends Object_component {
   public Distribution readDistribution() {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      data = this.dp.coderun.stdApi.parameterDataReader.read(fileChannel, this.component_name);
+      data = this.dp.coderun.parameterDataReader.read(fileChannel, this.component_name);
     } catch (IOException e) {
       String msg = "readDistribution() -- IOException trying to read from file.";
       logger.error(msg + "\n" + e);
@@ -115,7 +114,7 @@ public class Object_component_read extends Object_component {
   public List<Number> readSamples() {
     ReadComponent data;
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      data = this.dp.coderun.stdApi.parameterDataReader.read(fileChannel, this.component_name);
+      data = this.dp.coderun.parameterDataReader.read(fileChannel, this.component_name);
     } catch (IOException e) {
       String msg = "readSamples() -- IOException trying to read from file.";
       logger.error(msg + "\n" + e);
@@ -124,11 +123,11 @@ public class Object_component_read extends Object_component {
     return data.getSamples();
   }
 
-  protected void register_me_in_registry() {
+  void register_me_in_registry() {
     // I am a read component, so I am already registered.
   }
 
-  protected void register_me_in_code_run() {
+  void register_me_in_code_run() {
     if (this.been_used) this.dp.coderun.addInput(this.registryObject_component.getUrl());
   }
 }

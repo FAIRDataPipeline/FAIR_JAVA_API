@@ -47,8 +47,10 @@ public class file_typeTest {
     when(url.getPath()).thenReturn(new URL(json_url).getPath());
     updated_by = mock(APIURL.class);
     when(updated_by.getUrl()).thenReturn(new URL(json_updated_by));
-    // when(updated_by.getPath()).thenReturn(new URL(json_updated_by).getPath());
+    when(updated_by.getPath()).thenReturn(new URL(json_updated_by).getPath());
     when(updated_by.toString()).thenReturn(json_updated_by);
+    // url = new APIURL("https://data.scrc.uk/api/file_type/5/?format=json");
+    // updated_by = new APIURL("https://data.scrc.uk/api/users/13/?format=json");
     expected = new RegistryFile_type();
     expected.setUrl(url);
     expected.setLast_updated(d);

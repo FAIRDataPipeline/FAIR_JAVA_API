@@ -75,7 +75,7 @@ public class Object_component_write extends Object_component {
         ImmutableEstimate.builder().internalValue(estimateNumber).rng(this.dp.coderun.rng).build();
 
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      dp.coderun.stdApi.parameterDataWriter.write(fileChannel, this.component_name, estimate);
+      dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, estimate);
     } catch (IOException e) {
       String msg = "writeEstimate() -- IOException trying to write to file.";
       logger.error(msg + "\n" + e);
@@ -90,8 +90,7 @@ public class Object_component_write extends Object_component {
    */
   public void writeDistribution(Distribution distribution) {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      this.dp.coderun.stdApi.parameterDataWriter.write(
-          fileChannel, this.component_name, distribution);
+      this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, distribution);
     } catch (IOException e) {
       String msg = "writeDistribution() -- IOException trying to write to file.";
       logger.error(msg + "\n" + e);
@@ -106,7 +105,7 @@ public class Object_component_write extends Object_component {
    */
   public void writeSamples(Samples samples) {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
-      this.dp.coderun.stdApi.parameterDataWriter.write(fileChannel, this.component_name, samples);
+      this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, samples);
     } catch (IOException e) {
       String msg = "writeSamples() -- IOException trying to write to file.";
       logger.error(msg + "\n" + e);
@@ -114,11 +113,11 @@ public class Object_component_write extends Object_component {
     }
   }
 
-  protected void register_me_in_code_run() {
+  void register_me_in_code_run() {
     if (this.been_used) this.dp.coderun.addOutput(this.registryObject_component.getUrl());
   }
 
-  protected void register_me_in_registry() {
+  void register_me_in_registry() {
     if (!been_used) return; // don't register a component unless it has been written to
     if (this.whole_object) {
       Map<String, String> find_whole_object =

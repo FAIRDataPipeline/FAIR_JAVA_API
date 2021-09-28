@@ -67,12 +67,12 @@ public interface Distribution extends Component {
     }
     for (int x = 0; x < bins().size() - 1; x++) {
       Preconditions.checkState(
-          bins().get(x).upperIncluive() + 1 == bins().get(x + 1).lowerInclusive(),
+          bins().get(x).upperInclusive() + 1 == bins().get(x + 1).lowerInclusive(),
           String.format("Bins provided %s are not continuous and mutually exclusive.", bins()));
     }
     for (int x = 0; x < bins().size(); x++) {
       Preconditions.checkState(
-          bins().get(x).lowerInclusive() < bins().get(x).upperIncluive(),
+          bins().get(x).lowerInclusive() < bins().get(x).upperInclusive(),
           String.format("Bins provided %s are not continuous and mutually exclusive.", bins()));
     }
 
@@ -139,7 +139,7 @@ public interface Distribution extends Component {
 
       double[] outcomes =
           IntStream.rangeClosed(
-                  bins().get(0).lowerInclusive(), bins().get(bins().size() - 1).upperIncluive())
+                  bins().get(0).lowerInclusive(), bins().get(bins().size() - 1).upperInclusive())
               .mapToDouble(v -> v)
               .toArray();
 
@@ -148,7 +148,8 @@ public interface Distribution extends Component {
               .mapToObj(
                   idx ->
                       IntStream.rangeClosed(
-                              0, bins().get(idx).upperIncluive() - bins().get(idx).lowerInclusive())
+                              0,
+                              bins().get(idx).upperInclusive() - bins().get(idx).lowerInclusive())
                           .mapToDouble(i -> weights().get(idx).doubleValue())
                           .boxed()
                           .collect(Collectors.toList()))

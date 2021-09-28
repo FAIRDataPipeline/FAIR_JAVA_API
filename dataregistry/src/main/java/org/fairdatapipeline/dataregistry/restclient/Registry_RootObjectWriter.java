@@ -18,7 +18,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.fairdatapipeline.dataregistry.content.Registry_RootObject;
 
-class FDP_RootObjectWriter implements MessageBodyWriter<Registry_RootObject> {
+/**
+ * Jakarta WS MessageBodyWriter for all classes inheriting from Registry_RootObject using Jackson
+ * ObjectMapper
+ */
+class Registry_RootObjectWriter implements MessageBodyWriter<Registry_RootObject> {
 
   @Override
   public boolean isWriteable(

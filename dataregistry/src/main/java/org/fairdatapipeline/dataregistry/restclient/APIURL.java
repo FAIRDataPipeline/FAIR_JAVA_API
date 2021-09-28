@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
+/** API URL contains the URL references to API resources. */
 public class APIURL {
   private URL url;
 
@@ -32,10 +33,20 @@ public class APIURL {
     return false;
   }
 
+  /**
+   * The URL for the API resource of this APIURL.
+   *
+   * @return The URL for the API resource of this APIURL.
+   */
   public URL getUrl() {
     return url;
   }
 
+  /**
+   * The Path part of the URL for the API resource of this APIURL.
+   *
+   * @return The Path part of the URL for the API resource of this APIURL.
+   */
   public String getPath() {
     return url.getPath();
   }

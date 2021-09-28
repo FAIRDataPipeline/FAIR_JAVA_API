@@ -22,7 +22,8 @@ public class testPatchAndDelete {
 
   @BeforeAll
   public void setUp() {
-    lc = new RestClient(localReg);
+    Assertions.assertNotNull(System.getenv("FDP_LOCAL_TOKEN"));
+    lc = new RestClient(localReg, System.getenv("FDP_LOCAL_TOKEN"));
   }
 
   private void fresh_cr() {

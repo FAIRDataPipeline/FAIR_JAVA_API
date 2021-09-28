@@ -13,36 +13,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Data product is created by the consumer: {@link Coderun#get_dp_for_write(String, String)} or
- * {@link Coderun#get_dp_for_read(String)} Upon {@link Coderun#close()} it will try to register
- * itself and its components in the registry, and then register itself in the coderun.
+ * Data product is created: {@link Coderun#get_dp_for_write(String, String)} or {@link
+ * Coderun#get_dp_for_read(String)}
+ *
+ * <p>Upon {@link Coderun#close()} it will try to register itself and its components in the
+ * registry, and then register itself in the coderun.
  */
 public abstract class Data_product implements AutoCloseable {
   private static final Logger logger = LoggerFactory.getLogger(Data_product.class);
-  protected Coderun coderun;
-  protected RegistryNamespace registryNamespace;
-  protected String namespace_name;
-  protected String extension;
-  protected String version;
-  protected String description;
-  protected RegistryData_product registryData_product;
-  protected RegistryObject registryObject;
-  protected RegistryStorage_location registryStorage_location;
-  protected RegistryStorage_root registryStorage_root;
-  protected Path filePath;
-  protected CleanableFileChannel filechannel;
+  Coderun coderun;
+  RegistryNamespace registryNamespace;
+  String namespace_name;
+  String extension;
+  String version;
+  String description;
+  RegistryData_product registryData_product;
+  RegistryObject registryObject;
+  RegistryStorage_location registryStorage_location;
+  RegistryStorage_root registryStorage_root;
+  Path filePath;
+  CleanableFileChannel filechannel;
   Object_component whole_obj_oc;
   /** the name given by the user (asked for in the FileApi.get_dp_for_xxx() call) */
-  protected String givenDataProduct_name;
+  String givenDataProduct_name;
   /**
    * usually the same as the given name, unless the config use section has given an alternative data
    * product name to open.
    */
-  protected String actualDataProduct_name;
+  String actualDataProduct_name;
 
-  protected Map<String, Object_component> componentMap = new HashMap<>();
-  protected List<ImmutableConfigItem> configItems;
-  protected boolean been_used = false;
+  Map<String, Object_component> componentMap = new HashMap<>();
+  List<ImmutableConfigItem> configItems;
+  boolean been_used = false;
 
   Data_product(String dataProduct_name, Coderun coderun) {
     this(dataProduct_name, coderun, null);

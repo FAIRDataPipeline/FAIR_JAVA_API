@@ -5,6 +5,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/** A registry User */
 @XmlRootElement
 public class RegistryUsers extends Registry_RootObject {
 
@@ -16,37 +17,42 @@ public class RegistryUsers extends Registry_RootObject {
 
   @XmlElement private List<String> orgs;
 
+  /** Empty constructor */
   public RegistryUsers() {}
 
+  /**
+   * login/username
+   *
+   * @return login/username
+   */
   public String getUsername() {
     return username;
   }
 
+  /**
+   * The users full name
+   *
+   * @return the users full name
+   */
   public String getFull_name() {
     return full_name;
   }
 
+  /**
+   * the users email address
+   *
+   * @return the users email address
+   */
   public String getEmail() {
     return email;
   }
 
+  /**
+   * List of Orgs.
+   *
+   * @return List of Orgs.
+   */
   public List<String> getOrgs() {
     return (orgs == null) ? new ArrayList<>() {} : new ArrayList<>(orgs);
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public void setFull_name(String full_name) {
-    this.full_name = full_name;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public void setOrgs(List<String> orgs) {
-    this.orgs = new ArrayList<>(orgs);
   }
 }
