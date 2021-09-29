@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * <blockquote>
  *
  * <pre>
- *    try (var coderun = new Coderun(configPath, scriptPath)) {
+ *    try (var coderun = new Coderun(configPath, scriptPath, regToken)) {
  *       ImmutableSamples samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
  *       String dataProduct = "animal/dodo";
  *       String component1 = "example-samples-dodo1";
@@ -56,6 +56,27 @@ import org.slf4j.LoggerFactory;
  *     </pre>
  *
  * </blockquote>
+ *
+ * Or, to write a CSV file, with issues on the DP and on the Code_repo:
+ *
+ * <blockquote>
+ *
+ * <pre>
+ *    try (var coderun = new Coderun(configPath, scriptPath, regToken)) {
+ *       String dataProduct = "human/health";
+ *       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+ *       Object_component_write oc1 = dp.getComponent();
+ *       CleanableFileChannel f = oc1.writeFileChannel();
+ *       my_analysis_csv_writer(f);
+ *       Issue i = coderun.raise_issue("something is terribly wrong with this component", 10);
+ *       i.add_components(oc1);
+ *       i.add_fileObjects(coderun.getCode_repo());
+ *     }
+ *     </pre>
+ *
+ * </blockquote>
+ *
+ *
  */
 public class Coderun implements AutoCloseable {
   private static final Logger logger = LoggerFactory.getLogger(Coderun.class);
