@@ -113,7 +113,7 @@ public class Coderun implements AutoCloseable {
    * @param registryToken the authentication token of the local registry (or null if the token is to
    *     be read from the config or from ~/.fair/registry/token)
    */
-  Coderun(Path configFilePath, @Nullable Path scriptPath, @Nullable String registryToken) {
+  public Coderun(Path configFilePath, @Nullable Path scriptPath, @Nullable String registryToken) {
     YamlReader yamlReader = new YamlFactory().yamlReader();
     if (!new File(configFilePath.toString()).isFile()) {
       String msg = "Coderun -- configFilePath argument must be a Path to a config file.";
