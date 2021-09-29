@@ -75,8 +75,6 @@ import org.slf4j.LoggerFactory;
  *     </pre>
  *
  * </blockquote>
- *
- *
  */
 public class Coderun implements AutoCloseable {
   private static final Logger logger = LoggerFactory.getLogger(Coderun.class);
