@@ -61,8 +61,8 @@ public class Data_product_write extends Data_product {
     this.registryStorage_location.setPath(my_stolo_path.toString());
     this.registryObject = new RegistryObject();
     this.registryObject.setDescription(this.description);
+    this.registryObject.setAuthors(this.coderun.authors);
     this.registryObject.setFile_type(file_type.getUrl());
-    // o.setAuthors();
     this.registryData_product = new RegistryData_product();
     this.registryData_product.setName(this.actualDataProduct_name);
     this.registryData_product.setNamespace(this.registryNamespace.getUrl());

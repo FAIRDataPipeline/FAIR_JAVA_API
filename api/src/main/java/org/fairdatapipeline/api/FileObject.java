@@ -31,7 +31,6 @@ public class FileObject {
       Coderun coderun) {
     this.coderun = coderun;
     this.o = new RegistryObject();
-    this.o.setAuthors(coderun.authors);
     this.o.setStorage_location(storage_location.getUrl());
     this.o.setDescription(description);
     if (file_type != null) this.o.setFile_type(file_type.getUrl());
