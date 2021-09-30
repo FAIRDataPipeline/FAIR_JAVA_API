@@ -156,12 +156,21 @@ public class CoderunIntegrationTest {
   public void setUp() throws Exception {
     this.token = System.getenv("REGTOKEN");
     restClient = new RestClient("http://localhost:8000/api/", token);
+    create_author();
 
     rng = mock(RandomGenerator.class);
     when(rng.nextDouble()).thenReturn(0D);
     // rng = new RandomDataGenerator().getRandomGenerator();
     setup_paths();
     setup_data();
+  }
+
+  void create_author() {
+    if(restClient.getFirst(RegistryAuthor.class, Collections.emptyMap())==null){
+      RegistryAuthor author = new RegistryAuthor();
+      author.setName("An Anonymous Author");
+      restClient.post(author);
+    }
   }
 
   @AfterAll
@@ -177,6 +186,7 @@ public class CoderunIntegrationTest {
     Files.copy(ori_configPath, configPath);
     Files.copy(ori_scriptPath, scriptPath);
   }
+
 
   void delete_directories() throws IOException {
     FileUtils.deleteDirectory(coderunTSPath.toFile());
@@ -300,6 +310,8 @@ public class CoderunIntegrationTest {
 
     }
   }
+
+
 
   @Test
   @Order(1)

@@ -17,8 +17,8 @@ public class test_read_from_populated_registry {
 
   @BeforeAll
   public void setUp() {
-    Assertions.assertNotNull(System.getenv("FDP_LOCAL_TOKEN"));
-    lc = new RestClient(localReg, System.getenv("FDP_LOCAL_TOKEN"));
+    Assertions.assertNotNull(System.getenv("REGTOKEN"));
+    lc = new RestClient(localReg, System.getenv("REGTOKEN"));
     this.m = Collections.emptyMap();
   }
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'org.fairdatapipeline'
-version '0.0.1'
+version '0.0.2'
 
 repositories {
     mavenCentral()
@@ -66,8 +66,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/FAIRDataPipeline/javaDataPipeline")
             credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("JAVA_API_PUBLISH_USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("JAVA_API_PUBLISH_TOKEN")
+                username = project.findProperty("gpr.user") ?: System.getenv("PUBLISH_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("PUBLISH_TOKEN")
             }
         }
     }

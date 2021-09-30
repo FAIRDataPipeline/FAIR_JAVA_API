@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.stream.Stream;
 import org.fairdatapipeline.dataregistry.content.*;
@@ -27,8 +28,8 @@ public class populateLocal {
 
   @BeforeAll
   public void setUp() {
-    Assertions.assertNotNull(System.getenv("FDP_LOCAL_TOKEN"));
-    lc = new RestClient(localReg, System.getenv("FDP_LOCAL_TOKEN"));
+    Assertions.assertNotNull(System.getenv("REGTOKEN"));
+    lc = new RestClient(localReg, System.getenv("REGTOKEN"));
   }
 
   @ParameterizedTest

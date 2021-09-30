@@ -14,9 +14,18 @@ public class restClientTest {
 
   @BeforeAll
   public void setUp() {
-    Assertions.assertNotNull(System.getenv("FDP_LOCAL_TOKEN"));
-    lc = new RestClient(localReg, System.getenv("FDP_LOCAL_TOKEN"));
+    Assertions.assertNotNull(System.getenv("REGTOKEN"));
+    lc = new RestClient(localReg, System.getenv("REGTOKEN"));
+    create_author();
   }
+  void create_author() {
+    if(lc.getFirst(RegistryAuthor.class, Collections.emptyMap())==null){
+      RegistryAuthor author = new RegistryAuthor();
+      author.setName("An Anonymous Author");
+      lc.post(author);
+    }
+  }
+
 
   @Test
   public void wrongToken() {
