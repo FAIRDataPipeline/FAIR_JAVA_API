@@ -22,6 +22,12 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
         cache: gradle
+    - name: Install local registry
+      run: |
+        /bin/bash -c "$(curl -fsSL https://data.scrc.uk/static/localregistry.sh)"
+        ~/.fair/registry/scripts/start_fair_registry
+        export REGTOKEN=`cat ~/.fair/registry/token`
+        export LOCALREG=FRESHASADAISY
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
