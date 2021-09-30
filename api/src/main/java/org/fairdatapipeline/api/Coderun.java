@@ -95,6 +95,7 @@ public class Coderun implements AutoCloseable {
   FileObject script_object;
   FileObject config_object;
   CodeRepo codeRepo;
+  List<APIURL> authors;
 
   /**
    * Constructor using only configFilePath - scriptPath is read from the config.
@@ -177,12 +178,21 @@ public class Coderun implements AutoCloseable {
     if (config.run_metadata().write_data_store().isPresent()) {
       try {
         storageRootURI = URI.create(config.run_metadata().write_data_store().get());
+        if (storageRootURI.getScheme() == null) {
+          storageRootURI = Path.of(storageRootURI.toString()).toUri();
+          logger.trace(
+              "added file:/// scheme to write_data_store from config: "
+                  + config.run_metadata().write_data_store().get());
+        }
       } catch (Exception e) {
         Path wdsPath = Path.of(config.run_metadata().write_data_store().get());
         storageRootURI = wdsPath.toUri();
+        logger.trace("tried to create write_data_store URI after Exception: " + storageRootURI);
       }
     } else {
       storageRootURI = configFilePath.getParent().getParent().getParent().toUri();
+      logger.trace(
+          "Using configFilePath.parent.parent.parent as storageRootURI: " + storageRootURI);
     }
     this.write_data_store_root = new Storage_root(storageRootURI, restClient);
 
@@ -211,13 +221,13 @@ public class Coderun implements AutoCloseable {
 
   private void prepare_code_run() {
     Author a = new Author(this.restClient);
-    List<APIURL> authors = List.of(a.getUrl());
+    this.authors = List.of(a.getUrl());
     this.config_object =
         new FileObject(
             new File_type("yaml", restClient),
             this.config_storage_location,
             "Working config.yaml file location in local datastore",
-            authors,
+            this.authors,
             this);
     this.registryCode_run = new RegistryCode_run();
     this.registryCode_run.setModel_config(this.config_object.getUrl());
@@ -227,7 +237,7 @@ public class Coderun implements AutoCloseable {
             new File_type("sh", restClient),
             this.script_storage_location,
             "Submission script location in local datastore",
-            authors,
+            this.authors,
             this);
     this.registryCode_run.setSubmission_script(this.script_object.getUrl());
     String latest_commit = this.config.run_metadata().latest_commit().orElse("");
@@ -243,7 +253,11 @@ public class Coderun implements AutoCloseable {
 
     this.codeRepo =
         new CodeRepo(
-            latest_commit, remote_repo_url, "Analysis / processing script location", authors, this);
+            latest_commit,
+            remote_repo_url,
+            "Analysis / processing script location",
+            this.authors,
+            this);
 
     this.registryCode_run.setCode_repo(this.codeRepo.getUrl());
     this.registryCode_run.setModel_config(this.config_object.getUrl());

@@ -511,7 +511,6 @@ public class CoderunIntegrationTest {
   @Test
   public void testIssueWithScript() {
     String issue = "I don't like this script";
-    System.out.println(configPath);
     try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
       coderun.getScript().raise_issue(issue, 10);
     }
@@ -521,7 +520,6 @@ public class CoderunIntegrationTest {
   @Test
   public void testIssueWithConfig() {
     String issue = "I don't like this config";
-    System.out.println(configPath);
     try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
       coderun.getConfig().raise_issue(issue, 10);
     }

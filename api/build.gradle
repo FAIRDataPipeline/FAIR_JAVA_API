@@ -11,6 +11,11 @@ repositories {
     mavenCentral()
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 dependencies {
     implementation project(':dataregistry')
     annotationProcessor 'org.immutables:value:2.8.8'

@@ -24,6 +24,8 @@ public class RegistryData_product extends Registry_Updateable {
   @XmlElement
   private boolean internal_format;
 
+  @XmlElement private APIURL prov_report;
+
   /** Empty constructor. */
   public RegistryData_product() {
     this.methods_allowed = List.of("GET", "PUT", "PATCH", "HEAD", "OPTIONS");
@@ -82,6 +84,15 @@ public class RegistryData_product extends Registry_Updateable {
    */
   public boolean isInternal_format() {
     return this.internal_format;
+  }
+
+  /**
+   * APIURL reference to the PROV report for this Data product
+   *
+   * @return APIURL reference to the PROV report for this Data product
+   */
+  public APIURL getProv_report() {
+    return this.prov_report;
   }
 
   /**
