@@ -9,7 +9,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.stream.Stream;
 import org.fairdatapipeline.dataregistry.content.*;

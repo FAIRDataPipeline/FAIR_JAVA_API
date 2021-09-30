@@ -18,14 +18,14 @@ public class restClientTest {
     lc = new RestClient(localReg, System.getenv("REGTOKEN"));
     create_author();
   }
+
   void create_author() {
-    if(lc.getFirst(RegistryAuthor.class, Collections.emptyMap())==null){
+    if (lc.getFirst(RegistryAuthor.class, Collections.emptyMap()) == null) {
       RegistryAuthor author = new RegistryAuthor();
       author.setName("An Anonymous Author");
       lc.post(author);
     }
   }
-
 
   @Test
   public void wrongToken() {

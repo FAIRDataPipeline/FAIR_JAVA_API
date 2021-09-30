@@ -166,7 +166,7 @@ public class CoderunIntegrationTest {
   }
 
   void create_author() {
-    if(restClient.getFirst(RegistryAuthor.class, Collections.emptyMap())==null){
+    if (restClient.getFirst(RegistryAuthor.class, Collections.emptyMap()) == null) {
       RegistryAuthor author = new RegistryAuthor();
       author.setName("An Anonymous Author");
       restClient.post(author);
@@ -186,7 +186,6 @@ public class CoderunIntegrationTest {
     Files.copy(ori_configPath, configPath);
     Files.copy(ori_scriptPath, scriptPath);
   }
-
 
   void delete_directories() throws IOException {
     FileUtils.deleteDirectory(coderunTSPath.toFile());
@@ -310,8 +309,6 @@ public class CoderunIntegrationTest {
 
     }
   }
-
-
 
   @Test
   @Order(1)
