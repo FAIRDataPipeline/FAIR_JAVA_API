@@ -164,9 +164,9 @@ public class CoderunIntegrationTest {
     // rng = new RandomDataGenerator().getRandomGenerator();
     setup_paths();
     setup_data();
-    String CSV_hash = "eb7e7a49816c8a6a784260e4596e88bf7a96a6a5";
+    this.CSV_hash = "eb7e7a49816c8a6a784260e4596e88bf7a96a6a5";
     if (System.getProperty("os.name").contains("Windows"))
-      CSV_hash = "d1713dcc0c6b28337d14f3693882aebca3e96f17";
+      this.CSV_hash = "d1713dcc0c6b28337d14f3693882aebca3e96f17";
   }
 
   void create_author() {

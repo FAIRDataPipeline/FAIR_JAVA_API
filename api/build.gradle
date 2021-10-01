@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id "com.diffplug.gradle.spotless" version "4.4.0"
     id "maven-publish"
+    id "jacoco"
 }
 
 group 'org.fairdatapipeline'
@@ -20,7 +21,7 @@ dependencies {
     implementation project(':dataregistry')
     annotationProcessor 'org.immutables:value:2.8.8'
     implementation 'commons-codec:commons-codec:1.14'
-    implementation 'com.google.guava:guava:29.0-jre'
+    implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
     implementation 'commons-io:commons-io:2.7'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.0.0'
@@ -52,6 +53,15 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
 }
 
 spotless {
@@ -77,15 +87,3 @@ publishing {
         }
     }
 }
-
-
-/*test {
-    finalizedBy jacocoTestReport
-}*/
-/*jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.enabled true
-        html.enabled false
-    }
-}*/

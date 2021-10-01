@@ -105,6 +105,12 @@ public class populateLocal {
             samePropertyValuesAs(
                 o, "uuid", "url", "updated_by", "last_updated", "_id", "release_date", "version"));
         break;
+      case ("RegistryData_product"):
+        assertThat(
+            r,
+            samePropertyValuesAs(
+                o, "uuid", "url", "updated_by", "last_updated", "_id", "prov_report"));
+        break;
       default:
         assertThat(r, samePropertyValuesAs(o, "uuid", "url", "updated_by", "last_updated", "_id"));
         break;
