@@ -73,6 +73,7 @@ public class CoderunIntegrationTest {
   private String repo_desc = "Analysis / processing script location";
   private String script_desc = "Submission script location in local datastore";
   private String config_desc = "Working config.yaml file location in local datastore";
+  private String CSV_hash;
 
   void setup_paths() throws URISyntaxException {
     ori_configPath =
@@ -163,6 +164,9 @@ public class CoderunIntegrationTest {
     // rng = new RandomDataGenerator().getRandomGenerator();
     setup_paths();
     setup_data();
+    String CSV_hash = "eb7e7a49816c8a6a784260e4596e88bf7a96a6a5";
+    if (System.getProperty("os.name").contains("Windows"))
+      CSV_hash = "d1713dcc0c6b28337d14f3693882aebca3e96f17";
   }
 
   void create_author() {
@@ -660,8 +664,7 @@ public class CoderunIntegrationTest {
         }
       }
     }
-    String hash = "d1713dcc0c6b28337d14f3693882aebca3e96f17";
-    check_last_coderun(null, List.of(new Triplet<>(dataProduct, "", hash)));
+    check_last_coderun(null, List.of(new Triplet<>(dataProduct, "", CSV_hash)));
   }
 
   private List<String> getRecordFromLine(String line) {
@@ -691,8 +694,7 @@ public class CoderunIntegrationTest {
         }
       }
     }
-    String hash = "d1713dcc0c6b28337d14f3693882aebca3e96f17";
-    check_last_coderun(List.of(new Triplet<>(dataProduct, "", hash)), null);
+    check_last_coderun(List.of(new Triplet<>(dataProduct, "", CSV_hash)), null);
   }
 
   @Test
@@ -710,8 +712,7 @@ public class CoderunIntegrationTest {
         csv_data.stream().map(s -> String.join(",", s)).forEach(pw::println);
       }
     }
-    String hash = "d1713dcc0c6b28337d14f3693882aebca3e96f17";
-    check_last_coderun(null, List.of(new Triplet<>(dataProduct, "", hash)));
+    check_last_coderun(null, List.of(new Triplet<>(dataProduct, "", CSV_hash)));
     check_issue(issue, dataProduct);
   }
 
@@ -733,8 +734,7 @@ public class CoderunIntegrationTest {
         }
       }
     }
-    String hash = "d1713dcc0c6b28337d14f3693882aebca3e96f17";
-    check_last_coderun(List.of(new Triplet<>(dataProduct, "", hash)), null);
+    check_last_coderun(List.of(new Triplet<>(dataProduct, "", CSV_hash)), null);
     check_issue(issue, dataProduct);
   }
 
