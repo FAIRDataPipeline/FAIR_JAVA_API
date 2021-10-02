@@ -1,0 +1,12 @@
+org.fairdatapipeline.api
+org.fairdatapipeline.config
+org.fairdatapipeline.distribution
+org.fairdatapipeline.estimate
+org.fairdatapipeline.file
+org.fairdatapipeline.hash
+org.fairdatapipeline.mapper
+org.fairdatapipeline.objects
+org.fairdatapipeline.parameters
+org.fairdatapipeline.samples
+org.fairdatapipeline.toml
+org.fairdatapipeline.yaml
