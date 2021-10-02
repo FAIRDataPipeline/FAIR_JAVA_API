@@ -25,4 +25,4 @@ jobs:
         with:
           BRANCH: gh-pages
           CLEAN: true
-          FOLDER: build/docs/javadoc
+          FOLDER: api/build/docs/javadoc
