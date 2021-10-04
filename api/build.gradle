@@ -16,6 +16,8 @@ repositories {
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+    withJavadocJar()
+    withSourcesJar()
 }
 
 dependencies {
@@ -119,8 +121,8 @@ publishing {
         maven {
             url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
             credentials {
-                username ossrhUsername
-                password ossrhPassword
+                username findProperty('ossrhUsername')
+                password findProperty('ossrhPassword')
             }
         }
     }
