@@ -2,15 +2,18 @@ plugins {
     id 'java'
     id "com.diffplug.gradle.spotless" version "4.4.0"
     id "maven-publish"
+    id "signing"
     id "jacoco"
 }
 
 group 'org.fairdatapipeline'
-version '0.0.2'
+version '1.0.0-alpha'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+    withJavadocJar()
+    withSourcesJar()
 }
 
 repositories {
@@ -43,24 +46,6 @@ spotless {
     }
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/FAIRDataPipeline/javaDataPipeline")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("PUBLISH_USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("PUBLISH_TOKEN")
-            }
-        }
-    }
-    publications {
-        gpr(MavenPublication) {
-            from(components.java)
-        }
-    }
-}
-
 test {
     useJUnitPlatform()
     testLogging {
@@ -74,4 +59,63 @@ jacocoTestReport {
         xml.enabled true
         html.enabled false
     }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'dataregistry'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'javaDataPipeline Dataregistry'
+                description = 'The library used by javaDataPipeline API to access the FAIR DataPipeline Registry'
+                url = 'http://www.fairdatapipeline.org/'
+                licenses {
+                    license {
+                        name = 'GNU GENERAL PUBLIC LICENSE, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                organization {
+                        name = 'THE SCOTTISH COVID-19 RESPONSE CONSORTIUM'
+                        url = 'https://www.gla.ac.uk/research/az/scrc/'
+                }
+                developers {
+                    developer {
+                        id = 'bram'
+                        name = 'Bram Boskamp'
+                        email = 'bram@boska.mp'
+                        organization = 'Biomathematics and Statistics Scotland'
+                        organizationUrl = 'https://www.bioss.ac.uk/'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/FAIRDataPipeline/javaDataPipeline.git'
+                    developerConnection = 'scm:git:https://github.com/FAIRDataPipeline/javaDataPipeline.git'
+                    url = 'https://github.com/FAIRDataPipeline/javaDataPipeline'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
