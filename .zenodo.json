@@ -1,0 +1,26 @@
+{
+  "title": "javaDataPipeline - FAIR Data Pipeline in Java",
+  "description": "Package for interfacing with the FAIR Data Pipeline in Java",
+  "upload_type": "software",
+  "creators": [
+    {
+      "affiliation": "Biomathematics and Statistics Scotland",
+      "name": "Boskamp, Bram",
+      "orcid": "0000-0002-5446-3209"
+    }
+  ],
+  "access_right": "open",
+  "license": "GPL-3.0+",
+  "related_identifiers": [
+    {
+      "scheme": "url",
+      "identifier": "https://github.com/FAIRDataPipeline/javaDataPipeline",
+      "relation": "isIdenticalTo"
+    }
+  ],
+  "keywords": [
+    "FAIR",
+    "Java",
+    "data"
+  ]
+}
