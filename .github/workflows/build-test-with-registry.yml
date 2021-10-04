@@ -33,3 +33,6 @@ jobs:
         export REGTOKEN=`cat ~/.fair/registry/token`
         export LOCALREG=FRESHASADAISY
         ./gradlew build
+    - uses: codecov/codecov-action@v2
+      with:
+        files: ./api/build/reports/jacoco/test/jacocoTestReport.xml,./dataregistry/build/reports/jacoco/test/jacocoTestReport.xml
