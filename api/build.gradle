@@ -129,5 +129,10 @@ publishing {
 }
 
 signing {
-    sign publishing.publications.mavenJava
+    if (project.hasProperty('signing.keyId') && project.hasProperty('signing.secretKeyRingFile')) {
+        if(!project.hasProperty('signing.password')){
+            throw(new GradleException('Please give signing.password in gradle command line:\n\ngradle <task> -Psigning.password=<secret>\n'))
+        }
+        sign publishing.publications.mavenJava
+    }
 }
