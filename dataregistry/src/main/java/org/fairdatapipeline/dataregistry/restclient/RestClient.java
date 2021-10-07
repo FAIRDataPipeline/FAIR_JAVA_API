@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.fairdatapipeline.dataregistry.content.RegistryUsers;
 import org.fairdatapipeline.dataregistry.content.Registry_ObjectList;
 import org.fairdatapipeline.dataregistry.content.Registry_RootObject;
 import org.fairdatapipeline.dataregistry.content.Registry_Updateable;
@@ -71,8 +72,10 @@ public class RestClient {
     for (Map.Entry<String, String> e : m.entrySet()) {
       wt2 = wt2.queryParam(e.getKey(), e.getValue());
     }
-    // TODO: try retrieving only a single item:
-    // wt2 = wt2.queryParam("page_size", 1);
+    if (c != RegistryUsers.class) {
+      /* and not RegistryGroup if we ever implement it */
+      wt2 = wt2.queryParam("page_size", 1);
+    }
     ParameterizedType p = TypeUtils.parameterize(Registry_ObjectList.class, c);
 
     Registry_ObjectList<?> o;
