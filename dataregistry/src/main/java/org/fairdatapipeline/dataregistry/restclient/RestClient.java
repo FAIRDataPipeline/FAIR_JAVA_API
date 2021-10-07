@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -28,6 +29,8 @@ public class RestClient {
   private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
   private WebTarget wt;
   private Client client;
+  private final MediaType jsonWithVersion =
+      new MediaType("application", "json", Collections.singletonMap("version", "1.0.0"));
 
   private void init(String registry_url, String token) {
     client =
@@ -74,7 +77,7 @@ public class RestClient {
 
     Registry_ObjectList<?> o;
     try {
-      o = wt2.request(MediaType.APPLICATION_JSON).get(new GenericType<>(p));
+      o = wt2.request(jsonWithVersion).get(new GenericType<>(p));
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
         String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
@@ -117,7 +120,7 @@ public class RestClient {
     ParameterizedType p = TypeUtils.parameterize(Registry_ObjectList.class, c);
     GenericType<Registry_ObjectList<?>> gt = new GenericType<>(p);
     try {
-      return wt2.request(MediaType.APPLICATION_JSON).get(gt);
+      return wt2.request(jsonWithVersion).get(gt);
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
         String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
@@ -158,7 +161,7 @@ public class RestClient {
     WebTarget wt2 =
         wt.path(Registry_RootObject.get_django_path(c.getSimpleName())).path(Integer.toString(i));
     try {
-      return (Registry_RootObject) wt2.request(MediaType.APPLICATION_JSON).get(c);
+      return (Registry_RootObject) wt2.request(jsonWithVersion).get(c);
     } catch (NotFoundException e) {
       logger.warn("get(Class, Int) " + e);
       return null;
@@ -201,7 +204,7 @@ public class RestClient {
     }
     WebTarget wt2 = client.target(apiurl.toString());
     try {
-      return (Registry_RootObject) wt2.request(MediaType.APPLICATION_JSON).get(c);
+      return (Registry_RootObject) wt2.request(jsonWithVersion).get(c);
     } catch (NotFoundException e) {
       logger.warn("get(Class, APIURL) " + e);
       return null;
@@ -248,9 +251,7 @@ public class RestClient {
     }
     Response r;
     try {
-      r =
-          wt2.request(MediaType.APPLICATION_JSON)
-              .post(Entity.entity(o, MediaType.APPLICATION_JSON));
+      r = wt2.request(jsonWithVersion).post(Entity.entity(o, jsonWithVersion));
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
         String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
@@ -317,8 +318,8 @@ public class RestClient {
       r =
           client
               .target(o.getUrl().toString())
-              .request(MediaType.APPLICATION_JSON)
-              .build("PATCH", Entity.entity(o, MediaType.APPLICATION_JSON))
+              .request(jsonWithVersion)
+              .build("PATCH", Entity.entity(o, jsonWithVersion))
               .invoke();
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
@@ -378,8 +379,8 @@ public class RestClient {
       r =
           client
               .target(o.getUrl().toString())
-              .request(MediaType.APPLICATION_JSON)
-              .put(Entity.entity(o, MediaType.APPLICATION_JSON));
+              .request(jsonWithVersion)
+              .put(Entity.entity(o, jsonWithVersion));
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
         String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
@@ -451,7 +452,7 @@ public class RestClient {
     }
     Response r;
     try {
-      r = client.target(o.getUrl().toString()).request(MediaType.APPLICATION_JSON).delete();
+      r = client.target(o.getUrl().toString()).request(jsonWithVersion).delete();
     } catch (ProcessingException e) {
       if (e.getCause().getClass() == java.net.ConnectException.class) {
         String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
