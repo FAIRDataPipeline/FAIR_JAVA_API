@@ -19,7 +19,7 @@ public class Author {
    *
    * @param restClient link to the restClient to use.
    */
-  Author(RestClient restClient) {
+  void DummyAuthor(RestClient restClient) {
     this.registryAuthor =
         (RegistryAuthor) restClient.getFirst(RegistryAuthor.class, Collections.emptyMap());
     if (this.registryAuthor == null) {
@@ -36,7 +36,7 @@ public class Author {
    *
    * @param restClient link to the restClient to use.
    */
-  void SoniaAuthor(RestClient restClient) {
+  Author(RestClient restClient) {
     RegistryUsers u =
         (RegistryUsers)
             restClient.getFirst(RegistryUsers.class, Collections.singletonMap("username", "admin"));
@@ -48,7 +48,7 @@ public class Author {
     RegistryUser_author ua =
         (RegistryUser_author)
             restClient.getFirst(
-                RegistryUser_author.class, Collections.singletonMap("user", u.getUrl().toString()));
+                RegistryUser_author.class, Collections.singletonMap("user", u.get_id().toString()));
     if (ua == null) {
       String msg = "Couldn't find a User_author in the local registry!";
       logger.error(msg);

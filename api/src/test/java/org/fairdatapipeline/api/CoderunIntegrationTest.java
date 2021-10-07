@@ -170,10 +170,20 @@ public class CoderunIntegrationTest {
   }
 
   void create_author() {
-    if (restClient.getFirst(RegistryAuthor.class, Collections.emptyMap()) == null) {
-      RegistryAuthor author = new RegistryAuthor();
+    RegistryAuthor author =
+        (RegistryAuthor) restClient.getFirst(RegistryAuthor.class, Collections.emptyMap());
+    if (author == null) {
+      author = new RegistryAuthor();
       author.setName("An Anonymous Author");
-      restClient.post(author);
+      author = (RegistryAuthor) restClient.post(author);
+    }
+    if (restClient.getFirst(RegistryUser_author.class, Collections.emptyMap()) == null) {
+      RegistryUser_author ua = new RegistryUser_author();
+      ua.setAuthor(author.getUrl());
+      RegistryUsers u =
+          (RegistryUsers) restClient.getFirst(RegistryUsers.class, Collections.emptyMap());
+      ua.setUser(u.getUrl());
+      restClient.post(ua);
     }
   }
 

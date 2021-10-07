@@ -6,7 +6,7 @@ import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 /** A combination of an Author associated with a particular user. */
 @XmlRootElement
-public class RegistryUser_author extends Registry_RootObject {
+public class RegistryUser_author extends Registry_Updateable {
 
   @XmlElement private APIURL user;
 
