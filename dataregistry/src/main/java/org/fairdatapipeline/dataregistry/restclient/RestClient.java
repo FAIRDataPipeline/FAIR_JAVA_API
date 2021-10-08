@@ -64,7 +64,9 @@ public class RestClient {
    * @param m The key-value constraint pairs
    * @return The first item found, or null if none are found.
    */
-  public Registry_RootObject getFirst(Class<?> c, Map<String, String> m) {
+  public Registry_RootObject getFirst(Class<? extends Registry_RootObject> c, Map<String, String> m)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
     // c = the class contained within the objectlist
     // return the first item found.
     WebTarget wt2 = wt.path(Registry_RootObject.get_django_path(c.getSimpleName()));
@@ -78,28 +80,42 @@ public class RestClient {
     }
     ParameterizedType p = TypeUtils.parameterize(Registry_ObjectList.class, c);
 
-    Registry_ObjectList<?> o;
     try {
-      o = wt2.request(jsonWithVersion).get(new GenericType<>(p));
-    } catch (ProcessingException e) {
-      if (e.getCause().getClass() == java.net.ConnectException.class) {
-        String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
-        logger.error(msg);
-        throw (new ConnectException(msg, e));
-      } else {
-        logger.error("getFirst(Class, Map) -- " + e);
-        throw (e);
+      Registry_ObjectList<?> o = wt2.request(this.getJsonMediaType()).get(new GenericType<>(p));
+      if (o.getCount() == 0) {
+        logger.trace("getFirst(" + c.getSimpleName() + ", " + m + ") returned 0 items");
+        return null;
       }
-    } catch (jakarta.ws.rs.ForbiddenException e) {
-      String msg = "HTTP 403 Forbidden -- is the token wrong?";
-      logger.error(msg);
-      throw (new ForbiddenException(msg, e));
+      return o.getResults().get(0);
+    } catch (Exception e) {
+      deal_with_jakarta_http_exceptions(e);
     }
-    if (o.getCount() == 0) {
-      logger.trace("getFirst(" + c.getSimpleName() + ", " + m + ") returned 0 items");
-      return null;
+    return null;
+  }
+
+  void deal_with_jakarta_http_exceptions(Exception e)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
+    if (e.getClass() == ProcessingException.class
+        || e.getClass() == ResponseProcessingException.class) {
+      if (e.getCause().getClass() == java.net.ConnectException.class) {
+        throw (new ConnectException(
+            "Can't connect to registry at " + wt + "\nIs the local registry running?", e));
+      } else if (e.getCause()
+          .getClass()
+          .getCanonicalName()
+          .startsWith("com.fasterxml.jackson.databind.exc.")) {
+        throw (new RegistryJSONException("Error processing JSON response from registry."));
+      } else {
+        throw (new RestClientException(
+            "RestClient encountered unexpected Jakarta Processing exception", e));
+      }
+    } else if (e.getClass() == jakarta.ws.rs.ForbiddenException.class) {
+      throw (new ForbiddenException("HTTP 403 Forbidden -- is the token wrong?", e));
+    } else if (e.getClass() == jakarta.ws.rs.NotAcceptableException.class) {
+      throw (new RegistryVersionException(
+          "HTTP 406 Not Acceptable -- incompatible version of registry"));
     }
-    return o.getResults().get(0);
   }
 
   /**
@@ -109,13 +125,11 @@ public class RestClient {
    * @param m The key-value constraint pairs
    * @return the Registry_ObjectList containing all items matching the constraints in the Map m
    */
-  public Registry_ObjectList<?> getList(Class<?> c, Map<String, String> m) {
+  public Registry_ObjectList<?> getList(
+      Class<? extends Registry_RootObject> c, Map<String, String> m)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
     // c is the class contained within the ObjectList
-    if (!Registry_RootObject.class.isAssignableFrom(c)) {
-      String msg = "getList(Class, Map) -- Given Class is not an FDP_RootObject.";
-      logger.error(msg);
-      throw new IllegalArgumentException(msg);
-    }
     WebTarget wt2 = wt.path(Registry_RootObject.get_django_path(c.getSimpleName()));
     for (Map.Entry<String, String> e : m.entrySet()) {
       wt2 = wt2.queryParam(e.getKey(), e.getValue());
@@ -123,29 +137,11 @@ public class RestClient {
     ParameterizedType p = TypeUtils.parameterize(Registry_ObjectList.class, c);
     GenericType<Registry_ObjectList<?>> gt = new GenericType<>(p);
     try {
-      return wt2.request(jsonWithVersion).get(gt);
-    } catch (ProcessingException e) {
-      if (e.getCause().getClass() == java.net.ConnectException.class) {
-        String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
-        logger.error(msg);
-        throw (new org.fairdatapipeline.dataregistry.restclient.ConnectException(msg, e));
-      } else if (e.getCause()
-          .getClass()
-          .getCanonicalName()
-          .startsWith("com.fasterxml.jackson.databind.exc.")) {
-        String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?";
-        logger.error(msg + "\n" + e);
-        throw (new RegistryJSONException(msg, e));
-      } else {
-        logger.error(e.toString());
-        throw (e);
-      }
-    } catch (jakarta.ws.rs.ForbiddenException e) {
-      String msg = "HTTP 403 Forbidden -- is the token wrong?";
-      logger.error(msg);
-      throw (new ForbiddenException(msg, e));
+      return wt2.request(this.getJsonMediaType()).get(gt);
+    } catch (Exception e) {
+      deal_with_jakarta_http_exceptions(e);
     }
+    return null;
   }
 
   /**
@@ -155,41 +151,20 @@ public class RestClient {
    * @param i The ID of the FDP Object we're trying to retrieve
    * @return the FDP Object (or null if not found)
    */
-  public Registry_RootObject get(Class<?> c, int i) {
-    if (!Registry_RootObject.class.isAssignableFrom(c)) {
-      String msg = "get(Class, Int) -- Given Class is not an FDP_RootObject.";
-      logger.error(msg);
-      throw new IllegalArgumentException(msg);
-    }
+  public Registry_RootObject get(Class<? extends Registry_RootObject> c, int i)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
     WebTarget wt2 =
         wt.path(Registry_RootObject.get_django_path(c.getSimpleName())).path(Integer.toString(i));
     try {
-      return (Registry_RootObject) wt2.request(jsonWithVersion).get(c);
+      return wt2.request(this.getJsonMediaType()).get(c);
     } catch (NotFoundException e) {
       logger.warn("get(Class, Int) " + e);
       return null;
-    } catch (ProcessingException e) {
-      if (e.getCause().getClass() == java.net.ConnectException.class) {
-        String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
-        logger.error(msg);
-        throw (new org.fairdatapipeline.dataregistry.restclient.ConnectException(msg, e));
-      } else if (e.getCause()
-          .getClass()
-          .getCanonicalName()
-          .startsWith("com.fasterxml.jackson.databind.exc.")) {
-        String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?";
-        logger.error(msg + "\n" + e);
-        throw (new RegistryJSONException(msg, e));
-      } else {
-        logger.error(e.toString());
-        throw (e);
-      }
-    } catch (jakarta.ws.rs.ForbiddenException e) {
-      String msg = "HTTP 403 Forbidden -- is the token wrong?";
-      logger.error(msg);
-      throw (new ForbiddenException(msg, e));
+    } catch (Exception e) {
+      deal_with_jakarta_http_exceptions(e);
     }
+    return null;
   }
 
   /**
@@ -199,40 +174,19 @@ public class RestClient {
    * @param apiurl The APIURL of the Object we are trying to retrieve
    * @return The Object, or null if not found.
    */
-  public Registry_RootObject get(Class<?> c, APIURL apiurl) {
-    if (!Registry_RootObject.class.isAssignableFrom(c)) {
-      String msg = "get(Class, URL) -- Given Class is not an FDP_RootObject.";
-      logger.error(msg);
-      throw new IllegalArgumentException(msg);
-    }
+  public Registry_RootObject get(Class<? extends Registry_RootObject> c, APIURL apiurl)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
     WebTarget wt2 = client.target(apiurl.toString());
     try {
-      return (Registry_RootObject) wt2.request(jsonWithVersion).get(c);
+      return wt2.request(this.getJsonMediaType()).get(c);
     } catch (NotFoundException e) {
       logger.warn("get(Class, APIURL) " + e);
       return null;
-    } catch (ProcessingException e) {
-      if (e.getCause().getClass() == java.net.ConnectException.class) {
-        String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
-        logger.error(msg);
-        throw (new org.fairdatapipeline.dataregistry.restclient.ConnectException(msg, e));
-      } else if (e.getCause()
-          .getClass()
-          .getCanonicalName()
-          .startsWith("com.fasterxml.jackson.databind.exc.")) {
-        String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?";
-        logger.error(msg + "\n" + e);
-        throw (new RegistryJSONException(msg, e));
-      } else {
-        logger.error(e.toString());
-        throw (e);
-      }
-    } catch (jakarta.ws.rs.ForbiddenException e) {
-      String msg = "HTTP 403 Forbidden -- is the token wrong?";
-      logger.error(msg);
-      throw (new ForbiddenException(msg, e));
+    } catch (Exception e) {
+      deal_with_jakarta_http_exceptions(e);
     }
+    return null;
   }
 
   /**
@@ -242,40 +196,22 @@ public class RestClient {
    * @param o The FDP Object we are submitting (should have no URL yet)
    * @return the FDP Object we get back from the registry, with its URL set, or null upon error.
    */
-  public Registry_Updateable post(Registry_Updateable o) {
+  public Registry_Updateable post(Registry_Updateable o)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
     WebTarget wt2 = wt.path(o.get_django_path());
     if (o.getUrl() != null) {
-      String msg =
+      throw (new RestClientException(
           "post(Registry_Updateable) -- trying to post an already existing object "
               + o.get_django_path()
-              + " (object already has an URL entry)";
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+              + " (object already has an URL entry)"));
     }
     Response r;
     try {
-      r = wt2.request(jsonWithVersion).post(Entity.entity(o, jsonWithVersion));
-    } catch (ProcessingException e) {
-      if (e.getCause().getClass() == java.net.ConnectException.class) {
-        String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
-        logger.error(msg);
-        throw (new org.fairdatapipeline.dataregistry.restclient.ConnectException(msg, e));
-      } else if (e.getCause()
-          .getClass()
-          .getCanonicalName()
-          .startsWith("com.fasterxml.jackson.databind.exc.")) {
-        String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?";
-        logger.error(msg + "\n" + e);
-        throw (new RegistryJSONException(msg, e));
-      } else {
-        logger.error(e.toString());
-        throw (e);
-      }
-    } catch (jakarta.ws.rs.ForbiddenException e) {
-      String msg = "HTTP 403 Forbidden -- is the token wrong?";
-      logger.error(msg);
-      throw (new ForbiddenException(msg, e));
+      r = wt2.request(this.getJsonMediaType()).post(Entity.entity(o, this.getJsonMediaType()));
+    } catch (Exception e) {
+      deal_with_jakarta_http_exceptions(e);
+      return null;
     }
     if (r.getStatus() != 201) {
       // in case we failed to create the object, log the error message
@@ -290,7 +226,11 @@ public class RestClient {
       }
       return null;
     } else {
-      return r.readEntity(o.getClass());
+      try {
+        return r.readEntity(o.getClass());
+      } catch (ProcessingException e) {
+        throw (new RegistryJSONException("post() fails to read response JSON", e));
+      }
     }
   }
 
@@ -302,18 +242,17 @@ public class RestClient {
    * @param o the Object to PATCH; its URL must be set.
    * @return the Object returned from the registry, or null upon error.
    */
-  public Registry_Updateable patch(Registry_Updateable o) {
+  public Registry_Updateable patch(Registry_Updateable o)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
     if (!o.allow_method("PATCH")) {
-      String msg =
+      throw (new IllegalArgumentException(
           "patch(Registry_Updateable) -- trying to use PATCH method on an object that can't be patched."
-              + o;
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+              + o));
     }
     if (o.getUrl() == null) {
-      String msg = "patch(Registry_Updateable) -- can't patch an obj without URL";
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+      throw (new RestClientException(
+          "patch(Registry_Updateable) -- can't patch an obj without URL"));
     }
 
     Response r;
@@ -321,32 +260,20 @@ public class RestClient {
       r =
           client
               .target(o.getUrl().toString())
-              .request(jsonWithVersion)
-              .build("PATCH", Entity.entity(o, jsonWithVersion))
+              .request(this.getJsonMediaType())
+              .build("PATCH", Entity.entity(o, this.getJsonMediaType()))
               .invoke();
-    } catch (ProcessingException e) {
-      if (e.getCause().getClass() == java.net.ConnectException.class) {
-        String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
-        logger.error(msg);
-        throw (new org.fairdatapipeline.dataregistry.restclient.ConnectException(msg, e));
-      } else if (e.getCause()
-          .getClass()
-          .getCanonicalName()
-          .startsWith("com.fasterxml.jackson.databind.exc.")) {
-        String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?";
-        logger.error(msg + "\n" + e);
-        throw (new RegistryJSONException(msg, e));
-      } else {
-        logger.error(e.toString());
-        throw (e);
-      }
-    } catch (jakarta.ws.rs.ForbiddenException e) {
-      String msg = "HTTP 403 Forbidden -- is the token wrong?";
-      logger.error(msg);
-      throw (new ForbiddenException(msg, e));
+    } catch (Exception e) {
+      deal_with_jakarta_http_exceptions(e);
+      return null;
     }
-    if (r.getStatus() >= 200 && r.getStatus() < 300) return r.readEntity(o.getClass());
+    if (r.getStatus() >= 200 && r.getStatus() < 300) {
+      try {
+        return r.readEntity(o.getClass());
+      } catch (ProcessingException e) {
+        throw (new RegistryJSONException("patch() fails to read response JSON", e));
+      }
+    }
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
@@ -364,49 +291,36 @@ public class RestClient {
    * @param o the Object to PUT; its URL must be set.
    * @return the Object returned from the registry, or null upon error.
    */
-  public Registry_Updateable put(Registry_Updateable o) {
+  public Registry_Updateable put(Registry_Updateable o)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
     if (!o.allow_method("PUT")) {
-      String msg =
+      throw (new IllegalArgumentException(
           "put(Registry_Updateable) -- trying to use PUT method on an object that doesn't support PUT."
-              + o;
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+              + o));
     }
     if (o.getUrl() == null) {
-      String msg = "put(Registry_Updateable) -- can't PUT an object without URL";
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+      throw (new RestClientException(
+          "put(Registry_Updateable) -- can't PUT an object without URL"));
     }
     Response r;
     try {
       r =
           client
               .target(o.getUrl().toString())
-              .request(jsonWithVersion)
-              .put(Entity.entity(o, jsonWithVersion));
-    } catch (ProcessingException e) {
-      if (e.getCause().getClass() == java.net.ConnectException.class) {
-        String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
-        logger.error(msg);
-        throw (new org.fairdatapipeline.dataregistry.restclient.ConnectException(msg, e));
-      } else if (e.getCause()
-          .getClass()
-          .getCanonicalName()
-          .startsWith("com.fasterxml.jackson.databind.exc.")) {
-        String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?";
-        logger.error(msg + "\n" + e);
-        throw (new RegistryJSONException(msg, e));
-      } else {
-        logger.error(e.toString());
-        throw (e);
-      }
-    } catch (jakarta.ws.rs.ForbiddenException e) {
-      String msg = "HTTP 403 Forbidden -- is the token wrong?";
-      logger.error(msg);
-      throw (new ForbiddenException(msg, e));
+              .request(this.getJsonMediaType())
+              .put(Entity.entity(o, this.getJsonMediaType()));
+    } catch (Exception e) {
+      deal_with_jakarta_http_exceptions(e);
+      return null;
     }
-    if (r.getStatus() >= 200 && r.getStatus() < 300) return r.readEntity(o.getClass());
+    if (r.getStatus() >= 200 && r.getStatus() < 300) {
+      try {
+        return r.readEntity(o.getClass());
+      } catch (ProcessingException e) {
+        throw (new RegistryJSONException("put() fails to read response JSON", e));
+      }
+    }
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
@@ -423,14 +337,9 @@ public class RestClient {
    * @param c The Class of the FDP Object we're trying to delete
    * @param i the ID of the FDP Object we're trying to delete
    */
-  public void delete(Class<?> c, int i) {
-    if (!Registry_Updateable.class.isAssignableFrom(
-        c)) { // i can only delete updateables; can't delete 'User'.
-      String msg =
-          "delete(Class, Int) -- Whatever you're trying to delete must be a subclass of Registry_Updateable.";
-      logger.error(msg);
-      throw new IllegalArgumentException(msg);
-    }
+  public void delete(Class<? extends Registry_Updateable> c, int i)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
     Registry_Updateable o = (Registry_Updateable) get(c, i);
     delete(o);
   }
@@ -440,48 +349,28 @@ public class RestClient {
    *
    * @param o the Object we are trying to delete
    */
-  public void delete(Registry_Updateable o) {
+  public void delete(Registry_Updateable o)
+      throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
+          RestClientException {
     if (!o.allow_method("DELETE")) {
-      String msg =
+      throw (new IllegalArgumentException(
           "delete(Registry_Updateable) -- trying to use DELETE on an object that doesn't support DELETE."
-              + o;
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+              + o));
     }
     if (o.getUrl() == null) {
-      String msg = "delete(Registry_Updateable) -- can't DELETE an object without a set URL.";
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+      throw (new RestClientException(
+          "delete(Registry_Updateable) -- can't DELETE an object without a set URL."));
     }
     Response r;
     try {
-      r = client.target(o.getUrl().toString()).request(jsonWithVersion).delete();
-    } catch (ProcessingException e) {
-      if (e.getCause().getClass() == java.net.ConnectException.class) {
-        String msg = "Can't connect to registry at " + wt + "\nIs the local registry running?";
-        logger.error(msg);
-        throw (new org.fairdatapipeline.dataregistry.restclient.ConnectException(msg, e));
-      } else if (e.getCause()
-          .getClass()
-          .getCanonicalName()
-          .startsWith("com.fasterxml.jackson.databind.exc.")) {
-        String msg =
-            "Error processing JSON response from registry.\nAre you using the correct registry version?";
-        logger.error(msg + "\n" + e);
-        throw (new RegistryJSONException(msg, e));
-      } else {
-        logger.error(e.toString());
-        throw (e);
-      }
-    } catch (jakarta.ws.rs.ForbiddenException e) {
-      String msg = "HTTP 403 Forbidden -- is the token wrong?";
-      logger.error(msg);
-      throw (new ForbiddenException(msg, e));
+      r = client.target(o.getUrl().toString()).request(this.getJsonMediaType()).delete();
+    } catch (Exception e) {
+      deal_with_jakarta_http_exceptions(e);
+      return;
     }
     if (r.getStatus() != 204) {
-      String msg = "delete(Registry_Updateable) -- failed to delete " + o.getUrl();
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+      throw (new RestClientException(
+          "delete(Registry_Updateable) -- failed to delete " + o.getUrl()));
     }
   }
 
@@ -492,12 +381,7 @@ public class RestClient {
    * @param i the ID of the resource we are creating an APIURL for.
    * @return the APIURL to access the Registry resource.
    */
-  public APIURL makeAPIURL(Class<?> c, int i) {
-    if (!Registry_RootObject.class.isAssignableFrom(c)) {
-      String msg = "makeAPIURL(Class, Int) -- Given Class is not an FDP_RootObject.";
-      logger.error(msg);
-      throw new IllegalArgumentException(msg);
-    }
+  public APIURL makeAPIURL(Class<? extends Registry_RootObject> c, int i) {
     WebTarget wt2 =
         wt.path(Registry_RootObject.get_django_path(c.getSimpleName())).path(Integer.toString(i));
     try {
@@ -506,5 +390,9 @@ public class RestClient {
       logger.error(e.toString());
       return null;
     }
+  }
+
+  MediaType getJsonMediaType() {
+    return this.jsonWithVersion;
   }
 }

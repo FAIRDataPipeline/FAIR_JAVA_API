@@ -9,7 +9,9 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.fairdatapipeline.dataregistry.content.*;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_location;
@@ -18,19 +20,24 @@ import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class populateLocal {
   RestClient lc;
   String localReg = "http://localhost:8000/api/";
+  Map<String, String> m;
 
   @BeforeAll
   public void setUp() {
     Assertions.assertNotNull(System.getenv("REGTOKEN"));
     lc = new RestClient(localReg, System.getenv("REGTOKEN"));
+    this.m = Collections.emptyMap();
   }
 
+  @Order(1)
   @ParameterizedTest
   @MethodSource("objectsToBeCreated")
   @DisabledIf("keyvalueExists")
@@ -115,6 +122,33 @@ public class populateLocal {
         assertThat(r, samePropertyValuesAs(o, "uuid", "url", "updated_by", "last_updated", "_id"));
         break;
     }
+  }
+
+  @Order(2)
+  @ParameterizedTest
+  @ValueSource(
+      classes = {
+        RegistryAuthor.class,
+        RegistryCode_repo_release.class,
+        RegistryCode_run.class,
+        RegistryData_product.class,
+        RegistryExternal_object.class,
+        RegistryFile_type.class,
+        RegistryObject.class,
+        RegistryFile_type.class,
+        RegistryIssue.class,
+        RegistryKey_value.class,
+        RegistryKeyword.class,
+        RegistryNamespace.class,
+        RegistryObject.class,
+        RegistryObject_component.class,
+        RegistryStorage_location.class,
+        RegistryStorage_root.class,
+        RegistryUsers.class
+      })
+  public void get_object(Class<Registry_RootObject> c) {
+    Registry_RootObject n = lc.getFirst(c, m);
+    Assertions.assertNotNull(n.getUrl());
   }
 
   private Stream<Registry_Updateable> objectsToBeCreated()

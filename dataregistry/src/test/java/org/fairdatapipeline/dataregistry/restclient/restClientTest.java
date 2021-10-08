@@ -1,11 +1,11 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
+import jakarta.ws.rs.core.MediaType;
 import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-@EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
+// @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class restClientTest {
   String localReg = "http://localhost:8000/api/";
@@ -25,6 +25,27 @@ public class restClientTest {
       author.setName("An Anonymous Author");
       lc.post(author);
     }
+  }
+
+  @Test
+  public void wrongVersion() {
+    class RestClient_wv extends RestClient {
+      private final MediaType jsonWithVersion =
+          new MediaType("application", "json", Collections.singletonMap("version", "0.0.0"));
+
+      public RestClient_wv(String registry_url, String token) {
+        super(registry_url, token);
+      }
+
+      @Override
+      MediaType getJsonMediaType() {
+        return this.jsonWithVersion;
+      }
+    }
+    RestClient_wv restClient_wv = new RestClient_wv(localReg, System.getenv("REGTOKEN"));
+    Assertions.assertThrows(
+        RegistryVersionException.class,
+        () -> restClient_wv.getFirst(RegistryUsers.class, Collections.emptyMap()));
   }
 
   @Test
@@ -83,10 +104,5 @@ public class restClientTest {
       lc.post(new RegistryNamespace(name));
     }
     Assertions.assertNull(lc.post(new RegistryNamespace(name)));
-  }
-
-  @Test
-  public void get_wrongClass() {
-    Assertions.assertThrows(IllegalArgumentException.class, () -> lc.get(Object.class, 1));
   }
 }
