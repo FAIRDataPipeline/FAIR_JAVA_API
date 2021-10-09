@@ -1,6 +1,6 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
-/** General propagated ProcessingException from jakarta */
+/** General propagated ProcessingException from jakarta. */
 public class RestClientException extends RuntimeException {
   /**
    * Constructor

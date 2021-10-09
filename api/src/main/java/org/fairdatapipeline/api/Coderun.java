@@ -136,14 +136,12 @@ public class Coderun implements AutoCloseable {
   public Coderun(Path configFilePath, @Nullable Path scriptPath, @Nullable String registryToken) {
     YamlReader yamlReader = new YamlFactory().yamlReader();
     if (!new File(configFilePath.toString()).isFile()) {
-      String msg = "Coderun -- configFilePath argument must be a Path to a config file.";
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+      throw (new IllegalArgumentException(
+          "Coderun -- configFilePath argument must be a Path to a config file."));
     }
     if (scriptPath != null && !new File(scriptPath.toString()).isFile()) {
-      String msg = "Coderun -- scriptPath argument must be a Path to a script file.";
-      logger.error(msg);
-      throw (new IllegalArgumentException(msg));
+      throw (new IllegalArgumentException(
+          "Coderun -- scriptPath argument must be a Path to a script file."));
     }
 
     this.coderuns_txt = configFilePath.getParent().resolve("coderuns.txt");
@@ -160,9 +158,8 @@ public class Coderun implements AutoCloseable {
         if (Files.isReadable(Path.of(filename))) {
           registryToken = new FileReader().read(filename);
         } else {
-          String msg = "No registry token given. Giving up.";
-          logger.error(msg);
-          throw (new IllegalActionException(msg));
+          throw (new IllegalActionException(
+              "No registry token given. Giving up. (Token can be given in the config or in the Coderun constructor)"));
         }
       }
     }
@@ -200,10 +197,8 @@ public class Coderun implements AutoCloseable {
       if (config.run_metadata().script_path().isPresent()) {
         scriptPath = Path.of(config.run_metadata().script_path().get());
       } else {
-        String msg =
-            "Coderun() -- Script path must be given either in constructor args or in config.";
-        logger.error(msg);
-        throw (new ConfigException(msg));
+        throw (new ConfigException(
+            "Coderun() -- Script path must be given either in constructor args or in config."));
       }
     }
     this.config_storage_location =
@@ -246,9 +241,8 @@ public class Coderun implements AutoCloseable {
     try {
       remote_repo_url = new URL(remote_repo);
     } catch (MalformedURLException e) {
-      String msg = "Remote repo must be a valid URL; (" + remote_repo + " isn't)";
-      logger.error(msg);
-      throw (new ConfigException(msg, e));
+      throw (new ConfigException(
+          "Remote repo must be a valid URL; (" + remote_repo + " isn't)", e));
     }
 
     this.codeRepo =
@@ -330,10 +324,8 @@ public class Coderun implements AutoCloseable {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_read.class) {
-        String msg =
-            "You are trying to open the same data product twice in the same coderun, first for write and then for read. Please don't.";
-        logger.error(msg);
-        throw (new IllegalActionException(msg));
+        throw (new IllegalActionException(
+            "You are trying to open the same data product twice in the same coderun, first for write and then for read. Please don't."));
       }
       return (Data_product_read) dp_info_map.get(dataProduct_name);
     }
@@ -353,16 +345,12 @@ public class Coderun implements AutoCloseable {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write.class) {
-        String msg =
-            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't.";
-        logger.error(msg);
-        throw (new IllegalActionException(msg));
+        throw (new IllegalActionException(
+            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't."));
       }
       if (!dp_info_map.get(dataProduct_name).extension.equals(extension)) {
-        String msg =
-            "You are trying to open the same data product using two different file types. Please don't.";
-        logger.error(msg);
-        throw (new IllegalActionException(msg));
+        throw (new IllegalActionException(
+            "You are trying to open the same data product using two different file types. Please don't."));
       }
       return (Data_product_write) dp_info_map.get(dataProduct_name);
     }
@@ -381,10 +369,8 @@ public class Coderun implements AutoCloseable {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write.class) {
-        String msg =
-            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't.";
-        logger.error(msg);
-        throw (new IllegalActionException(msg));
+        throw (new IllegalActionException(
+            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't."));
       }
       return (Data_product_write) dp_info_map.get(dataProduct_name);
     }
@@ -445,9 +431,8 @@ public class Coderun implements AutoCloseable {
     dp_info_map.forEach((key, value) -> value.close());
     RegistryCode_run coderun = (RegistryCode_run) restClient.post(this.registryCode_run);
     if (coderun == null) {
-      String msg = "Failed to create Code_run in registry: " + this.registryCode_run;
-      logger.error(msg);
-      throw (new RegistryException(msg));
+      throw (new RegistryException(
+          "Failed to create Code_run in registry: " + this.registryCode_run));
     }
     this.register_issues();
     this.append_code_run_uuid(coderun.getUuid());

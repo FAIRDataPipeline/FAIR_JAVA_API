@@ -1,6 +1,6 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
-/** Failing to connect to the Registry */
+/** Failing to connect to the Registry. */
 public class ConnectException extends RuntimeException {
   /**
    * Constructor

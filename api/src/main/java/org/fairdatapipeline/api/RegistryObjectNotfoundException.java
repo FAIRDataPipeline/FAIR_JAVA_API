@@ -1,6 +1,6 @@
 package org.fairdatapipeline.api;
 
-/** Failure to retrieve an expected object from the registry */
+/** Failure to retrieve an expected object from the registry. */
 public class RegistryObjectNotfoundException extends RuntimeException {
   /**
    * Constructor

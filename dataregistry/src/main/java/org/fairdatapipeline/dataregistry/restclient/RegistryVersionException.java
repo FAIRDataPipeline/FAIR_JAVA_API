@@ -1,6 +1,9 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
-/** HTTP 406 Not Acceptable: registry rejects our Accept: version header. */
+/**
+ * HTTP 406 Not Acceptable: registry rejects our Accept: version header. Make sure the FAIR Data
+ * Registry version matches the org.fairdatapipeline.dataregistry library version.
+ */
 public class RegistryVersionException extends RuntimeException {
   /**
    * Constructor

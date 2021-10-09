@@ -6,7 +6,10 @@ import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** create a new registryObject with given storage_location, description, authors, file_type. */
+/**
+ * A new registryObject with given storage_location, description, authors, file_type. Used for
+ * Submission Script, Code Repo, Config File, which can have issues raised on.
+ */
 public class FileObject {
   private static final Logger logger = LoggerFactory.getLogger(FileObject.class);
   Coderun coderun;

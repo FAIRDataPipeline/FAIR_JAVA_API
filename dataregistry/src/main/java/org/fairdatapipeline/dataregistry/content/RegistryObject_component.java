@@ -8,7 +8,7 @@ import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 /**
  * A component of a Object being used as the input to a CodeRun or produced as an output from a
- * CodeRun
+ * CodeRun.
  */
 @XmlRootElement
 public class RegistryObject_component extends Registry_Updateable {

@@ -8,7 +8,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 /**
- * Core traceability object used to represent any data object such DataProduct, CodeRepoRelease, etc
+ * Core traceability object used to represent any data object such DataProduct, CodeRepoRelease,
+ * etc.
  */
 @XmlRootElement
 public class RegistryObject extends Registry_Updateable {

@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
-/** Free meta-data key-values associated with an Object */
+/** Free meta-data key-values associated with an Object. */
 @XmlRootElement
 public class RegistryKey_value extends Registry_Updateable {
   @XmlElement private String key;

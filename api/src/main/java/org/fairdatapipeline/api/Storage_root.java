@@ -10,8 +10,8 @@ import org.fairdatapipeline.dataregistry.restclient.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** retrieve or create the RegistryStorage_root with a given 'root'. */
-public class Storage_root {
+/** Retrieve or create the RegistryStorage_root with a given 'root'. */
+class Storage_root {
   private static final Logger logger = LoggerFactory.getLogger(Storage_root.class);
   RegistryStorage_root registryStorage_root;
 

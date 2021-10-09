@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** This is used to store a file or a remote repo to the registry as a RegistryStorage_location. */
-public class Storage_location {
+class Storage_location {
   private static final Logger logger = LoggerFactory.getLogger(Storage_location.class);
   RegistryStorage_location registryStorage_location;
 

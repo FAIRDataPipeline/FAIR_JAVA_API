@@ -14,6 +14,7 @@ import org.fairdatapipeline.parameters.ComponentsSerializer;
 import org.fairdatapipeline.parameters.RandomGeneratorDeserializer;
 import org.fairdatapipeline.parameters.RandomGeneratorSerializer;
 
+/** ObjectMapper for TOML parameter file parameters. */
 public class DataPipelineMapper extends ObjectMapper {
   public DataPipelineMapper(MappingJsonFactory mappingJsonFactory, RandomGenerator rng) {
     super(mappingJsonFactory);

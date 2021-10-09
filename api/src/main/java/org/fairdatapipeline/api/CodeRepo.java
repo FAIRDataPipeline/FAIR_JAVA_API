@@ -9,7 +9,7 @@ import org.fairdatapipeline.dataregistry.restclient.APIURL;
  * exist yet). Also create a CodeRepo registryObject storing the storage_location, authors, and
  * description. (if an object pointing to the Storage_location does not exists yet)
  */
-public class CodeRepo {
+class CodeRepo {
   Storage_location storage_location;
   FileObject fileObject;
 

@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
-/** A quality issue that can be attached to any Object or ObjectComponent */
+/** A quality issue that can be attached to any Object or ObjectComponent. */
 @XmlRootElement
 public class RegistryIssue extends Registry_Updateable {
 

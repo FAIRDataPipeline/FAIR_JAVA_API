@@ -8,8 +8,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 /**
- * An external data object, i.e. one that has comes from somewhere other than being generated as
- * part of the modelling pipeline
+ * An external data object, one that has come from somewhere other than being generated as part of
+ * the modelling pipeline.
  */
 @XmlRootElement
 public class RegistryExternal_object extends Registry_Updateable {

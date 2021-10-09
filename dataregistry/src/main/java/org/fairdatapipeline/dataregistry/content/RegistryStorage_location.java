@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
-/** The location of an item relative to a StorageRoot */
+/** The location of an item relative to a StorageRoot. */
 @XmlRootElement
 public class RegistryStorage_location extends Registry_Updateable {
   @XmlElement private String path;

@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -151,8 +150,7 @@ public class populateLocal {
     Assertions.assertNotNull(n.getUrl());
   }
 
-  private Stream<Registry_Updateable> objectsToBeCreated()
-      throws URISyntaxException, MalformedURLException {
+  private Stream<Registry_Updateable> objectsToBeCreated() throws MalformedURLException {
     ArrayList<Registry_Updateable> al = new ArrayList<>();
     al.add(new RegistryNamespace("test namespace"));
     al.add(new RegistryFile_type("Test filetype", ".tst"));

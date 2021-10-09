@@ -1,6 +1,6 @@
 package org.fairdatapipeline.api;
 
-/** the consumer is probably trying to do something they aren't supposed to be doing. */
+/** The consumer is probably trying to do something they aren't supposed to be doing. */
 public class IllegalActionException extends RuntimeException {
   /**
    * Constructor

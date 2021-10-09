@@ -7,7 +7,7 @@ import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
 /**
  * Keywords that can be associated with an Object usually for use with ExternalObjects to record
- * paper keywords, etc
+ * paper keywords, etc.
  */
 @XmlRootElement
 public class RegistryKeyword extends Registry_Updateable {

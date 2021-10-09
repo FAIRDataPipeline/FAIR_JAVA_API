@@ -20,7 +20,7 @@ import org.fairdatapipeline.dataregistry.content.RegistryUsers;
 import org.fairdatapipeline.dataregistry.content.Registry_ObjectList;
 import org.fairdatapipeline.dataregistry.content.Registry_RootObject;
 import org.fairdatapipeline.dataregistry.content.Registry_Updateable;
-import org.fairdatapipeline.dataregistry.oauth2token.OAuth2ClientSupport;
+import org.fairdatapipeline.dataregistry.oauth2token.OAuth2ClientTokenFeature;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class RestClient {
             .register(Registry_RootObjectWriter.class)
             .register(Registry_ObjectListReader.class)
             .register(new JavaUtilCollectionsDeserializers() {})
-            .register(OAuth2ClientSupport.feature(token))
+            .register(new OAuth2ClientTokenFeature(token))
             .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)
             .build();
     wt = client.target(registry_url);

@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
-/** The root location of a storage cache where model files are stored */
+/** The root location of a storage cache where model files are stored. */
 @XmlRootElement
 public class RegistryStorage_root extends Registry_Updateable {
   @XmlElement private URI root;

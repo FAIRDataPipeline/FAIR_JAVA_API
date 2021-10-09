@@ -1,6 +1,6 @@
 package org.fairdatapipeline.api;
 
-/** Failure to create an Object in the registry */
+/** Failure to create an Object in the registry. */
 public class RegistryException extends RuntimeException {
   /**
    * Constructor

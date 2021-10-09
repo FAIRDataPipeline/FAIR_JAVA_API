@@ -1,6 +1,9 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
-/** Exception for JSON problems -- might indicate incompatible version of the Registry. */
+/**
+ * Exception for JSON problems -- might suggest incompatibility between java library and the data
+ * registry.
+ */
 public class RegistryJSONException extends RuntimeException {
   /**
    * Constructor
