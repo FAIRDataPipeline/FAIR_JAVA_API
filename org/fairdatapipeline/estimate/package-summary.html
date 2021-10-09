@@ -99,7 +99,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <div class="block">Use <a href="Estimate.html" title="interface in org.fairdatapipeline.estimate"><code>ImmutableEstimate</code></a> to read/write simple number
- parameters to/from the FDP</div>
+ parameters to/from the FAIR Data Pipeline.
+
+ <p>Immutable Usage Example:
+
+ <pre>
+     var data = ImmutableEstimate.builder().internalValue(5).rng(rng).build();
+     object_component.writeEstimate(data);
+ </pre></div>
 </section>
 <ul class="blockList">
 <li class="blockList">

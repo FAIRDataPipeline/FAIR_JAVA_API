@@ -99,7 +99,20 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <div class="block">Use <a href="Distribution.html" title="interface in org.fairdatapipeline.distribution"><code>ImmutableDistribution</code></a> to read/write
- distributions to/from the Fair data pipeline</div>
+ distributions to/from the FAIR Data Pipeline.
+
+ <p>Immutable usage example:
+
+ <pre>
+     gammaDistribution =
+         ImmutableDistribution.builder()
+             .internalType(DistributionType.gamma)
+             .internalShape(1)
+             .internalScale(2)
+             .rng(rng)
+             .build();
+     object_component.writeDistribution(gammaDistribution);
+ </pre></div>
 </section>
 <ul class="blockList">
 <li class="blockList">

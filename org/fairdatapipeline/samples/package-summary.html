@@ -99,7 +99,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <div class="block">Use <a href="Samples.html" title="interface in org.fairdatapipeline.samples"><code>ImmutableSamples</code></a> to read/write Samples (lists of
- Numbers) to/from the FDP</div>
+ Numbers) to/from the FAIR Data Pipeline.
+
+ <p>Immutable Usage Example:
+
+ <pre>
+     var samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
+     object_component.writeSamples(samples);
+ </pre></div>
 </section>
 <ul class="blockList">
 <li class="blockList">
