@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.fairdatapipeline.dataregistry.content.RegistryIssue;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An issue that can be raised with objects or their components.
@@ -49,7 +47,6 @@ import org.slf4j.LoggerFactory;
  * </blockquote>
  */
 public class Issue {
-  private static final Logger logger = LoggerFactory.getLogger(Issue.class);
   RegistryIssue registryIssue;
   String description;
   Integer severity;

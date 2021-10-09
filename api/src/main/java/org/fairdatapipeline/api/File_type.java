@@ -4,12 +4,9 @@ import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.RegistryFile_type;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Encapsulates the registryFile_type object */
 class File_type {
-  private static final Logger logger = LoggerFactory.getLogger(File_type.class);
   RegistryFile_type registryFile_type;
 
   /**
@@ -28,9 +25,7 @@ class File_type {
       this.registryFile_type =
           (RegistryFile_type) restClient.post(new RegistryFile_type(extension, extension));
       if (this.registryFile_type == null) {
-        String msg = "Failed to create File_type in Registry: " + extension;
-        logger.error(msg);
-        throw (new RegistryException(msg));
+        throw (new RegistryException("Failed to create File_type in Registry: " + extension));
       }
     }
   }

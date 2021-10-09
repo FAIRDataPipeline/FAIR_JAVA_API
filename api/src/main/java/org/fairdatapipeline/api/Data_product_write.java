@@ -39,15 +39,13 @@ public class Data_product_write extends Data_product {
   void populate_data_product() {
     // called from the constructor
     if (this.getRegistryData_product() != null) {
-      String msg =
+      throw (new IllegalActionException(
           "You can't write to a Data Product that already exists: "
               + this.actualDataProduct_name
               + ", version "
               + this.version
               + ", namespace: "
-              + this.namespace_name;
-      logger.error(msg);
-      throw (new IllegalActionException(msg));
+              + this.namespace_name));
     }
     File_type file_type = new File_type(this.extension, coderun.restClient);
 
@@ -82,9 +80,8 @@ public class Data_product_write extends Data_product {
     if (ns == null) {
       ns = (RegistryNamespace) coderun.restClient.post(new RegistryNamespace(namespace_name));
       if (ns == null) {
-        String msg = "Failed to create in registry: namespace '" + namespace_name + "'";
-        logger.error(msg);
-        throw (new RegistryException(msg));
+        throw (new RegistryException(
+            "Failed to create in registry: namespace '" + namespace_name + "'"));
       }
     }
     return ns;
@@ -108,9 +105,7 @@ public class Data_product_write extends Data_product {
               .orElse(null);
     }
     if (configItem == null) {
-      String msg = "DataProduct " + dataProduct_name + " not found in config";
-      logger.error(msg);
-      throw (new ConfigException(msg));
+      throw (new ConfigException("DataProduct " + dataProduct_name + " not found in config"));
     }
     return configItem;
   }
@@ -224,11 +219,9 @@ public class Data_product_write extends Data_product {
         RegistryStorage_location sl =
             (RegistryStorage_location) this.coderun.restClient.post(this.registryStorage_location);
         if (sl == null) {
-          String msg =
+          throw (new RegistryException(
               "Failed to create in registry: new storage location "
-                  + this.registryStorage_location.getPath();
-          logger.error(msg);
-          throw (new RegistryException(msg));
+                  + this.registryStorage_location.getPath()));
         } else {
           this.registryStorage_location = sl;
         }
@@ -237,19 +230,16 @@ public class Data_product_write extends Data_product {
     this.registryObject.setStorage_location(this.registryStorage_location.getUrl());
     final RegistryObject o = (RegistryObject) this.coderun.restClient.post(this.registryObject);
     if (o == null) {
-      String msg = "Failed to create in registry: Object " + this.registryObject.getDescription();
-      logger.error(msg);
-      throw (new RegistryException(msg));
+      throw (new RegistryException(
+          "Failed to create in registry: Object " + this.registryObject.getDescription()));
     }
     this.registryObject = o;
     this.registryData_product.setObject(o.getUrl());
     RegistryData_product dp =
         (RegistryData_product) this.coderun.restClient.post(this.registryData_product);
     if (dp == null) {
-      String msg =
-          "Failed to create in registry: Data_product " + this.registryData_product.getName();
-      logger.error(msg);
-      throw (new RegistryException(msg));
+      throw (new RegistryException(
+          "Failed to create in registry: Data_product " + this.registryData_product.getName()));
     }
     this.registryData_product = dp;
   }

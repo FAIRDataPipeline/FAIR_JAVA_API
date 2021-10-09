@@ -97,9 +97,7 @@ class Storage_location {
       this.registryStorage_location =
           (RegistryStorage_location) coderun.restClient.post(this.registryStorage_location);
       if (this.registryStorage_location == null) {
-        String msg = "Failed to create in registry: StorageLocation for " + path;
-        logger.error(msg);
-        throw (new RegistryException(msg));
+        throw (new RegistryException("Failed to create in registry: StorageLocation for " + path));
       }
     }
   }

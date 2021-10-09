@@ -6,8 +6,6 @@ import java.util.List;
 import org.fairdatapipeline.distribution.Distribution;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.parameters.ReadComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This represents an object_component to read from (or raise issues with) An object_component
@@ -16,7 +14,6 @@ import org.slf4j.LoggerFactory;
  * is not enforced at the moment.
  */
 public class Object_component_read extends Object_component {
-  private static final Logger logger = LoggerFactory.getLogger(Object_component_read.class);
 
   Object_component_read(Data_product_read dp, String component_name) {
     super(dp, component_name);
@@ -29,14 +26,12 @@ public class Object_component_read extends Object_component {
   protected void populate_component() {
     this.registryObject_component = this.retrieveObject_component();
     if (this.registryObject_component == null) {
-      String msg =
+      throw (new RegistryObjectNotfoundException(
           "Object Component '"
               + this.component_name
               + "' for Object "
               + this.dp.registryObject.get_id().toString()
-              + " not found in registry.";
-      logger.error(msg);
-      throw (new RegistryObjectNotfoundException(msg));
+              + " not found in registry."));
     }
   }
 
@@ -47,9 +42,8 @@ public class Object_component_read extends Object_component {
    */
   public Path readLink() {
     if (!this.whole_object) {
-      String msg = "You shouldn't try to read directly from a Data Product with named components.";
-      logger.error(msg);
-      throw (new IllegalActionException(msg));
+      throw (new IllegalActionException(
+          "You shouldn't try to read directly from a Data Product with named components."));
     }
     this.been_used = true;
     return this.dp.getFilePath();
@@ -63,9 +57,8 @@ public class Object_component_read extends Object_component {
    */
   public CleanableFileChannel readFileChannel() throws IOException {
     if (!this.whole_object) {
-      String msg = "You shouldn't try to read directly from a Data Product with named components.";
-      logger.error(msg);
-      throw (new IllegalActionException(msg));
+      throw (new IllegalActionException(
+          "You shouldn't try to read directly from a Data Product with named components."));
     }
     this.been_used = true;
     return this.getFileChannel();
@@ -82,9 +75,7 @@ public class Object_component_read extends Object_component {
       data =
           dp.coderun.parameterDataReader.read(fileChannel, this.registryObject_component.getName());
     } catch (IOException e) {
-      String msg = "readEstimate() -- IOException trying to read from file";
-      logger.error(msg + "\n" + e);
-      throw (new RuntimeException(msg, e));
+      throw (new RuntimeException("readEstimate() -- IOException trying to read from file", e));
     }
     return data.getEstimate();
   }
@@ -99,9 +90,8 @@ public class Object_component_read extends Object_component {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       data = this.dp.coderun.parameterDataReader.read(fileChannel, this.component_name);
     } catch (IOException e) {
-      String msg = "readDistribution() -- IOException trying to read from file.";
-      logger.error(msg + "\n" + e);
-      throw (new RuntimeException(msg, e));
+      throw (new RuntimeException(
+          "readDistribution() -- IOException trying to read from file.", e));
     }
     return data.getDistribution();
   }
@@ -116,9 +106,7 @@ public class Object_component_read extends Object_component {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       data = this.dp.coderun.parameterDataReader.read(fileChannel, this.component_name);
     } catch (IOException e) {
-      String msg = "readSamples() -- IOException trying to read from file.";
-      logger.error(msg + "\n" + e);
-      throw (new RuntimeException(msg, e));
+      throw (new RuntimeException("readSamples() -- IOException trying to read from file.", e));
     }
     return data.getSamples();
   }

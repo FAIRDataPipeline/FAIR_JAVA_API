@@ -7,12 +7,9 @@ import java.util.Collections;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Retrieve or create the RegistryStorage_root with a given 'root'. */
 class Storage_root {
-  private static final Logger logger = LoggerFactory.getLogger(Storage_root.class);
   RegistryStorage_root registryStorage_root;
 
   /**
@@ -31,9 +28,8 @@ class Storage_root {
       this.registryStorage_root =
           (RegistryStorage_root) restClient.post(new RegistryStorage_root(storageRootURI));
       if (this.registryStorage_root == null) {
-        String msg = "Failed to create in registry:  Storage_root " + storageRootURI;
-        logger.error(msg);
-        throw (new RegistryException(msg));
+        throw (new RegistryException(
+            "Failed to create in registry:  Storage_root " + storageRootURI));
       }
     }
   }

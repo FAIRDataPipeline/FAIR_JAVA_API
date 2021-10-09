@@ -3,15 +3,12 @@ package org.fairdatapipeline.api;
 import java.util.List;
 import org.fairdatapipeline.dataregistry.content.RegistryObject;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A new registryObject with given storage_location, description, authors, file_type. Used for
  * Submission Script, Code Repo, Config File, which can have issues raised on.
  */
 public class FileObject {
-  private static final Logger logger = LoggerFactory.getLogger(FileObject.class);
   Coderun coderun;
   RegistryObject o;
 
@@ -40,9 +37,8 @@ public class FileObject {
     this.o.setAuthors(authors);
     this.o = (RegistryObject) coderun.restClient.post(this.o);
     if (this.o == null) {
-      String msg = "Failed to create Object in registry: " + storage_location.getUrl();
-      logger.error(msg);
-      throw (new RegistryException(msg));
+      throw (new RegistryException(
+          "Failed to create Object in registry: " + storage_location.getUrl()));
     }
   }
 
@@ -71,9 +67,7 @@ public class FileObject {
    */
   public void raise_issue(String description, Integer severity) {
     if (o.getComponents().isEmpty()) {
-      String msg = "Object component not found.";
-      logger.error(msg);
-      throw (new IllegalActionException(msg));
+      throw (new IllegalActionException("Object component not found."));
     }
     Issue i = this.coderun.raise_issue(description, severity);
     i.add_registryObject_component(getWholeObjectComponentUrl());

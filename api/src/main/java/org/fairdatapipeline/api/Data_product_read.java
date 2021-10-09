@@ -13,8 +13,6 @@ import org.fairdatapipeline.dataregistry.content.RegistryObject;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_location;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 import org.fairdatapipeline.file.CleanableFileChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Data_product_read is created by Coderun: {@link Coderun#get_dp_for_read(String)}
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
  * <p>Upon {@link Coderun#close()} it will register its components in the coderun.
  */
 public class Data_product_read extends Data_product {
-  private static final Logger logger = LoggerFactory.getLogger(Data_product_read.class);
   private boolean hash_checked = false;
 
   Data_product_read(String dataProduct_name, Coderun coderun) {
@@ -33,56 +30,48 @@ public class Data_product_read extends Data_product {
     // called from the constructor
     this.registryData_product = this.getRegistryData_product();
     if (this.registryData_product == null) {
-      String msg =
+      throw (new RegistryObjectNotfoundException(
           "Trying to read from non-existing data_product "
               + this.actualDataProduct_name
               + "; NS "
               + this.registryNamespace.getName()
               + "; version "
-              + version;
-      logger.error(msg);
-      throw (new RegistryObjectNotfoundException(msg));
+              + version));
     }
     this.registryObject =
         (RegistryObject)
             coderun.restClient.get(RegistryObject.class, this.registryData_product.getObject());
     if (this.registryObject == null) {
-      String msg =
+      throw (new RegistryObjectNotfoundException(
           "couldn't retrieve the fdpObject for this READ dp "
               + this.givenDataProduct_name
               + " ("
               + this.actualDataProduct_name
-              + ")";
-      logger.error(msg);
-      throw (new RegistryObjectNotfoundException(msg));
+              + ")"));
     }
     this.registryStorage_location =
         (RegistryStorage_location)
             coderun.restClient.get(
                 RegistryStorage_location.class, this.registryObject.getStorage_location());
     if (this.registryStorage_location == null) {
-      String msg =
+      throw (new RegistryObjectNotfoundException(
           "Couldn't retrieve the StorageLocation for this READ dp "
               + this.givenDataProduct_name
               + " ("
               + this.actualDataProduct_name
-              + ")";
-      logger.error(msg);
-      throw (new RegistryObjectNotfoundException(msg));
+              + ")"));
     }
     this.registryStorage_root =
         (RegistryStorage_root)
             coderun.restClient.get(
                 RegistryStorage_root.class, this.registryStorage_location.getStorage_root());
     if (this.registryStorage_root == null) {
-      String msg =
+      throw (new RegistryObjectNotfoundException(
           "Couldn't retrieve the StorageRoot for this READ dp "
               + this.givenDataProduct_name
               + " ("
               + this.actualDataProduct_name
-              + ")";
-      logger.error(msg);
-      throw (new RegistryObjectNotfoundException(msg));
+              + ")"));
     }
     this.filePath =
         this.registryStorage_root
@@ -102,9 +91,7 @@ public class Data_product_read extends Data_product {
     // for a READ dp we must have the namespace from the config or we will have to give up
     RegistryNamespace ns = super.getRegistryNamespace(namespace_name);
     if (ns == null) {
-      String msg = "Can't find the namespace " + namespace_name;
-      logger.error(msg);
-      throw (new RegistryObjectNotfoundException(msg));
+      throw (new RegistryObjectNotfoundException("Can't find the namespace " + namespace_name));
     }
     return ns;
   }
@@ -112,9 +99,7 @@ public class Data_product_read extends Data_product {
   ImmutableConfigItem getConfigItem(String dataProduct_name) {
     ImmutableConfigItem configItem = super.getConfigItem(dataProduct_name);
     if (configItem == null) {
-      String msg = "dataProduct " + dataProduct_name + " not found in config";
-      logger.error(msg);
-      throw (new ConfigException(msg));
+      throw (new ConfigException("dataProduct " + dataProduct_name + " not found in config"));
     }
     return configItem;
   }
