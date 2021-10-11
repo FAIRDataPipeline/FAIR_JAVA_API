@@ -8,24 +8,29 @@
 ## Java implementation of the FAIR Data Pipeline API
 
 
-Documentation can be found on https://fairdatapipeline.github.io/
+Documentation can be found on https://fairdatapipeline.org/docs/API/Java/
 
+JavaDocs are automatically published on https://fairdatapipeline.org/javaDataPipeline/
 
-The main class for the FAIR Data Pipeline JAVA API is `Coderun`
+To use a release version (latest: 1.0.0-beta) include the following dependency (available from mavenCentral):
 
-Users should initialise this library using a try-with-resources block or ensure that .close() is explicitly closed when the required file handles have been accessed.
-
-## Usage example
-
-```
-try (var coderun = new Coderun(configPath, scriptPath)) {
-       ImmutableSamples samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
-       String dataProduct = "animal/dodo";
-       String component1 = "example-samples-dodo1";
-       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
-       Object_component_write oc1 = dp.getComponent(component1);
-       oc1.raise_issue("something is terribly wrong with this component", 10);
-       oc1.writeSamples(samples);
-     }
+```gradle
+group: 'org.fairdatapipeline',
+name: 'api',
+version: '1.0.0-beta'
 ```
 
+## javaSimpleModel
+
+Please have a look at https://github.com/FAIRDataPipeline/javaSimpleModel
+for a simple example on how to use the javaDataPipeline, including an example of the <a href="https://www.fairdatapipeline.org/docs/interface/config/">user written config.yaml</a>, 
+and how to integrate it with the <a href="https://www.fairdatapipeline.org/docs/interface/fdp/">FAIR CLI</a> command line interface.
+
+## What does it implement?
+
+* It reads the *config.yaml* that is re-written by <a href="https://www.fairdatapipeline.org/docs/interface/fdp/">FAIR CLI</a> (not to be confused with the <a href="https://www.fairdatapipeline.org/docs/interface/config/">user written config.yaml</a>)
+* It registers a model Coderun session in the <a href="https://www.fairdatapipeline.org/docs/data_registry/">FAIR Data Registry</a>, including all the data inputs and/or outputs, from the model, and its code repository, its config.yaml, and its submission (startup) script.
+* It allows the Coderun session to raise Issues with Object_components, codeRepo, config file, and submission script, and these Issues are registered in the Data Registry.
+* It allows reading and writing of Data_products whose Object contains either 1 whole_object unnamed Object_component (for reading and writing 'external' whole-file file formats). 
+* It allows reading and writing of Data_products containing a FAIR Data Pipeline (TOML) Parameter File. 
+* It does not yet support HDF5 files.

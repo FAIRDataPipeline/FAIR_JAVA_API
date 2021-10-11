@@ -6,7 +6,7 @@ import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.core.HttpHeaders;
 
-/** */
+/** OAuth2 filter using 'Token' instead of 'Bearer' in the auth header. */
 @Priority(Priorities.AUTHENTICATION)
 class OAuth2ClientTokenFilter implements ClientRequestFilter {
 

@@ -15,11 +15,11 @@ In order to use this checklist for the SCRC FAIR data pipeline components, three
 
 ### Date
 
-> 04/10/2021
+> 10/10/2021
 
 ### Version identifier
 
-> 0.0.3
+> 1.0.0-beta
 
 ## This assessment
 
@@ -108,7 +108,7 @@ Additionally, for each question please explain the situation and include any rel
 > - [ ] Some work remaining or caveats
 > - [ ] Needs to be addressed
 > 
-> JAVA compiler warnings have been addressed.
+> JAVA compiler warnings have been addressed. Spotless has been used to keep the code in tidy google java format.
 
 ### Is the code clean, generally understandable and readable and written according to good software engineering principles?
 
@@ -117,10 +117,10 @@ Additionally, for each question please explain the situation and include any rel
 - Avoiding red flags such as very long functions, global variables, copy and pasted code, etc.?
 
 > - [ ] Sufficiently addressed
-> - [ ] Some work remaining or caveats
+> - [x] Some work remaining or caveats
 > - [ ] Needs to be addressed
 > 
-> This should be judged by someone else.
+> There are things that can be improved to make the code more easy to understand for developers or for users. 
 
 ### Is there sufficient documentation?
 
@@ -134,7 +134,8 @@ Additionally, for each question please explain the situation and include any rel
 > - [x] Some work remaining or caveats
 > - [ ] Needs to be addressed
 > 
-> I'm still working on the documentation. There is a readme which I will improve.
+> There is a readme, there are javaDocs, there is user documentation, there is an example 'javaSimpleModel' to show how to use the
+> library. All of this can still be improved, as can the developer documentation.
 
 ### Is there suitable collaboration infrastructure?
 
@@ -165,14 +166,14 @@ Additionally, for each question please explain the situation and include any rel
 > - [ ] Sufficiently addressed
 > - [ ] Some work remaining or caveats
 > - [ ] Needs to be addressed
-> - [ ] N/A
+> - [x] N/A
 > 
 > Response here
 
 
 ## Contributors and licence
 
-Contributors:
+Contributors: [to the software checklist template]
 * Alys Brett
 * James Cook
 * Peter Fox
