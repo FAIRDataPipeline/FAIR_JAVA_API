@@ -28,7 +28,6 @@ public class restClientTest {
     }
   }
 
-  @Disabled("enable this once registry has version checking")
   @Test
   public void wrongVersion() {
     class RestClient_wv extends RestClient {
