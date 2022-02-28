@@ -28,7 +28,7 @@ jobs:
         ~/.fair/registry/scripts/start_fair_registry
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle DEBUG
+    - name: Build with Gradle
       run: |
         export REGTOKEN=`cat ~/.fair/registry/token`
         export LOCALREG=FRESHASADAISY
