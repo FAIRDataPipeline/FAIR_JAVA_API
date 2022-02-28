@@ -5,9 +5,9 @@ name: Build & test w local reg.
 
 on:
   push:
-    branches: [ debugworkflow ]
+    branches: [ master ]
   pull_request:
-    branches: [ debugworkflow ]
+    branches: [ master ]
 
 jobs:
   build:
