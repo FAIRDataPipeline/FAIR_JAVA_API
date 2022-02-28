@@ -5,9 +5,9 @@ name: Build & test w local reg.
 
 on:
   push:
-    branches: [ master ]
+    branches: [ debugworkflow ]
   pull_request:
-    branches: [ master ]
+    branches: [ debugworkflow ]
 
 jobs:
   build:
@@ -33,6 +33,10 @@ jobs:
         export REGTOKEN=`cat ~/.fair/registry/token`
         export LOCALREG=FRESHASADAISY
         ./gradlew build
+        echo "test/index.html"
+        cat /home/runner/work/javaDataPipeline/javaDataPipeline/dataregistry/build/reports/tests/test/index.html
+        echo "populatelocal:"
+        cat /home/runner/work/javaDataPipeline/javaDataPipeline/dataregistry/build/reports/tests/test/classes/org.fairdatapipeline.dataregistry.restclient.populateLocal.html
     - uses: codecov/codecov-action@v2
       with:
         files: ./api/build/reports/jacoco/test/jacocoTestReport.xml,./dataregistry/build/reports/jacoco/test/jacocoTestReport.xml
