@@ -1,7 +1,9 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
-import jakarta.ws.rs.core.MediaType;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 
+import jakarta.ws.rs.core.MediaType;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -11,7 +13,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIf;
@@ -19,9 +20,6 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.samePropertyValuesAs;
 
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -40,7 +38,6 @@ public class restClientTest {
     this.m = Collections.emptyMap();
   }
 
-
   @Order(1)
   @ParameterizedTest
   @MethodSource("objectsToBeCreated")
@@ -51,76 +48,76 @@ public class restClientTest {
     switch (o.getClass().getSimpleName()) {
       case ("RegistryCode_run"):
         assertThat(
-                r,
-                samePropertyValuesAs(
-                        o,
-                        "uuid",
-                        "url",
-                        "updated_by",
-                        "last_updated",
-                        "_id",
-                        "inputs",
-                        "outputs",
-                        "prov_report",
-                        "run_date"));
+            r,
+            samePropertyValuesAs(
+                o,
+                "uuid",
+                "url",
+                "updated_by",
+                "last_updated",
+                "_id",
+                "inputs",
+                "outputs",
+                "prov_report",
+                "run_date"));
         break;
       case ("RegistryIssue"):
         assertThat(
-                r,
-                samePropertyValuesAs(
-                        o, "uuid", "url", "updated_by", "last_updated", "_id", "component_issues"));
+            r,
+            samePropertyValuesAs(
+                o, "uuid", "url", "updated_by", "last_updated", "_id", "component_issues"));
         break;
       case ("RegistryObject"):
         assertThat(
-                r,
-                samePropertyValuesAs(
-                        o,
-                        "uuid",
-                        "url",
-                        "updated_by",
-                        "last_updated",
-                        "_id",
-                        "authors",
-                        "components",
-                        "data_products",
-                        "licenses",
-                        "keywords"));
+            r,
+            samePropertyValuesAs(
+                o,
+                "uuid",
+                "url",
+                "updated_by",
+                "last_updated",
+                "_id",
+                "authors",
+                "components",
+                "data_products",
+                "licenses",
+                "keywords"));
         break;
       case ("RegistryObject_component"):
         assertThat(
-                r,
-                samePropertyValuesAs(
-                        o,
-                        "uuid",
-                        "url",
-                        "updated_by",
-                        "last_updated",
-                        "_id",
-                        "issues",
-                        "inputs_of",
-                        "outputs_of"));
+            r,
+            samePropertyValuesAs(
+                o,
+                "uuid",
+                "url",
+                "updated_by",
+                "last_updated",
+                "_id",
+                "issues",
+                "inputs_of",
+                "outputs_of"));
         break;
       case ("RegistryStorage_root"):
         assertThat(
-                r,
-                samePropertyValuesAs(
-                        o, "uuid", "url", "updated_by", "last_updated", "_id", "locations"));
+            r,
+            samePropertyValuesAs(
+                o, "uuid", "url", "updated_by", "last_updated", "_id", "locations"));
         break;
       case ("RegistryUsers"):
         assertThat(
-                r, samePropertyValuesAs(o, "uuid", "url", "updated_by", "last_updated", "_id", "orgs"));
+            r, samePropertyValuesAs(o, "uuid", "url", "updated_by", "last_updated", "_id", "orgs"));
         break;
       case ("RegistryExternal_object"):
         assertThat(
-                r,
-                samePropertyValuesAs(
-                        o, "uuid", "url", "updated_by", "last_updated", "_id", "release_date", "version"));
+            r,
+            samePropertyValuesAs(
+                o, "uuid", "url", "updated_by", "last_updated", "_id", "release_date", "version"));
         break;
       case ("RegistryData_product"):
         assertThat(
-                r,
-                samePropertyValuesAs(
-                        o, "uuid", "url", "updated_by", "last_updated", "_id", "prov_report"));
+            r,
+            samePropertyValuesAs(
+                o, "uuid", "url", "updated_by", "last_updated", "_id", "prov_report"));
         break;
       default:
         assertThat(r, samePropertyValuesAs(o, "uuid", "url", "updated_by", "last_updated", "_id"));
@@ -131,26 +128,25 @@ public class restClientTest {
   @Order(2)
   @ParameterizedTest
   @ValueSource(
-          classes = {
-                  RegistryAuthor.class,
-                  RegistryCode_repo_release.class,
-                  RegistryCode_run.class,
-                  RegistryData_product.class,
-                  RegistryExternal_object.class,
-                  RegistryFile_type.class,
-                  RegistryObject.class,
-                  RegistryFile_type.class,
-                  RegistryIssue.class,
-                  RegistryKey_value.class,
-                  RegistryKeyword.class,
-                  RegistryNamespace.class,
-                  RegistryObject.class,
-                  RegistryObject_component.class,
-                  RegistryStorage_location.class,
-                  RegistryStorage_root.class,
-                  RegistryUsers.class
-          })
-
+      classes = {
+        RegistryAuthor.class,
+        RegistryCode_repo_release.class,
+        RegistryCode_run.class,
+        RegistryData_product.class,
+        RegistryExternal_object.class,
+        RegistryFile_type.class,
+        RegistryObject.class,
+        RegistryFile_type.class,
+        RegistryIssue.class,
+        RegistryKey_value.class,
+        RegistryKeyword.class,
+        RegistryNamespace.class,
+        RegistryObject.class,
+        RegistryObject_component.class,
+        RegistryStorage_location.class,
+        RegistryStorage_root.class,
+        RegistryUsers.class
+      })
   public void get_object(Class<Registry_RootObject> c) {
     Registry_RootObject n = lc.getFirst(c, m);
     Assertions.assertNotNull(n.getUrl());
@@ -223,7 +219,6 @@ public class restClientTest {
 
     return al.stream();
   }
-
 
   private boolean keyvalueExists() {
     Registry_ObjectList<?> sr = lc.getList(RegistryKey_value.class, new HashMap<>());
