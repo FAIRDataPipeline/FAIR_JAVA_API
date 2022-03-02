@@ -8,9 +8,9 @@
 ## Java implementation of the FAIR Data Pipeline API
 
 
-Documentation can be found on https://fairdatapipeline.org/docs/API/Java/
+Documentation can be found on https://www.fairdatapipeline.org/docs/API/Java/
 
-JavaDocs are automatically published on https://fairdatapipeline.org/javaDataPipeline/
+JavaDocs are automatically published on https://www.fairdatapipeline.org/javaDataPipeline/
 
 To use a release version (latest: 1.0.0-beta) include the following dependency (available from mavenCentral):
 
