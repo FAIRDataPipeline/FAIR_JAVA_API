@@ -93,7 +93,7 @@ public interface Config {
      */
     @JsonProperty
     Optional<String> file_type();
-    
+
     /**
      * This is ignored. But added by CLI
      *
