@@ -93,6 +93,13 @@ public interface Config {
      */
     @JsonProperty
     Optional<String> file_type();
+    
+    /**
+     * Read and Write blocks may also have public, ignore for now.
+     * @return Boolean 'public' - this is ignored.
+     */
+    @JsonProperty("public")
+    Optional<Boolean> isPublic();
   }
 
   /**
