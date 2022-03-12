@@ -95,7 +95,8 @@ public interface Config {
     Optional<String> file_type();
     
     /**
-     * Read and Write blocks may also have public, ignore for now.
+     * This is ignored. But added by CLI
+     *
      * @return Boolean 'public' - this is ignored.
      */
     @JsonProperty("public")
