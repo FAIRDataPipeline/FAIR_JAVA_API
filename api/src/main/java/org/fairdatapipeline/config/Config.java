@@ -93,6 +93,14 @@ public interface Config {
      */
     @JsonProperty
     Optional<String> file_type();
+
+    /**
+     * This is ignored. But added by CLI
+     *
+     * @return Boolean 'public' - this is ignored.
+     */
+    @JsonProperty("public")
+    Optional<Boolean> isPublic();
   }
 
   /**
@@ -242,5 +250,21 @@ public interface Config {
      */
     @JsonProperty("public")
     Optional<Boolean> isPublic();
+
+    /**
+     * Default write version - Not Used
+     *
+     * @return The default write version - not used.
+     */
+    @JsonProperty
+    Optional<String> default_read_version();
+
+    /**
+     * Default read version - Not Used
+     *
+     * @return The default write version - not used.
+     */
+    @JsonProperty
+    Optional<String> default_write_version();
   }
 }
