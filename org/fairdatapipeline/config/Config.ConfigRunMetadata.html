@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -165,61 +165,75 @@ public static interface <span class="typeNameLabel">Config.ConfigRunMetadata</sp
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#default_read_version()">default_read_version</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Default write version - Not Used</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#default_write_version()">default_write_version</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Default read version - Not Used</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#description()">description</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Set the description field for this code run.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.Boolean&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPublic()">isPublic</a></span>()</code></th>
 <td class="colLast">
 <div class="block">This is ignored.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#latest_commit()">latest_commit</a></span>()</code></th>
 <td class="colLast">
 <div class="block">The commit hash of the remote_repo, in order to store the exact version of the analysis code.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#local_data_registry_url()">local_data_registry_url</a></span>()</code></th>
 <td class="colLast">
 <div class="block">this is usually http://localhost:8000/api/ (optional, but it probably shouldn't be)</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#local_repo()">local_repo</a></span>()</code></th>
 <td class="colLast">
 <div class="block">This is ignored.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remote_data_registry_url()">remote_data_registry_url</a></span>()</code></th>
 <td class="colLast">
 <div class="block">I don't know why we would specify this.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remote_repo()">remote_repo</a></span>()</code></th>
 <td class="colLast">
 <div class="block">This is the location of the repository of the analysis code.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#script()">script</a></span>()</code></th>
 <td class="colLast">
 <div class="block">This is ignored.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#script_path()">script_path</a></span>()</code></th>
 <td class="colLast">
@@ -227,14 +241,14 @@ public static interface <span class="typeNameLabel">Config.ConfigRunMetadata</sp
  <a href="../api/Coderun.html#%3Cinit%3E(java.nio.file.Path,java.nio.file.Path)"><code>Coderun(Path, Path)</code></a> FileApi constructor.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#token()">token</a></span>()</code></th>
 <td class="colLast">
 <div class="block">The authentication token for the registry.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>java.util.Optional&lt;java.lang.String&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#write_data_store()">write_data_store</a></span>()</code></th>
 <td class="colLast">
@@ -433,7 +447,7 @@ public static interface <span class="typeNameLabel">Config.ConfigRunMetadata</sp
 <a id="isPublic()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>isPublic</h4>
 <pre class="methodSignature">java.util.Optional&lt;java.lang.Boolean&gt;&nbsp;isPublic()</pre>
@@ -441,6 +455,34 @@ public static interface <span class="typeNameLabel">Config.ConfigRunMetadata</sp
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Boolean 'public' - this is ignored.</dd>
+</dl>
+</li>
+</ul>
+<a id="default_read_version()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>default_read_version</h4>
+<pre class="methodSignature">java.util.Optional&lt;java.lang.String&gt;&nbsp;default_read_version()</pre>
+<div class="block">Default write version - Not Used</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The default write version - not used.</dd>
+</dl>
+</li>
+</ul>
+<a id="default_write_version()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>default_write_version</h4>
+<pre class="methodSignature">java.util.Optional&lt;java.lang.String&gt;&nbsp;default_write_version()</pre>
+<div class="block">Default read version - Not Used</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The default write version - not used.</dd>
 </dl>
 </li>
 </ul>
