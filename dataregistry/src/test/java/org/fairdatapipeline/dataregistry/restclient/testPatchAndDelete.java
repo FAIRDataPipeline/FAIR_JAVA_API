@@ -194,7 +194,7 @@ class testPatchAndDelete {
       try {
         sr.setRoot(new URI("http://bikehub.com"));
       } catch (URISyntaxException e) {
-
+        Assertions.fail("URISyntaxException in test code");
       }
       sr.setLocal(true);
       sr = (RegistryStorage_root) lc.post(sr);

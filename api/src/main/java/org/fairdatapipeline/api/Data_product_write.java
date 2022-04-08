@@ -1,7 +1,6 @@
 package org.fairdatapipeline.api;
 
 import static java.nio.file.StandardOpenOption.*;
-import static java.nio.file.StandardOpenOption.APPEND;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;

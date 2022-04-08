@@ -83,7 +83,7 @@ public class Coderun implements AutoCloseable {
   private final Map<String, Data_product>
       dp_info_map; // TODO: if we can have one and the same DP open for read & write we need 2 maps
   RegistryCode_run registryCode_run;
-  Hasher hasher = new Hasher();
+  final Hasher hasher = new Hasher();
   Storage_location script_storage_location;
   Storage_location config_storage_location;
   private final Storage_root write_data_store_root;

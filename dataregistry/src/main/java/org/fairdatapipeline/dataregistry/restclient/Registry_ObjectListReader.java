@@ -41,7 +41,7 @@ class Registry_ObjectListReader
       Type MyTypeParameter = ((ParameterizedType) genericType).getActualTypeArguments()[0];
       JavaType ptype =
           om.getTypeFactory()
-              .constructParametricType(Registry_ObjectList.class, (Class) MyTypeParameter);
+              .constructParametricType(Registry_ObjectList.class, (Class<?>) MyTypeParameter);
       return om.readValue(entityStream, ptype);
     } catch (Exception e) {
       throw new ProcessingException("Error deserializing Registry_ObjectList", e);

@@ -12,6 +12,7 @@ import java.nio.channels.NonReadableChannelException;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.*;
 
@@ -25,7 +26,9 @@ class CleanableFileChannelIntegrationTest {
   @BeforeAll
   public void setUp() throws Exception {
     String parentPath =
-        Paths.get(getClass().getResource("/config.yaml").toURI()).getParent().toString();
+        Paths.get(Objects.requireNonNull(getClass().getResource("/config.yaml")).toURI())
+            .getParent()
+            .toString();
     this.fileChannelReadable =
         FileChannel.open(Path.of(parentPath, "folder/data/parameter/example1.toml"), READ);
     this.fileChannelWritable =
@@ -34,7 +37,7 @@ class CleanableFileChannelIntegrationTest {
   }
 
   @Test
-  void testRunnableExecutesOnClose() throws IOException {
+  void testRunnableExecutesOnClose() {
     var cleanableFileChannel =
         new CleanableFileChannel(fileChannelReadable, () -> runnableExecuted.set(true));
     cleanableFileChannel.close();

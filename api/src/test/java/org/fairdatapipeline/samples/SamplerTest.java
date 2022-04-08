@@ -13,7 +13,7 @@ class SamplerTest {
   private Random random;
 
   @BeforeAll
-  public void setUp() throws Exception {
+  public void setUp() {
     this.random = mock(Random.class);
   }
 

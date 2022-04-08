@@ -45,7 +45,7 @@ class ComponentsSerializerTest {
   private RandomGenerator rng;
 
   @BeforeAll
-  public void setUp() throws Exception {
+  public void setUp() {
     this.rng = mock(RandomGenerator.class);
     when(rng.nextDouble()).thenReturn(0D);
     objectMapper = new DataPipelineMapper(rng);

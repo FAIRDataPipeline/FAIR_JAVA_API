@@ -9,7 +9,7 @@ import org.fairdatapipeline.dataregistry.restclient.APIURL;
  * Submission Script, Code Repo, Config File, which can have issues raised on.
  */
 public class FileObject {
-  Coderun coderun;
+  final Coderun coderun;
   RegistryObject o;
 
   /**

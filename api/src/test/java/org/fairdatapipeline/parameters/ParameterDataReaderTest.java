@@ -20,7 +20,7 @@ class ParameterDataReaderTest {
   private Estimate mockEstimate;
 
   @BeforeAll
-  public void setUp() throws Exception {
+  public void setUp() {
     this.fileChannel = mock(CleanableFileChannel.class);
     this.tomlReader = mock(TomlReader.class);
     this.mockEstimate = mock(Estimate.class);

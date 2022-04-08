@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.fairdatapipeline.distribution.Distribution.DistributionType;
@@ -38,14 +37,14 @@ class TomlWriterPairwiseIntegrationTest {
   private RandomGenerator rng;
 
   @BeforeAll
-  public void setUp() throws Exception {
+  public void setUp() {
     rng = mock(RandomGenerator.class);
     when(rng.nextDouble()).thenReturn(0D);
     tomlMapper = new TOMLMapper(rng);
   }
 
   @Test
-  void write() throws IOException, JSONException {
+  void write() throws JSONException {
     var estimate = ImmutableEstimate.builder().internalValue(1.0).rng(rng).build();
     var distribution =
         ImmutableDistribution.builder()

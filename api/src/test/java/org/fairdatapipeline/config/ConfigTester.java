@@ -2,6 +2,7 @@ package org.fairdatapipeline.config;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.Objects;
 import org.fairdatapipeline.yaml.YamlFactory;
 import org.fairdatapipeline.yaml.YamlReader;
 import org.junit.jupiter.api.*;
@@ -20,7 +21,7 @@ class ConfigTester {
   @ParameterizedTest
   @ValueSource(strings = {"/config.yaml", "/config1.yaml", "/config2.yaml", "/config-stdapi.yaml"})
   void testConfig(String resourceName) throws URISyntaxException {
-    Path cfilepath = Path.of(getClass().getResource(resourceName).toURI());
+    Path cfilepath = Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI());
     Assertions.assertDoesNotThrow(
         () -> {
           new ConfigFactory().config(yamlReader, cfilepath);

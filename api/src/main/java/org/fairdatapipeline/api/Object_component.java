@@ -11,9 +11,9 @@ import org.fairdatapipeline.file.CleanableFileChannel;
  * object_component without a name is the 'whole_object' component.
  */
 public abstract class Object_component {
-  String component_name;
-  boolean whole_object;
-  Data_product dp;
+  final String component_name;
+  final boolean whole_object;
+  final Data_product dp;
   RegistryObject_component registryObject_component;
   boolean been_used = false;
 

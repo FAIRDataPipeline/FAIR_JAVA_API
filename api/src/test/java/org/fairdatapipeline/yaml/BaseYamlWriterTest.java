@@ -11,7 +11,7 @@ class BaseYamlWriterTest {
   private Writer underlyingWriter;
 
   @BeforeAll
-  public void setUp() throws Exception {
+  public void setUp() {
     underlyingWriter = new StringWriter();
   }
 

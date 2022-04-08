@@ -39,7 +39,7 @@ public interface Distribution extends Component {
     exponential(),
     uniform(),
     empirical(),
-    categorical();
+    categorical()
   }
 
   @JsonProperty("distribution")

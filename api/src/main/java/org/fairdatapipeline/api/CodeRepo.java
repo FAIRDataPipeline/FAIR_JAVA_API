@@ -10,8 +10,8 @@ import org.fairdatapipeline.dataregistry.restclient.APIURL;
  * description. (if an object pointing to the Storage_location does not exists yet)
  */
 class CodeRepo {
-  Storage_location storage_location;
-  FileObject fileObject;
+  final Storage_location storage_location;
+  final FileObject fileObject;
 
   CodeRepo(
       String latest_commit,

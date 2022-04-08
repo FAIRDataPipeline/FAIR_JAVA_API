@@ -20,7 +20,7 @@ class ConfigReader {
   public ImmutableConfig read() {
     try {
       return yamlReader.read(
-          Files.newBufferedReader(absoluteLocationPath), new TypeReference<ImmutableConfig>() {});
+          Files.newBufferedReader(absoluteLocationPath), new TypeReference<>() {});
     } catch (IOException e) {
       throw new UncheckedIOException(new IOException(e));
     }

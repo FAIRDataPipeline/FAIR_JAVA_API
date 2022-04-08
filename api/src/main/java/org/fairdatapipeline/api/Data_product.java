@@ -21,12 +21,12 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class Data_product implements AutoCloseable {
   private static final Logger logger = LoggerFactory.getLogger(Data_product.class);
-  Coderun coderun;
-  RegistryNamespace registryNamespace;
+  final Coderun coderun;
+  final RegistryNamespace registryNamespace;
   String namespace_name;
   String extension;
-  String version;
-  String description;
+  final String version;
+  final String description;
   RegistryData_product registryData_product;
   RegistryObject registryObject;
   RegistryStorage_location registryStorage_location;
@@ -35,15 +35,15 @@ public abstract class Data_product implements AutoCloseable {
   CleanableFileChannel filechannel;
   Object_component whole_obj_oc;
   /** the name given by the user (asked for in the FileApi.get_dp_for_xxx() call) */
-  String givenDataProduct_name;
+  final String givenDataProduct_name;
   /**
    * usually the same as the given name, unless the config use section has given an alternative data
    * product name to open.
    */
   String actualDataProduct_name;
 
-  Map<String, Object_component> componentMap = new HashMap<>();
-  List<ImmutableConfigItem> configItems;
+  final Map<String, Object_component> componentMap = new HashMap<>();
+  final List<ImmutableConfigItem> configItems;
   boolean been_used = false;
 
   Data_product(String dataProduct_name, Coderun coderun) {

@@ -251,75 +251,75 @@ class CoderunIntegrationTest {
   void check_last_coderun(
       List<Triplet<String, String, String>> inputs, List<Triplet<String, String, String>> outputs) {
     // quite a random set of checks to see if a coderun did what I expect it to do.
+    List<String> coderuns;
     try {
-      List<String> coderuns = Files.readAllLines(coderuns_txt);
-      String last_coderun = coderuns.get(coderuns.size() - 1);
-      RegistryCode_run cr =
-          (RegistryCode_run)
-              restClient.getFirst(
-                  RegistryCode_run.class, Collections.singletonMap("uuid", last_coderun));
-      RegistryObject script =
-          (RegistryObject) restClient.get(RegistryObject.class, cr.getSubmission_script());
-      assertNotNull(script);
-      RegistryObject config =
-          (RegistryObject) restClient.get(RegistryObject.class, cr.getModel_config());
-      assertNotNull(config);
-      RegistryObject code_repo =
-          (RegistryObject) restClient.get(RegistryObject.class, cr.getCode_repo());
-      assertNotNull(code_repo);
-      assertThat(code_repo.getAuthors())
-          .containsExactly(restClient.makeAPIURL(RegistryAuthor.class, 1));
-
-      assertThat(cr.getDescription()).isEqualTo("Coderun Integration test");
-      if (inputs == null) assertThat(cr.getInputs()).isEmpty();
-      else {
-        assertThat(cr.getInputs()).hasSameSizeAs(inputs);
-        cr.getInputs().stream()
-            .map(
-                input ->
-                    (RegistryObject_component)
-                        restClient.get(RegistryObject_component.class, input))
-            .forEach(
-                oc -> {
-                  RegistryObject o =
-                      (RegistryObject) restClient.get(RegistryObject.class, oc.getObject());
-                  RegistryStorage_location sl =
-                      (RegistryStorage_location)
-                          restClient.get(RegistryStorage_location.class, o.getStorage_location());
-                  RegistryData_product dp =
-                      (RegistryData_product)
-                          restClient.get(RegistryData_product.class, o.getData_products().get(0));
-                  String ocName = "";
-                  if (!oc.isWhole_object()) ocName = oc.getName();
-                  assertThat(inputs).contains(new Triplet<>(dp.getName(), ocName, sl.getHash()));
-                });
-      }
-
-      if (outputs == null) assertThat(cr.getOutputs()).isEmpty();
-      else {
-        assertThat(cr.getOutputs()).hasSameSizeAs(outputs);
-        cr.getOutputs()
-            .forEach(
-                output -> {
-                  RegistryObject_component oc =
-                      (RegistryObject_component)
-                          restClient.get(RegistryObject_component.class, output);
-                  RegistryObject o =
-                      (RegistryObject) restClient.get(RegistryObject.class, oc.getObject());
-                  RegistryStorage_location sl =
-                      (RegistryStorage_location)
-                          restClient.get(RegistryStorage_location.class, o.getStorage_location());
-                  RegistryData_product dp =
-                      (RegistryData_product)
-                          restClient.get(RegistryData_product.class, o.getData_products().get(0));
-                  String ocname = "";
-                  if (!oc.isWhole_object()) ocname = oc.getName();
-                  assertThat(outputs).contains(new Triplet<>(dp.getName(), ocname, sl.getHash()));
-                });
-      }
-
+      coderuns = Files.readAllLines(coderuns_txt);
     } catch (IOException e) {
+      Assertions.fail("Failed to read coderuns_txt: {} ", e);
+      return;
+    }
+    String last_coderun = coderuns.get(coderuns.size() - 1);
+    RegistryCode_run cr =
+        (RegistryCode_run)
+            restClient.getFirst(
+                RegistryCode_run.class, Collections.singletonMap("uuid", last_coderun));
+    RegistryObject script =
+        (RegistryObject) restClient.get(RegistryObject.class, cr.getSubmission_script());
+    assertNotNull(script);
+    RegistryObject config =
+        (RegistryObject) restClient.get(RegistryObject.class, cr.getModel_config());
+    assertNotNull(config);
+    RegistryObject code_repo =
+        (RegistryObject) restClient.get(RegistryObject.class, cr.getCode_repo());
+    assertNotNull(code_repo);
+    assertThat(code_repo.getAuthors())
+        .containsExactly(restClient.makeAPIURL(RegistryAuthor.class, 1));
 
+    assertThat(cr.getDescription()).isEqualTo("Coderun Integration test");
+    if (inputs == null) assertThat(cr.getInputs()).isEmpty();
+    else {
+      assertThat(cr.getInputs()).hasSameSizeAs(inputs);
+      cr.getInputs().stream()
+          .map(
+              input ->
+                  (RegistryObject_component) restClient.get(RegistryObject_component.class, input))
+          .forEach(
+              oc -> {
+                RegistryObject o =
+                    (RegistryObject) restClient.get(RegistryObject.class, oc.getObject());
+                RegistryStorage_location sl =
+                    (RegistryStorage_location)
+                        restClient.get(RegistryStorage_location.class, o.getStorage_location());
+                RegistryData_product dp =
+                    (RegistryData_product)
+                        restClient.get(RegistryData_product.class, o.getData_products().get(0));
+                String ocName = "";
+                if (!oc.isWhole_object()) ocName = oc.getName();
+                assertThat(inputs).contains(new Triplet<>(dp.getName(), ocName, sl.getHash()));
+              });
+    }
+
+    if (outputs == null) assertThat(cr.getOutputs()).isEmpty();
+    else {
+      assertThat(cr.getOutputs()).hasSameSizeAs(outputs);
+      cr.getOutputs()
+          .forEach(
+              output -> {
+                RegistryObject_component oc =
+                    (RegistryObject_component)
+                        restClient.get(RegistryObject_component.class, output);
+                RegistryObject o =
+                    (RegistryObject) restClient.get(RegistryObject.class, oc.getObject());
+                RegistryStorage_location sl =
+                    (RegistryStorage_location)
+                        restClient.get(RegistryStorage_location.class, o.getStorage_location());
+                RegistryData_product dp =
+                    (RegistryData_product)
+                        restClient.get(RegistryData_product.class, o.getData_products().get(0));
+                String ocname = "";
+                if (!oc.isWhole_object()) ocname = oc.getName();
+                assertThat(outputs).contains(new Triplet<>(dp.getName(), ocname, sl.getHash()));
+              });
     }
   }
 
@@ -843,6 +843,7 @@ class CoderunIntegrationTest {
     check_last_coderun(List.of(new Triplet<>(dataProduct, "", hash)), null);
   }
 
+  @SuppressWarnings("EmptyTryBlock")
   @Test
   @Order(26)
   void emptyCoderun() {

@@ -7,7 +7,7 @@ import java.net.URL;
 
 /** API URL contains the URL references to API resources. */
 public class APIURL {
-  private URI uri;
+  private final URI uri;
 
   APIURL(String spec) throws URISyntaxException {
     this.uri = new URI(spec);

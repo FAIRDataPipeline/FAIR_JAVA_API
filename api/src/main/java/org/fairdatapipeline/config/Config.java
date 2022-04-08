@@ -59,7 +59,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  public interface ConfigItem {
+  interface ConfigItem {
     /**
      * data_product name (for write items this may end in * for simple globbing)
      *
@@ -110,7 +110,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  public interface ConfigUseItem {
+  interface ConfigUseItem {
     /**
      * Override the default namespace for this item
      *
@@ -140,7 +140,7 @@ public interface Config {
   @Immutable
   @JsonSerialize
   @JsonDeserialize
-  public interface ConfigRunMetadata {
+  interface ConfigRunMetadata {
     /**
      * Set the description field for this code run. (optional, but it really shouldn't be)
      *

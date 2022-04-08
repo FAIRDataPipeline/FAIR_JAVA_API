@@ -47,10 +47,10 @@ import org.fairdatapipeline.dataregistry.restclient.APIURL;
  * </blockquote>
  */
 public class Issue {
-  RegistryIssue registryIssue;
-  String description;
-  Integer severity;
-  List<Object_component> components;
+  final RegistryIssue registryIssue;
+  final String description;
+  final Integer severity;
+  final List<Object_component> components;
 
   /**
    * Constructor is not public, for issues should be created by coderun.

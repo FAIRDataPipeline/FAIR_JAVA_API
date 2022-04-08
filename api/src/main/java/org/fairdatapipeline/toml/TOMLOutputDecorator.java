@@ -20,14 +20,14 @@ class TOMLOutputDecorator extends OutputDecorator {
   }
 
   @Override
-  public OutputStream decorate(IOContext ctxt, final OutputStream out) throws IOException {
+  public OutputStream decorate(IOContext ctxt, final OutputStream out) {
     var objMapper = new DataPipelineMapper(rng);
 
     return new java.io.ByteArrayOutputStream() {
       @Override
       public void close() throws IOException {
         super.close();
-        var jsonStr = new String(this.toByteArray(), StandardCharsets.UTF_8);
+        var jsonStr = this.toString(StandardCharsets.UTF_8);
         var jsonMap = objMapper.readValue(jsonStr, new TypeReference<Map<String, Object>>() {});
         var tomlStr = new TomlWriter().write(jsonMap);
 
@@ -39,7 +39,7 @@ class TOMLOutputDecorator extends OutputDecorator {
   }
 
   @Override
-  public Writer decorate(IOContext ctxt, final Writer w) throws IOException {
+  public Writer decorate(IOContext ctxt, final Writer w) {
     var objMapper = new DataPipelineMapper(rng);
 
     return new java.io.StringWriter() {
