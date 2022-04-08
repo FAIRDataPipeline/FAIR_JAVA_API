@@ -24,7 +24,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class restClientTest {
+class restClientTest {
   String localReg = "http://localhost:8000/api/";
   String badReg = "http://localhost:1234/nothere/";
   RestClient lc;
@@ -42,7 +42,7 @@ public class restClientTest {
   @ParameterizedTest
   @MethodSource("objectsToBeCreated")
   @DisabledIf("keyvalueExists")
-  public void createObjects(Registry_Updateable o) {
+  void createObjects(Registry_Updateable o) {
     Registry_Updateable r = lc.post(o);
     Assertions.assertNotNull(r);
     switch (o.getClass().getSimpleName()) {
@@ -147,7 +147,7 @@ public class restClientTest {
         RegistryStorage_root.class,
         RegistryUsers.class
       })
-  public void get_object(Class<Registry_RootObject> c) {
+  void get_object(Class<Registry_RootObject> c) {
     Registry_RootObject n = lc.getFirst(c, m);
     Assertions.assertNotNull(n.getUrl());
   }
@@ -235,7 +235,7 @@ public class restClientTest {
 
   @Order(3)
   @Test
-  public void wrongVersion() {
+  void wrongVersion() {
     class RestClient_wv extends RestClient {
       private final MediaType jsonWithVersion =
           new MediaType("application", "json", Collections.singletonMap("version", "0.0.0"));
@@ -250,14 +250,14 @@ public class restClientTest {
       }
     }
     RestClient_wv restClient_wv = new RestClient_wv(localReg, System.getenv("REGTOKEN"));
+    Map<String, String> em = Collections.emptyMap();
     Assertions.assertThrows(
-        RegistryVersionException.class,
-        () -> restClient_wv.getFirst(RegistryUsers.class, Collections.emptyMap()));
+        RegistryVersionException.class, () -> restClient_wv.getFirst(RegistryUsers.class, em));
   }
 
   @Order(4)
   @Test
-  public void wrongToken() {
+  void wrongToken() {
     RestClient lc2 = new RestClient(localReg, "bad token");
     Assertions.assertThrows(
         org.fairdatapipeline.dataregistry.restclient.ForbiddenException.class,
@@ -267,15 +267,14 @@ public class restClientTest {
   @Order(5)
   @Test
   void wrongRegistry() {
-    // i'm faking a JSON error by interpreting a user as a code_run..
-    Assertions.assertThrows(
-        RegistryJSONException.class,
-        () -> lc.get(RegistryCode_run.class, lc.makeAPIURL(RegistryUsers.class, 1)));
+    // I'm faking a JSON error by interpreting a user as a code_run.
+    APIURL au = lc.makeAPIURL(RegistryUsers.class, 1);
+    Assertions.assertThrows(RegistryJSONException.class, () -> lc.get(RegistryCode_run.class, au));
   }
 
   @Order(6)
   @Test
-  public void wrongReg() {
+  void wrongReg() {
     RestClient lc2 = new RestClient(badReg, "any token");
     Assertions.assertThrows(
         org.fairdatapipeline.dataregistry.restclient.ConnectException.class,
@@ -284,24 +283,24 @@ public class restClientTest {
 
   @Order(7)
   @Test
-  public void wisnaeThereAtAw_get_by_id() {
+  void wisnaeThereAtAw_get_by_id() {
     RegistryNamespace n = (RegistryNamespace) lc.get(RegistryNamespace.class, 98765);
     Assertions.assertNull(n); // i'm expecting NULL cause namespace 98765 doesn't exist.
   }
 
   @Order(8)
   @Test
-  public void wisnaeThereAtAw_getList() {
+  void wisnaeThereAtAw_getList() {
     Registry_ObjectList<?> ol =
         lc.getList(
             RegistryFile_type.class,
             Collections.singletonMap("extension", "AVeryUnlikelyExtension"));
-    Assertions.assertEquals(ol.getCount(), 0);
+    Assertions.assertEquals(0, ol.getCount());
   }
 
   @Order(9)
   @Test
-  public void wisnaeThereAtAw_getFirst() {
+  void wisnaeThereAtAw_getFirst() {
     RegistryFile_type f =
         (RegistryFile_type)
             lc.getFirst(
@@ -312,7 +311,7 @@ public class restClientTest {
 
   @Order(10)
   @Test
-  public void breakUniqueConstraint() {
+  void breakUniqueConstraint() {
     String name = "test namespace";
     if (lc.getFirst(RegistryNamespace.class, Collections.singletonMap("name", name)) == null) {
       lc.post(new RegistryNamespace(name));

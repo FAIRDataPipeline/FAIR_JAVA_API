@@ -75,6 +75,7 @@ public class Data_product_write extends Data_product {
     return this.coderun.config.run_metadata().default_output_namespace().orElse("");
   }
 
+  @Override
   RegistryNamespace getRegistryNamespace(String namespace_name) {
     RegistryNamespace ns = super.getRegistryNamespace(namespace_name);
     if (ns == null) {
@@ -94,6 +95,7 @@ public class Data_product_write extends Data_product {
     return pattern.equals(dataProduct_name);
   }
 
+  @Override
   ImmutableConfigItem getConfigItem(String dataProduct_name) {
     ImmutableConfigItem configItem = super.getConfigItem(dataProduct_name);
     if (configItem == null) {
@@ -128,7 +130,7 @@ public class Data_product_write extends Data_product {
       try {
         Files.createDirectories(this.filePath.getParent());
       } catch (IOException e) {
-        logger.error("failed to create directory " + this.filePath.getParent().toString());
+        logger.error("failed to create directory {}", this.filePath.getParent());
         // throw, or continue?
         return null;
       }
@@ -155,6 +157,7 @@ public class Data_product_write extends Data_product {
     return this.filechannel;
   }
 
+  @Override
   void closeFileChannel() {
     if (this.filechannel != null) {
       this.filechannel.close();
@@ -186,14 +189,11 @@ public class Data_product_write extends Data_product {
    */
   public Object_component_write getComponent() {
     if (this.whole_obj_oc == null) this.whole_obj_oc = new Object_component_write(this);
-    // componentMap.put(component_name, dc);
     return (Object_component_write) this.whole_obj_oc;
   }
 
   void stolo_obj_and_dp_to_registry() {
-    // Storage_location sl = this.storage_location;
     if (this.registryStorage_location.getUrl() == null) {
-      // String storageRoot = this.storage_location.getStorage_root();
       Map<String, String> find_identical =
           Map.of(
               "storage_root",
@@ -208,9 +208,12 @@ public class Data_product_write extends Data_product {
               this.coderun.restClient.getFirst(RegistryStorage_location.class, find_identical);
       if (identical_sl != null) {
         // we've found an existing stolo with matching hash. delete this one.
-        if (!this.filePath.toFile().delete()) {
+        try {
+          Files.delete(this.filePath);
+        } catch (IOException e) {
           logger.warn(
-              "Failed to delete current data file which is identical to a file already in the local registry.");
+              "Failed to delete current data file which is identical to a file already in the local registry: {0}",
+              e);
         }
         this.registryStorage_location = identical_sl;
         // my FilePath is now wrong!

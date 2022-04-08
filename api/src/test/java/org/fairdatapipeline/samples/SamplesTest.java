@@ -10,7 +10,7 @@ import org.apache.commons.math3.random.Well512a;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class SamplesTest {
+class SamplesTest {
   private RandomGenerator rng;
 
   @BeforeAll
@@ -19,15 +19,14 @@ public class SamplesTest {
   }
 
   @Test
-  public void derivedEstimateFromSamples() {
+  void derivedEstimateFromSamples() {
     var samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
     assertThat(samples.getEstimate().floatValue()).isCloseTo(2, offset(1e-7F));
   }
 
   @Test
-  @Disabled
-  // TODO - large numbers are currently unsupported.
-  public void derivedEstimateLargeSamples() {
+  @Disabled("large numbers are currently unsupported.")
+  void derivedEstimateLargeSamples() {
     var largeValue = 100_000_000_000_000_000L;
     var samples =
         ImmutableSamples.builder().addSamples(largeValue, largeValue + 1, largeValue + 2).build();
@@ -35,13 +34,13 @@ public class SamplesTest {
   }
 
   @Test
-  public void derivedSamplesFromSamples() {
+  void derivedSamplesFromSamples() {
     var samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
     assertThat(samples.getSamples()).containsExactly(1, 2, 3);
   }
 
   @Test
-  public void derivedDistributionFromSamples() {
+  void derivedDistributionFromSamples() {
     var samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
     var distribution = samples.getDistribution();
     assertThat(distribution.internalType()).isEqualTo(empirical);

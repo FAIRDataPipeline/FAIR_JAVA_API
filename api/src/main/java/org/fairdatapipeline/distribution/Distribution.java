@@ -68,17 +68,21 @@ public interface Distribution extends Component {
     for (int x = 0; x < bins().size() - 1; x++) {
       Preconditions.checkState(
           bins().get(x).upperInclusive() + 1 == bins().get(x + 1).lowerInclusive(),
-          String.format("Bins provided %s are not continuous and mutually exclusive.", bins()));
+          "Bins provided %s are not continuous and mutually exclusive.",
+          bins());
     }
     for (int x = 0; x < bins().size(); x++) {
       Preconditions.checkState(
           bins().get(x).lowerInclusive() < bins().get(x).upperInclusive(),
-          String.format("Bins provided %s are not continuous and mutually exclusive.", bins()));
+          "Bins provided %s are not continuous and mutually exclusive.",
+          bins());
     }
 
     Preconditions.checkState(
         bins().size() == weights().size(),
-        String.format("Bins %s and weights %s should be of the same size.", bins(), weights()));
+        "Bins %s and weights %s should be of the same size.",
+        bins(),
+        weights());
   }
 
   private double mean() {

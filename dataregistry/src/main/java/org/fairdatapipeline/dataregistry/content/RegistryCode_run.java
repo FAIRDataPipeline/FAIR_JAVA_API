@@ -87,8 +87,8 @@ public class RegistryCode_run extends Registry_Updateable {
    * @return List of RegistryObject_component that the CodeRun used as inputs.
    */
   public List<APIURL> getInputs() {
-    // return (this.inputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.inputs);
-    // we're more likely to be able to use the PATCH method if unset items are null.
+    // used to return empty arraylist when inputs==null, but we are more likely to be able to use
+    // the PATCH method if unset items are null.
     return (this.inputs == null) ? null : new ArrayList<>(this.inputs);
   }
 
@@ -98,8 +98,8 @@ public class RegistryCode_run extends Registry_Updateable {
    * @return List of RegistryObject_component that the CodeRun produced as outputs.
    */
   public List<APIURL> getOutputs() {
-    // return (this.outputs == null) ? new ArrayList<>() {} : new ArrayList<>(this.outputs);
-    // we're more likely to be able to use the PATCH method if unset items are null.
+    // used to return empty arraylist when outputs==null, but we are more likely to be able to use
+    // the PATCH method if unset items are null.
     return (this.outputs == null) ? null : new ArrayList<>(this.outputs);
   }
 

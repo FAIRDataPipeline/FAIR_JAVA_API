@@ -11,7 +11,6 @@ public class ConfigFactory {
    * @return the immutable parsed configuration file.
    */
   public Config config(YamlReader yamlReader, Path configFilePath) {
-    var config = new ConfigReader(yamlReader, configFilePath).read();
-    return config;
+    return new ConfigReader(yamlReader, configFilePath).read();
   }
 }

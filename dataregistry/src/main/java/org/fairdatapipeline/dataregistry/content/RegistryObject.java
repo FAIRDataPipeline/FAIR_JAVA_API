@@ -35,9 +35,6 @@ public class RegistryObject extends Registry_Updateable {
 
   @XmlElement private List<APIURL> keywords;
 
-  /** Empty constructor. */
-  public RegistryObject() {}
-
   /**
    * (optional): Free text description of the Object.
    *
@@ -169,6 +166,7 @@ public class RegistryObject extends Registry_Updateable {
     this.file_type = file_type;
   }
 
+  @Override
   @JsonIgnore
   public String get_django_path() {
     return "object/";

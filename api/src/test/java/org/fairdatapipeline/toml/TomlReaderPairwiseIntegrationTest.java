@@ -14,7 +14,7 @@ import org.fairdatapipeline.parameters.ImmutableComponents;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TomlReaderPairwiseIntegrationTest {
+class TomlReaderPairwiseIntegrationTest {
   private final String toml =
       "[example-estimate]\n" + "type = \"point-estimate\"\n" + "value = 1.0";
 
@@ -27,7 +27,7 @@ public class TomlReaderPairwiseIntegrationTest {
   }
 
   @Test
-  public void read() throws IOException {
+  void read() throws IOException {
     TomlReader tomlReader = new TomlReader(new TOMLMapper(rng));
     var reader = new StringReader(toml);
     var estimate = ImmutableEstimate.builder().internalValue(1.0).rng(rng).build();

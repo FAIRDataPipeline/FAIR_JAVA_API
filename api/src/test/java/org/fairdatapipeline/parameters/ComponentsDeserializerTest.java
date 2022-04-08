@@ -16,7 +16,7 @@ import org.fairdatapipeline.samples.ImmutableSamples;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ComponentsDeserializerTest {
+class ComponentsDeserializerTest {
   private final String json =
       "{\n"
           + "  \"example-distribution\": {\n"
@@ -50,7 +50,7 @@ public class ComponentsDeserializerTest {
   }
 
   @Test
-  public void deserialize() throws JsonProcessingException {
+  void deserialize() throws JsonProcessingException {
     Components actualComponents = objectMapper.readValue(json, Components.class);
 
     var estimate = ImmutableEstimate.builder().internalValue(1.0).rng(rng).build();

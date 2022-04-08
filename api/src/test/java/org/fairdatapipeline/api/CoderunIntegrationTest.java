@@ -35,7 +35,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class CoderunIntegrationTest {
+class CoderunIntegrationTest {
   private final Table<Integer, String, Number> mockTable =
       ImmutableTable.<Integer, String, Number>builder()
           .put(0, "colA", 5)
@@ -167,6 +167,7 @@ public class CoderunIntegrationTest {
     this.CSV_hash = "eb7e7a49816c8a6a784260e4596e88bf7a96a6a5";
     if (System.getProperty("os.name").contains("Windows"))
       this.CSV_hash = "d1713dcc0c6b28337d14f3693882aebca3e96f17";
+    cleanup_datastore();
   }
 
   void create_author() {
@@ -192,8 +193,6 @@ public class CoderunIntegrationTest {
     delete_directories();
   }
 
-  @Test
-  @Order(0)
   public void cleanup_datastore() throws IOException {
     delete_directories();
     Files.createDirectories(coderunTSPath);
@@ -274,7 +273,7 @@ public class CoderunIntegrationTest {
       assertThat(cr.getDescription()).isEqualTo("Coderun Integration test");
       if (inputs == null) assertThat(cr.getInputs()).isEmpty();
       else {
-        assertThat(cr.getInputs().size()).isEqualTo(inputs.size());
+        assertThat(cr.getInputs()).hasSameSizeAs(inputs);
         cr.getInputs().stream()
             .map(
                 input ->
@@ -298,7 +297,7 @@ public class CoderunIntegrationTest {
 
       if (outputs == null) assertThat(cr.getOutputs()).isEmpty();
       else {
-        assertThat(cr.getOutputs().size()).isEqualTo(outputs.size());
+        assertThat(cr.getOutputs()).hasSameSizeAs(outputs);
         cr.getOutputs()
             .forEach(
                 output -> {
@@ -326,7 +325,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(1)
-  public void testWriteEstimate() {
+  void testWriteEstimate() {
     String dataProduct = "human/population";
     String component = "estimate-component";
     try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
@@ -340,7 +339,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(2)
-  public void testReadEstimate() {
+  void testReadEstimate() {
     String dataProduct = "human/population";
     String component = "estimate-component";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -354,7 +353,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(3)
-  public void testWriteDistribution() {
+  void testWriteDistribution() {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -368,7 +367,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(4)
-  public void testReadDistribution() {
+  void testReadDistribution() {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -382,7 +381,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(5)
-  public void testWriteCategoricalDistribution() {
+  void testWriteCategoricalDistribution() {
     String dataProduct = "human/cdistribution";
     String component = "cdistribution-component";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -396,7 +395,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(6)
-  public void testReadCategoricalDistribution() {
+  void testReadCategoricalDistribution() {
     String dataProduct = "human/cdistribution";
     String component = "cdistribution-component";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -410,7 +409,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(7)
-  public void testWriteSamples() {
+  void testWriteSamples() {
     String dataProduct = "human/samples";
     String component = "example-samples-w";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -424,7 +423,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(8)
-  public void testReadSamples() {
+  void testReadSamples() {
     String dataProduct = "human/samples";
     String component = "example-samples-w";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -438,7 +437,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(9)
-  public void testWriteSamplesMultipleComponents() {
+  void testWriteSamplesMultipleComponents() {
     String dataProduct = "human/multicomp";
     String component1 = "example-samples-w1";
     String component2 = "example-samples-w2";
@@ -461,7 +460,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(10)
-  public void testReadSamplesMultipleComponents() {
+  void testReadSamplesMultipleComponents() {
     String dataProduct = "human/multicomp";
     String component1 = "example-samples-w1";
     String component2 = "example-samples-w2";
@@ -482,7 +481,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(11)
-  public void testWriteGlobDP() {
+  void testWriteGlobDP() {
     String dataProduct = "animal/dog";
     String component = "example-samples";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -496,7 +495,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(12)
-  public void testReadNoGlob() {
+  void testReadNoGlob() {
     String dataProduct = "animal/dog";
     String component = "example-samples";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -510,7 +509,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(13)
-  public void testWriteGlobMultiDP() {
+  void testWriteGlobMultiDP() {
     String dataProduct1 = "animal/horse";
     String dataProduct2 = "animal/mouse";
     String component = "example-samples";
@@ -532,7 +531,7 @@ public class CoderunIntegrationTest {
   }
 
   @Test
-  public void testIssueWithScript() {
+  void testIssueWithScript() {
     String issue = "I don't like this script";
     try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
       coderun.getScript().raise_issue(issue, 10);
@@ -541,7 +540,7 @@ public class CoderunIntegrationTest {
   }
 
   @Test
-  public void testIssueWithConfig() {
+  void testIssueWithConfig() {
     String issue = "I don't like this config";
     try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
       coderun.getConfig().raise_issue(issue, 10);
@@ -550,7 +549,7 @@ public class CoderunIntegrationTest {
   }
 
   @Test
-  public void testIssueWithRepo() {
+  void testIssueWithRepo() {
     String issue = "I don't like this repo";
     try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
       coderun.getCode_repo().raise_issue(issue, 10);
@@ -559,7 +558,7 @@ public class CoderunIntegrationTest {
   }
 
   @Test
-  public void testIssueWithFileObjects() {
+  void testIssueWithFileObjects() {
     String issue = "I don't like any of these FileObjects";
     try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
       Issue i = coderun.raise_issue(issue, 10);
@@ -570,7 +569,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(14)
-  public void testWriteSamplesMultipleComponentsAndIssues() {
+  void testWriteSamplesMultipleComponentsAndIssues() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
     String component2 = "example-samples-dodo2";
@@ -602,7 +601,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(15)
-  public void testReadSamplesMultipleComponentsAndIssues() {
+  void testReadSamplesMultipleComponentsAndIssues() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
     String component2 = "example-samples-dodo2";
@@ -629,7 +628,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(16)
-  public void testRead_oneIssueToMultipleComp_and_script() {
+  void testRead_oneIssueToMultipleComp_and_script() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
     String component2 = "example-samples-dodo2";
@@ -660,7 +659,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(17)
-  public void testCSV_writeLink() throws IOException {
+  void testCSV_writeLink() throws IOException {
     String dataProduct = "animal/ant";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "csv");
@@ -690,7 +689,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(18)
-  public void testCSV_readLink() throws IOException {
+  void testCSV_readLink() throws IOException {
     String dataProduct = "animal/ant";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dp = coderun.get_dp_for_read(dataProduct);
@@ -709,7 +708,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(19)
-  public void testCSV_writeLink_withIssue() throws IOException {
+  void testCSV_writeLink_withIssue() throws IOException {
     String dataProduct = "animal/monkey";
     String issue = "this does not seem to contain anything monkey-related";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -728,7 +727,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(20)
-  public void testCSV_readLink_withIssue() throws IOException {
+  void testCSV_readLink_withIssue() throws IOException {
     String dataProduct = "animal/ant";
     String issue = "not enough orange";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -750,7 +749,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(21)
-  public void testRewriteDPname() {
+  void testRewriteDPname() {
     String dataProduct = "animal/canine";
     String component = "NumberOfLegs";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -766,7 +765,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(22)
-  public void testReadRewrittenDPname() {
+  void testReadRewrittenDPname() {
     String dataProduct = "animal/canine";
     String component = "NumberOfLegs";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -781,7 +780,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(23)
-  public void testAltNS() {
+  void testAltNS() {
     String dataProduct = "test/altns";
     String component = "altNScompo";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -796,7 +795,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(24)
-  public void testAltNSread() {
+  void testAltNSread() {
     String dataProduct = "test/altns";
     String component = "altNScompo";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -810,7 +809,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(25)
-  public void testConfigFiletype() {
+  void testConfigFiletype() {
     String dataProduct = "animal/chicken";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write dp = coderun.get_dp_for_write(dataProduct);
@@ -846,7 +845,7 @@ public class CoderunIntegrationTest {
 
   @Test
   @Order(26)
-  public void emptyCoderun() {
+  void emptyCoderun() {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       // do nothing
     }

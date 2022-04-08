@@ -1,36 +1,41 @@
 package org.fairdatapipeline.dataregistry.restclient;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 /** API URL contains the URL references to API resources. */
 public class APIURL {
-  private URL url;
+  private URI uri;
 
-  APIURL(String spec) throws MalformedURLException {
-    this.url = new URL(spec);
+  APIURL(String spec) throws URISyntaxException {
+    this.uri = new URI(spec);
   }
 
-  APIURL(URI uri) throws MalformedURLException {
-    this.url = uri.toURL();
+  APIURL(URI uri) {
+    this.uri = uri;
   }
 
-  APIURL(URL url) {
-    this.url = url;
+  APIURL(URL url) throws URISyntaxException {
+    this.uri = url.toURI();
   }
 
   @Override
   @JsonValue
   public String toString() {
-    return url.toString();
+    return uri.toString();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (o instanceof APIURL) return this.getUrl().equals(((APIURL) o).getUrl());
+    if (o instanceof APIURL) return this.getUri().equals(((APIURL) o).getUri());
     return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return this.uri.hashCode();
   }
 
   /**
@@ -38,8 +43,8 @@ public class APIURL {
    *
    * @return The URL for the API resource of this APIURL.
    */
-  public URL getUrl() {
-    return url;
+  public URI getUri() {
+    return uri;
   }
 
   /**
@@ -48,6 +53,6 @@ public class APIURL {
    * @return The Path part of the URL for the API resource of this APIURL.
    */
   public String getPath() {
-    return url.getPath();
+    return uri.getPath();
   }
 }

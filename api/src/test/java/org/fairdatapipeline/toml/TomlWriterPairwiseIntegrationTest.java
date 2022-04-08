@@ -18,7 +18,7 @@ import org.json.JSONException;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TomlWriterPairwiseIntegrationTest {
+class TomlWriterPairwiseIntegrationTest {
   private final String expectedToml =
       "[\"example estimate\"]\n"
           + "type = \"point-estimate\"\n"
@@ -45,7 +45,7 @@ public class TomlWriterPairwiseIntegrationTest {
   }
 
   @Test
-  public void write() throws IOException, JSONException {
+  void write() throws IOException, JSONException {
     var estimate = ImmutableEstimate.builder().internalValue(1.0).rng(rng).build();
     var distribution =
         ImmutableDistribution.builder()

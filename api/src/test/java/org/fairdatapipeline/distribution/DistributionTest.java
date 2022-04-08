@@ -14,7 +14,7 @@ import org.fairdatapipeline.distribution.Distribution.DistributionType;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class DistributionTest {
+class DistributionTest {
   private Distribution gammaDistribution;
   private Distribution categoricalDistribution;
 
@@ -72,28 +72,28 @@ public class DistributionTest {
   }
 
   @Test
-  public void derivedEstimateFromDistribution() {
+  void derivedEstimateFromDistribution() {
     assertThat(gammaDistribution.getEstimate().floatValue()).isEqualTo(2F);
   }
 
   @Test
-  public void derivedSamplesFromDistribution() {
+  void derivedSamplesFromDistribution() {
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(gammaDistribution::getSamples);
   }
 
   @Test
-  public void derivedDistributionFromDistribution() {
+  void derivedDistributionFromDistribution() {
     assertThat(gammaDistribution.getDistribution()).isEqualTo(gammaDistribution);
   }
 
   @Test
-  public void categoricalDistributionEstimate() {
+  void categoricalDistributionEstimate() {
     assertThat(categoricalDistribution.getEstimate().doubleValue()).isCloseTo(10D, offset(0.5D));
   }
 
   @Test
-  public void categoricalDistributionSample() {
+  void categoricalDistributionSample() {
     double sampleAvg =
         IntStream.range(0, 10000)
             .mapToDouble(i -> categoricalDistribution.getSample().doubleValue())
@@ -104,7 +104,7 @@ public class DistributionTest {
   }
 
   @Test
-  public void categoricalDistributionWeighting() {
+  void categoricalDistributionWeighting() {
     double[] samples =
         IntStream.range(0, 10000)
             .mapToDouble(i -> categoricalDistribution.getSample().doubleValue())

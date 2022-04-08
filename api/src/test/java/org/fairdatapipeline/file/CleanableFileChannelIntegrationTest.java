@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class CleanableFileChannelIntegrationTest {
+class CleanableFileChannelIntegrationTest {
 
   private FileChannel fileChannelReadable;
   private FileChannel fileChannelWritable;
@@ -34,7 +34,7 @@ public class CleanableFileChannelIntegrationTest {
   }
 
   @Test
-  public void testRunnableExecutesOnClose() throws IOException {
+  void testRunnableExecutesOnClose() throws IOException {
     var cleanableFileChannel =
         new CleanableFileChannel(fileChannelReadable, () -> runnableExecuted.set(true));
     cleanableFileChannel.close();
@@ -42,7 +42,7 @@ public class CleanableFileChannelIntegrationTest {
   }
 
   @Test
-  public void testOpenForRead() throws IOException {
+  void testOpenForRead() throws IOException {
     var cleanableFileChannel =
         new CleanableFileChannel(fileChannelReadable, () -> runnableExecuted.set(true));
     cleanableFileChannel.read(ByteBuffer.allocate(64));
@@ -50,7 +50,7 @@ public class CleanableFileChannelIntegrationTest {
   }
 
   @Test
-  public void testOpenForWrite() throws IOException {
+  void testOpenForWrite() throws IOException {
     var cleanableFileChannel =
         new CleanableFileChannel(fileChannelWritable, () -> runnableExecuted.set(true));
     var buffer = ByteBuffer.allocate(64);
@@ -60,18 +60,20 @@ public class CleanableFileChannelIntegrationTest {
   }
 
   @Test
-  public void testReadWithWriteFileHandle() {
+  void testReadWithWriteFileHandle() {
     var cleanableFileChannel =
         new CleanableFileChannel(fileChannelWritable, () -> runnableExecuted.set(true));
+    var bbuffer = ByteBuffer.allocate(64);
     assertThatExceptionOfType(NonReadableChannelException.class)
-        .isThrownBy(() -> cleanableFileChannel.read(ByteBuffer.allocate(64)));
+        .isThrownBy(() -> cleanableFileChannel.read(bbuffer));
   }
 
   @Test
-  public void testWriteWithReadFileHandle() {
+  void testWriteWithReadFileHandle() {
     var cleanableFileChannel =
         new CleanableFileChannel(fileChannelReadable, () -> runnableExecuted.set(true));
+    var bbuffer = ByteBuffer.allocate(64);
     assertThatExceptionOfType(NonWritableChannelException.class)
-        .isThrownBy(() -> cleanableFileChannel.write(ByteBuffer.allocate(64)));
+        .isThrownBy(() -> cleanableFileChannel.write(bbuffer));
   }
 }

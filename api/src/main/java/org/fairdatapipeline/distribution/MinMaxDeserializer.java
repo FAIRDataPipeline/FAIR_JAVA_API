@@ -1,7 +1,6 @@
 package org.fairdatapipeline.distribution;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
@@ -12,6 +11,7 @@ public class MinMaxDeserializer extends JsonDeserializer<MinMax> {
   private static final String INCLUSIVE_RIGHT = "]";
   private static final String EXCLUSIVE_RIGHT = ")";
   private static final String SEPARATOR = ",";
+  private static final String ERRORMSG = "%s has unexpected format.";
 
   private MinMax deserialize(String serializedStr) {
     boolean lowerInclusive;
@@ -21,7 +21,7 @@ public class MinMaxDeserializer extends JsonDeserializer<MinMax> {
     } else if (serializedStr.startsWith(EXCLUSIVE_LEFT)) {
       lowerInclusive = false;
     } else {
-      throw new IllegalArgumentException(String.format("%s has unexpected format.", serializedStr));
+      throw new IllegalArgumentException(String.format(ERRORMSG, serializedStr));
     }
 
     if (serializedStr.endsWith(INCLUSIVE_RIGHT)) {
@@ -29,7 +29,7 @@ public class MinMaxDeserializer extends JsonDeserializer<MinMax> {
     } else if (serializedStr.endsWith(EXCLUSIVE_RIGHT)) {
       upperInclusive = false;
     } else {
-      throw new IllegalArgumentException(String.format("%s has unexpected format.", serializedStr));
+      throw new IllegalArgumentException(String.format(ERRORMSG, serializedStr));
     }
 
     String strippedBoundaries = serializedStr.replace(INCLUSIVE_LEFT, "");
@@ -40,7 +40,7 @@ public class MinMaxDeserializer extends JsonDeserializer<MinMax> {
     String[] lowerAndUpperBoundary = strippedBoundaries.split(SEPARATOR);
 
     if (lowerAndUpperBoundary.length != 2) {
-      throw new IllegalArgumentException(String.format("%s has unexpected format.", serializedStr));
+      throw new IllegalArgumentException(String.format(ERRORMSG, serializedStr));
     }
 
     int lower = Integer.parseInt(lowerAndUpperBoundary[0]);
@@ -55,8 +55,7 @@ public class MinMaxDeserializer extends JsonDeserializer<MinMax> {
   }
 
   @Override
-  public MinMax deserialize(JsonParser p, DeserializationContext ctxt)
-      throws IOException, JsonProcessingException {
+  public MinMax deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
     String serializedStr = p.readValueAs(String.class);
     return deserialize(serializedStr);
   }

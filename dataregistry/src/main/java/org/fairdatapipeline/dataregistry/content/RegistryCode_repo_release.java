@@ -16,9 +16,6 @@ public class RegistryCode_repo_release extends Registry_Updateable {
 
   @XmlElement private APIURL object;
 
-  /** Empty constructor. */
-  public RegistryCode_repo_release() {}
-
   /**
    * Name of the CodeRepoRelease, unique in the context of the CodeRepoRelease.version
    *

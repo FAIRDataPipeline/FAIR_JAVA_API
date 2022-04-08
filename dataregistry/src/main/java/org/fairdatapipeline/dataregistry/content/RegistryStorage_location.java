@@ -19,9 +19,6 @@ public class RegistryStorage_location extends Registry_Updateable {
 
   @XmlElement private APIURL storage_root;
 
-  /** Empty constructor. */
-  public RegistryStorage_location() {}
-
   /**
    * Path from a StorageRoot uri to the item location, when appended to a StorageRoot uri produces a
    * complete URI.

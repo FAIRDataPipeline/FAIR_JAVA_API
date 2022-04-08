@@ -13,9 +13,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import org.fairdatapipeline.dataregistry.content.Registry_ObjectList;
+import org.fairdatapipeline.dataregistry.content.Registry_RootObject;
 
 /** Jakarta WS MessageBodyReader for Registry_ObjectList using Jackson ObjectMapper */
-class Registry_ObjectListReader implements MessageBodyReader<Registry_ObjectList> {
+class Registry_ObjectListReader
+    implements MessageBodyReader<Registry_ObjectList<Registry_RootObject>> {
 
   @Override
   public boolean isReadable(
@@ -24,8 +26,8 @@ class Registry_ObjectListReader implements MessageBodyReader<Registry_ObjectList
   }
 
   @Override
-  public Registry_ObjectList<?> readFrom(
-      Class<Registry_ObjectList> type,
+  public Registry_ObjectList<Registry_RootObject> readFrom(
+      Class<Registry_ObjectList<Registry_RootObject>> type,
       Type genericType,
       Annotation[] annotations,
       MediaType mediaType,

@@ -17,9 +17,6 @@ public class RegistryKeyword extends Registry_Updateable {
 
   @XmlElement private URL identifier;
 
-  /** Empty constructor */
-  public RegistryKeyword() {}
-
   /**
    * {@link APIURL} of the associated Object.
    *

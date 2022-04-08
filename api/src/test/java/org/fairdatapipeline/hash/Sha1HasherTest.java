@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.*;
 
-public class Sha1HasherTest {
+class Sha1HasherTest {
 
   @Test
-  public void testSha1Hash() {
+  void testSha1Hash() {
     var input = "test";
 
     // Generated via http://www.sha1-online.com/

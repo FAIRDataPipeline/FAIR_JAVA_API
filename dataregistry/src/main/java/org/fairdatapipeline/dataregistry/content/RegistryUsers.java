@@ -17,9 +17,6 @@ public class RegistryUsers extends Registry_RootObject {
 
   @XmlElement private List<String> orgs;
 
-  /** Empty constructor */
-  public RegistryUsers() {}
-
   /**
    * login/username
    *

@@ -7,7 +7,7 @@ import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class test_Registry_RootObjectWriter {
+class test_Registry_RootObjectWriter {
 
   public String write_json(Registry_RootObject o, Class<?> type) {
     ByteArrayOutputStream ba = new ByteArrayOutputStream();
@@ -16,13 +16,14 @@ public class test_Registry_RootObjectWriter {
   }
 
   @Test
-  public void test_File_type() {
+  void test_File_type() {
     RegistryFile_type ft = new RegistryFile_type("bla", "blow");
-    write_json(ft, ft.getClass());
+    Assertions.assertEquals(
+        "{\"name\":\"bla\",\"extension\":\"blow\"}", write_json(ft, ft.getClass()));
   }
 
   @Test
-  public void test_Namespace() throws MalformedURLException {
+  void test_Namespace() throws MalformedURLException {
     RegistryNamespace ns = new RegistryNamespace();
     ns.setName("name");
     ns.setFull_name("Name Potter");

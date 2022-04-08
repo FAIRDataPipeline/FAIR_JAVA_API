@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
-import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class RestClient {
             .register(Registry_RootObjectReader.class)
             .register(Registry_RootObjectWriter.class)
             .register(Registry_ObjectListReader.class)
-            .register(new JavaUtilCollectionsDeserializers() {})
+            .register(JavaUtilCollectionsDeserializers.class)
             .register(new OAuth2ClientTokenFeature(token))
             .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)
             .build();
@@ -83,7 +83,7 @@ public class RestClient {
     try {
       Registry_ObjectList<?> o = wt2.request(this.getJsonMediaType()).get(new GenericType<>(p));
       if (o.getCount() == 0) {
-        logger.trace("getFirst(" + c.getSimpleName() + ", " + m + ") returned 0 items");
+        logger.trace("getFirst({}, {}) returned 0 items", c.getSimpleName(), m);
         return null;
       }
       return o.getResults().get(0);
@@ -125,7 +125,7 @@ public class RestClient {
    * @param m The key-value constraint pairs
    * @return the Registry_ObjectList containing all items matching the constraints in the Map m
    */
-  public Registry_ObjectList<?> getList(
+  public Registry_ObjectList<Registry_RootObject> getList(
       Class<? extends Registry_RootObject> c, Map<String, String> m)
       throws ConnectException, RegistryVersionException, RegistryJSONException, ForbiddenException,
           RestClientException {
@@ -135,7 +135,7 @@ public class RestClient {
       wt2 = wt2.queryParam(e.getKey(), e.getValue());
     }
     ParameterizedType p = TypeUtils.parameterize(Registry_ObjectList.class, c);
-    GenericType<Registry_ObjectList<?>> gt = new GenericType<>(p);
+    GenericType<Registry_ObjectList<Registry_RootObject>> gt = new GenericType<>(p);
     try {
       return wt2.request(this.getJsonMediaType()).get(gt);
     } catch (Exception e) {
@@ -159,7 +159,7 @@ public class RestClient {
     try {
       return wt2.request(this.getJsonMediaType()).get(c);
     } catch (NotFoundException e) {
-      logger.warn("get(Class, Int) " + e);
+      logger.warn("get(Class, Int) {0}", e);
       return null;
     } catch (Exception e) {
       deal_with_jakarta_http_exceptions(e);
@@ -181,7 +181,7 @@ public class RestClient {
     try {
       return wt2.request(this.getJsonMediaType()).get(c);
     } catch (NotFoundException e) {
-      logger.warn("get(Class, APIURL) " + e);
+      logger.warn("get(Class, APIURL) {0}", e);
       return null;
     } catch (Exception e) {
       deal_with_jakarta_http_exceptions(e);
@@ -219,10 +219,10 @@ public class RestClient {
       InputStream i = (InputStream) r.getEntity();
       try {
         String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
-        logger.error("post(Registry_Updateable) -- error: " + text);
+        logger.error("post(Registry_Updateable) -- error: {}", text);
       } catch (IOException e) {
         logger.error(
-            "post(Registry_Updateable) -- IOException trying to read response entity: " + e);
+            "post(Registry_Updateable) -- IOException trying to read response entity: {0}", e);
       }
       return null;
     } else {
@@ -277,10 +277,10 @@ public class RestClient {
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
-      logger.error("patch(Registry_Updateable) -- error: " + text);
+      logger.error("patch(Registry_Updateable) -- error: {}", text);
     } catch (IOException e) {
       logger.error(
-          "patch(Registry_Updateable) -- IOException trying to read response entity: " + e);
+          "patch(Registry_Updateable) -- IOException trying to read response entity: {0}", e);
     }
     return null;
   }
@@ -324,9 +324,10 @@ public class RestClient {
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
-      logger.error("put(Registry_Updateable) -- error: " + text);
+      logger.error("put(Registry_Updateable) -- error: {}", text);
     } catch (IOException e) {
-      logger.error("put(Registry_Updateable) -- IOException trying to read response entity: " + e);
+      logger.error(
+          "put(Registry_Updateable) -- IOException trying to read response entity: {0}", e);
     }
     return null;
   }
@@ -386,7 +387,7 @@ public class RestClient {
         wt.path(Registry_RootObject.get_django_path(c.getSimpleName())).path(Integer.toString(i));
     try {
       return new APIURL(wt2.getUri() + "/");
-    } catch (MalformedURLException e) {
+    } catch (URISyntaxException e) {
       logger.error(e.toString());
       return null;
     }

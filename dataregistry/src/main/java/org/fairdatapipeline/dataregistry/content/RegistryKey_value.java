@@ -13,9 +13,6 @@ public class RegistryKey_value extends Registry_Updateable {
 
   @XmlElement private APIURL object;
 
-  /** Empty constructor. */
-  public RegistryKey_value() {}
-
   /**
    * Meta-data name
    *

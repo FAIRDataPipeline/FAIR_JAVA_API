@@ -7,7 +7,7 @@ import java.io.Writer;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class BaseYamlWriterTest {
+class BaseYamlWriterTest {
   private Writer underlyingWriter;
 
   @BeforeAll
@@ -16,11 +16,11 @@ public class BaseYamlWriterTest {
   }
 
   @Test
-  public void write() {
+  void write() {
     var writer = new BaseYamlWriter();
     var data = "test";
     writer.write(underlyingWriter, data);
 
-    assertThat(underlyingWriter.toString()).isEqualTo("\"test\"\n");
+    assertThat(underlyingWriter).hasToString("\"test\"\n");
   }
 }

@@ -51,24 +51,10 @@ public abstract class Object_component {
   abstract void populate_component();
 
   RegistryObject_component retrieveObject_component() {
-    Map<String, String> objcompmap;
-    if (this.whole_object) {
-      objcompmap =
-          new HashMap<>() {
-            {
-              put("object", dp.registryObject.get_id().toString());
-              put("whole_object", "true");
-            }
-          };
-    } else {
-      objcompmap =
-          new HashMap<>() {
-            {
-              put("object", dp.registryObject.get_id().toString());
-              put("name", component_name);
-            }
-          };
-    }
+    Map<String, String> objcompmap = new HashMap<>();
+    objcompmap.put("object", dp.registryObject.get_id().toString());
+    if (this.whole_object) objcompmap.put("whole_object", "true");
+    else objcompmap.put("name", component_name);
     return (RegistryObject_component)
         dp.coderun.restClient.getFirst(RegistryObject_component.class, objcompmap);
   }

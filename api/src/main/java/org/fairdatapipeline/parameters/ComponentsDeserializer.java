@@ -35,7 +35,7 @@ public class ComponentsDeserializer extends JsonDeserializer<Components> {
 
   @Override
   public Components deserialize(JsonParser jsonParser, DeserializationContext ctxt)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     JsonNode rootNode = jsonParser.getCodec().readTree(jsonParser);
 
     var components =

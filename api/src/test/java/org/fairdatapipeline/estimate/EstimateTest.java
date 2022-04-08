@@ -9,7 +9,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class EstimateTest {
+class EstimateTest {
   private RandomGenerator rng;
 
   @BeforeAll
@@ -19,19 +19,19 @@ public class EstimateTest {
   }
 
   @Test
-  public void derivedEstimateFromEstimate() {
+  void derivedEstimateFromEstimate() {
     var data = ImmutableEstimate.builder().internalValue(5).rng(rng).build();
     assertThat(data.getEstimate()).isEqualTo(5);
   }
 
   @Test
-  public void derivedSampleFromEstimate() {
+  void derivedSampleFromEstimate() {
     var data = ImmutableEstimate.builder().internalValue(5).rng(rng).build();
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(data::getSamples);
   }
 
   @Test
-  public void derivedDistributionFromEstimate() {
+  void derivedDistributionFromEstimate() {
     var data = ImmutableEstimate.builder().internalValue(5).rng(rng).build();
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(data::getDistribution);

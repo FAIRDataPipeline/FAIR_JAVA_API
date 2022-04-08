@@ -5,7 +5,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_location;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
@@ -61,13 +60,13 @@ class Storage_location {
       String path,
       Path filePath_to_delete_if_hash_exists) {
     Map<String, String> find_stolo_from_hash =
-        new HashMap<>() {
-          {
-            put("hash", hash);
-            put("public", "true");
-            put("storage_root", storage_root.registryStorage_root.get_id().toString());
-          }
-        };
+        Map.of(
+            "hash",
+            hash,
+            "public",
+            "true",
+            "storage_root",
+            storage_root.registryStorage_root.get_id().toString());
     this.registryStorage_location =
         (RegistryStorage_location)
             coderun.restClient.getFirst(RegistryStorage_location.class, find_stolo_from_hash);
@@ -83,8 +82,8 @@ class Storage_location {
               "Deleting file after finding existing storage location with identical hash.");
         } catch (IOException e) {
           logger.error(
-              "Failed to delete file after finding existing storage location with identical hash: "
-                  + filePath_to_delete_if_hash_exists);
+              "Failed to delete file after finding existing storage location with identical hash: {}",
+              filePath_to_delete_if_hash_exists);
         }
       }
     } else {

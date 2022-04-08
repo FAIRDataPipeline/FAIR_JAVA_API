@@ -58,20 +58,16 @@ public abstract class Data_product implements AutoCloseable {
     this.configItems = this.getConfigItems();
     this.namespace_name = this.getDefaultNamespace_name();
     ImmutableConfigItem configItem = this.getConfigItem(dataProduct_name);
-    if (configItem.use().namespace().isPresent()) {
+    if (configItem.use().namespace().isPresent())
       namespace_name = configItem.use().namespace().get();
-    }
-    if (configItem.use().data_product().isPresent()) {
+    if (configItem.use().data_product().isPresent())
       this.actualDataProduct_name = configItem.use().data_product().get();
-    }
     if (configItem.file_type().isPresent()) {
-      if (extension != null && !configItem.file_type().get().equals(extension)) {
+      if (extension != null && !configItem.file_type().get().equals(extension))
         logger.warn(
-            "file type conflict: code says "
-                + extension
-                + ", config says "
-                + configItem.file_type().get());
-      }
+            "file type conflict: code says {}, config says {}",
+            extension,
+            configItem.file_type().get());
       this.extension = configItem.file_type().get();
     }
     this.description = configItem.description().orElse("");
@@ -122,9 +118,7 @@ public abstract class Data_product implements AutoCloseable {
    */
   abstract Path getFilePath();
 
-  /*
-   * please make sure the implementation set been_used = true;
-   */
+  /** please make sure the implementation set been_used = true; */
   abstract CleanableFileChannel getFilechannel() throws IOException;
 
   void closeFileChannel() {
@@ -133,8 +127,6 @@ public abstract class Data_product implements AutoCloseable {
       this.filechannel = null;
     }
   }
-
-  // public abstract Object_component_write getComponent(String component_name);
 
   abstract void objects_to_registry();
 

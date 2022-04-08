@@ -14,7 +14,7 @@ import org.fairdatapipeline.toml.TomlReader;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ParameterDataReaderTest {
+class ParameterDataReaderTest {
   private CleanableFileChannel fileChannel;
   private TomlReader tomlReader;
   private Estimate mockEstimate;
@@ -27,7 +27,7 @@ public class ParameterDataReaderTest {
   }
 
   @Test
-  public void read() {
+  void read() {
     Components expectedComponents =
         ImmutableComponents.builder()
             .putComponents("example-estimate", mockEstimate)

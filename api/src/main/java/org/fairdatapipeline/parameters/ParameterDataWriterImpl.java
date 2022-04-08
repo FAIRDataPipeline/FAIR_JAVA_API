@@ -2,9 +2,9 @@ package org.fairdatapipeline.parameters;
 
 import static java.nio.channels.Channels.newWriter;
 
-import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.toml.TomlWriter;
 
@@ -24,6 +24,6 @@ public class ParameterDataWriterImpl implements ParameterDataWriter {
     }
 
     Components components = ImmutableComponents.builder().putComponents(component, data).build();
-    tomlWriter.write(newWriter(fileChannel, Charsets.UTF_8), components);
+    tomlWriter.write(newWriter(fileChannel, StandardCharsets.UTF_8), components);
   }
 }

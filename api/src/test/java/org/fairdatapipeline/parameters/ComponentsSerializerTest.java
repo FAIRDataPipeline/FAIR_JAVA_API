@@ -18,7 +18,7 @@ import org.json.JSONException;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ComponentsSerializerTest {
+class ComponentsSerializerTest {
   private final String expectedJson =
       "{\n"
           + "  \"example-distribution\": {\n"
@@ -52,7 +52,7 @@ public class ComponentsSerializerTest {
   }
 
   @Test
-  public void serialize() throws IOException, JSONException {
+  void serialize() throws IOException, JSONException {
     var writer = new StringWriter();
     var estimate = ImmutableEstimate.builder().internalValue(1.0).rng(rng).build();
     var distribution =

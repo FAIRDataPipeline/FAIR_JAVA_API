@@ -87,6 +87,7 @@ public class Data_product_read extends Data_product {
     return this.coderun.config.run_metadata().default_input_namespace().orElse("");
   }
 
+  @Override
   RegistryNamespace getRegistryNamespace(String namespace_name) {
     // for a READ dp we must have the namespace from the config or we will have to give up
     RegistryNamespace ns = super.getRegistryNamespace(namespace_name);
@@ -96,6 +97,7 @@ public class Data_product_read extends Data_product {
     return ns;
   }
 
+  @Override
   ImmutableConfigItem getConfigItem(String dataProduct_name) {
     ImmutableConfigItem configItem = super.getConfigItem(dataProduct_name);
     if (configItem == null) {
@@ -104,7 +106,9 @@ public class Data_product_read extends Data_product {
     return configItem;
   }
 
-  private void check_hash() {}
+  private void check_hash() {
+    // Do nothing for now. Unsure if we will implement hash checking.
+  }
 
   private void executeOnCloseFileHandleDP() {
     // don't need to Hash READ objects

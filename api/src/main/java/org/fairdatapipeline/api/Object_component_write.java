@@ -2,7 +2,6 @@ package org.fairdatapipeline.api;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import org.fairdatapipeline.dataregistry.content.RegistryObject_component;
 import org.fairdatapipeline.distribution.Distribution;
@@ -110,12 +109,7 @@ public class Object_component_write extends Object_component {
     if (!been_used) return; // don't register a component unless it has been written to
     if (this.whole_object) {
       Map<String, String> find_whole_object =
-          new HashMap<>() {
-            {
-              put("object", dp.registryObject.get_id().toString());
-              put("whole_object", "true");
-            }
-          };
+          Map.of("object", dp.registryObject.get_id().toString(), "whole_object", "true");
       RegistryObject_component objComponent =
           (RegistryObject_component)
               dp.coderun.restClient.getFirst(RegistryObject_component.class, find_whole_object);

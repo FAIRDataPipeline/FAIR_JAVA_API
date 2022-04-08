@@ -1,9 +1,9 @@
 package org.fairdatapipeline.parameters;
 
-import static com.google.common.base.Charsets.UTF_8;
 import static java.nio.channels.Channels.newReader;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import java.nio.charset.StandardCharsets;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.toml.TomlReader;
 
@@ -17,7 +17,7 @@ public class ParameterDataReaderImpl implements ParameterDataReader {
   @Override
   public ReadComponent read(CleanableFileChannel fileChannel, String component) {
     return tomlReader
-        .read(newReader(fileChannel, UTF_8), new TypeReference<Components>() {})
+        .read(newReader(fileChannel, StandardCharsets.UTF_8), new TypeReference<Components>() {})
         .components()
         .get(component);
   }

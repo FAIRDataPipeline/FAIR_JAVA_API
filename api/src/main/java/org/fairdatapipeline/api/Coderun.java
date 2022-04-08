@@ -151,9 +151,9 @@ public class Coderun implements AutoCloseable {
 
     this.config = new ConfigFactory().config(yamlReader, configFilePath);
     if (registryToken == null) {
-      if (config.run_metadata().token().isPresent()) {
+      if (config.run_metadata().token().isPresent())
         registryToken = config.run_metadata().token().get();
-      } else {
+      else {
         String filename = "~/.fair/registry/token";
         if (Files.isReadable(Path.of(filename))) {
           registryToken = new FileReader().read(filename);
@@ -178,25 +178,25 @@ public class Coderun implements AutoCloseable {
         if (storageRootURI.getScheme() == null) {
           storageRootURI = Path.of(storageRootURI.toString()).toUri();
           logger.trace(
-              "added file:/// scheme to write_data_store from config: "
-                  + config.run_metadata().write_data_store().get());
+              "added file:/// scheme to write_data_store from config: {}",
+              config.run_metadata().write_data_store().get());
         }
       } catch (Exception e) {
         Path wdsPath = Path.of(config.run_metadata().write_data_store().get());
         storageRootURI = wdsPath.toUri();
-        logger.trace("tried to create write_data_store URI after Exception: " + storageRootURI);
+        logger.trace("tried to create write_data_store URI after Exception: {}", storageRootURI);
       }
     } else {
       storageRootURI = configFilePath.getParent().getParent().getParent().toUri();
       logger.trace(
-          "Using configFilePath.parent.parent.parent as storageRootURI: " + storageRootURI);
+          "Using configFilePath.parent.parent.parent as storageRootURI: {}", storageRootURI);
     }
     this.write_data_store_root = new Storage_root(storageRootURI, restClient);
 
     if (scriptPath == null) {
-      if (config.run_metadata().script_path().isPresent()) {
+      if (config.run_metadata().script_path().isPresent())
         scriptPath = Path.of(config.run_metadata().script_path().get());
-      } else {
+      else {
         throw (new ConfigException(
             "Coderun() -- Script path must be given either in constructor args or in config."));
       }
@@ -413,12 +413,10 @@ public class Coderun implements AutoCloseable {
   }
 
   void append_code_run_uuid(String uuid) {
-    try {
-      FileWriter fw = new FileWriter(this.coderuns_txt.toString(), true);
+    try (FileWriter fw = new FileWriter(this.coderuns_txt.toString(), true)) {
       fw.write(uuid + "\n");
-      fw.close();
     } catch (IOException e) {
-      logger.error("IOException: append_code_run_uuid() failed: " + e);
+      logger.error("IOException: append_code_run_uuid() failed: {0}", e);
     }
   }
 

@@ -12,9 +12,6 @@ public class RegistryUser_author extends Registry_Updateable {
 
   @XmlElement private APIURL author;
 
-  /** Empty constructor */
-  public RegistryUser_author() {}
-
   /**
    * The API URL of the User to associate with this UserAuthor.
    *

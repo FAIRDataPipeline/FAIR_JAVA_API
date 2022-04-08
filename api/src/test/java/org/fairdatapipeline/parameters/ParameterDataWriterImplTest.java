@@ -15,7 +15,7 @@ import org.fairdatapipeline.toml.TomlWriter;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ParameterDataWriterImplTest {
+class ParameterDataWriterImplTest {
   private CleanableFileChannel fileChannel;
   private TomlWriter tomlWriter;
   private RandomGenerator rng;
@@ -30,7 +30,7 @@ public class ParameterDataWriterImplTest {
   }
 
   @Test
-  public void writeEstimate() throws IOException {
+  void writeEstimate() throws IOException {
     var dataWriter = new ParameterDataWriterImpl(tomlWriter);
     var estimate = ImmutableEstimate.builder().internalValue(5).rng(rng).build();
     var components = ImmutableComponents.builder().putComponents("component", estimate).build();

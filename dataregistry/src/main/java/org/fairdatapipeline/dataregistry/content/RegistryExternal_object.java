@@ -35,9 +35,6 @@ public class RegistryExternal_object extends Registry_Updateable {
 
   @XmlElement private String version;
 
-  /** Empty constructor. */
-  public RegistryExternal_object() {}
-
   /**
    * Full URL of identifier (e.g. DataCite DOI) of the ExternalObject, unique in the context of the
    * triple (identifier, title, version). At least one of identifier and alternate_identifier must
