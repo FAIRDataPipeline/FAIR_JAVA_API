@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'org.fairdatapipeline'
-version '1.0.0-beta'
+version '1.0.0-rc1'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -84,8 +84,8 @@ publishing {
                 url = 'http://www.fairdatapipeline.org/'
                 licenses {
                     license {
-                        name = 'GNU GENERAL PUBLIC LICENSE, Version 3.0'
-                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                        name = 'GNU LESSER GENERAL PUBLIC LICENSE, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/lgpl-3.0.html'
                     }
                 }
                 organization {
