@@ -416,7 +416,7 @@ public class Coderun implements AutoCloseable {
     try (FileWriter fw = new FileWriter(this.coderuns_txt.toString(), true)) {
       fw.write(uuid + "\n");
     } catch (IOException e) {
-      logger.error("IOException: append_code_run_uuid() failed: {0}", e);
+      logger.error("IOException: append_code_run_uuid() failed.", e);
     }
   }
 

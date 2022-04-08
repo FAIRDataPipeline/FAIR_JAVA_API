@@ -211,7 +211,7 @@ public class Data_product_write extends Data_product {
           Files.delete(this.filePath);
         } catch (IOException e) {
           logger.warn(
-              "Failed to delete current data file which is identical to a file already in the local registry: {0}",
+              "Failed to delete current data file which is identical to a file already in the local registry.",
               e);
         }
         this.registryStorage_location = identical_sl;

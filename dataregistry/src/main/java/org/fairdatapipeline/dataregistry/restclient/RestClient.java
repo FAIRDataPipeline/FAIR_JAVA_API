@@ -159,7 +159,7 @@ public class RestClient {
     try {
       return wt2.request(this.getJsonMediaType()).get(c);
     } catch (NotFoundException e) {
-      logger.warn("get(Class, Int) {0}", e);
+      logger.warn("get(Class, Int)", e);
       return null;
     } catch (Exception e) {
       deal_with_jakarta_http_exceptions(e);
@@ -181,7 +181,7 @@ public class RestClient {
     try {
       return wt2.request(this.getJsonMediaType()).get(c);
     } catch (NotFoundException e) {
-      logger.warn("get(Class, APIURL) {0}", e);
+      logger.warn("get(Class, APIURL)", e);
       return null;
     } catch (Exception e) {
       deal_with_jakarta_http_exceptions(e);
@@ -221,8 +221,7 @@ public class RestClient {
         String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
         logger.error("post(Registry_Updateable) -- error: {}", text);
       } catch (IOException e) {
-        logger.error(
-            "post(Registry_Updateable) -- IOException trying to read response entity: {0}", e);
+        logger.error("post(Registry_Updateable) -- IOException trying to read response entity.", e);
       }
       return null;
     } else {
@@ -279,8 +278,7 @@ public class RestClient {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
       logger.error("patch(Registry_Updateable) -- error: {}", text);
     } catch (IOException e) {
-      logger.error(
-          "patch(Registry_Updateable) -- IOException trying to read response entity: {0}", e);
+      logger.error("patch(Registry_Updateable) -- IOException trying to read response entity.", e);
     }
     return null;
   }
@@ -326,8 +324,7 @@ public class RestClient {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
       logger.error("put(Registry_Updateable) -- error: {}", text);
     } catch (IOException e) {
-      logger.error(
-          "put(Registry_Updateable) -- IOException trying to read response entity: {0}", e);
+      logger.error("put(Registry_Updateable) -- IOException trying to read response entity.", e);
     }
     return null;
   }
