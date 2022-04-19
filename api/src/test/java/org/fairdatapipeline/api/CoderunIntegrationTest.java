@@ -852,4 +852,42 @@ class CoderunIntegrationTest {
     }
     check_last_coderun(null, null);
   }
+
+  @Test
+  @Order(27)
+  void testWriteArray() {
+    String dataProduct = "test/array1";
+    String component1 = "component1/with/a/path";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "nc");
+
+      Object_component_write oc1 = dp.getComponent(component1);
+      oc1.writeArray(array);
+
+    }
+    String hash = "";
+    check_last_coderun(
+            null,
+            Arrays.asList(
+
+                    new Triplet<>(dataProduct, component1, hash)));
+  }
+
+  @Test
+  @Order(28)
+  void testReadArray() {
+    String dataProduct = "test/array1";
+    String component1 = "component1/with/a/path";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read dc = coderun.get_dp_for_read(dataProduct);
+      Object_component_read oc1 = dc.getComponent(component1);
+      assertThat(oc1.readSamples()).containsExactly(1, 2, 3);
+    }
+    String hash = "";
+    check_last_coderun(
+            Arrays.asList(
+
+                    new Triplet<>(dataProduct, component1, hash)),
+            null);
+  }
 }
