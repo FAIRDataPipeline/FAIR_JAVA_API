@@ -3,29 +3,26 @@ package org.fairdatapipeline.api;
 import static java.nio.file.StandardOpenOption.*;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import org.fairdatapipeline.config.ConfigException;
 import org.fairdatapipeline.config.ImmutableConfigItem;
 import org.fairdatapipeline.dataregistry.content.*;
-import org.fairdatapipeline.file.CleanableFileChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Data_product_write is created by Coderun: {@link Coderun#get_dp_for_write(String, String)}
+ * Data_product_write is created by Coderun: {@link Coderun#get_dp_for_write_link(String, String)}
  *
  * <p>Upon {@link Coderun#close()} it will register itself and its components in the registry, and
  * then register its components in the coderun.
  */
-public class Data_product_write extends Data_product {
+abstract class Data_product_write extends Data_product {
   private static final Logger logger = LoggerFactory.getLogger(Data_product_write.class);
-  private boolean is_hashed;
+  boolean is_hashed;
 
   Data_product_write(String dataProduct_name, Coderun coderun) {
     super(dataProduct_name, coderun);
@@ -54,7 +51,6 @@ public class Data_product_write extends Data_product {
     String filename = this.version + "." + this.extension;
     Path my_stolo_path =
         Paths.get(this.namespace_name).resolve(this.actualDataProduct_name).resolve(filename);
-    this.filePath = this.registryStorage_root.getPath().resolve(my_stolo_path);
     this.registryStorage_location.setPath(my_stolo_path.toString());
     this.registryObject = new RegistryObject();
     this.registryObject.setDescription(this.description);
@@ -74,39 +70,40 @@ public class Data_product_write extends Data_product {
     return this.coderun.config.run_metadata().default_output_namespace().orElse("");
   }
 
-  @Override
-  RegistryNamespace getRegistryNamespace(String namespace_name) {
-    RegistryNamespace ns = super.getRegistryNamespace(namespace_name);
-    if (ns == null) {
-      ns = (RegistryNamespace) coderun.restClient.post(new RegistryNamespace(namespace_name));
-      if (ns == null) {
-        throw (new RegistryException(
-            "Failed to create in registry: namespace '" + namespace_name + "'"));
-      }
-    }
-    return ns;
-  }
-
-  private boolean globMatch(String pattern, String dataProduct_name) {
+  /**
+   * @param pattern is the data_product name from the config, that may end in /* to allow matching
+   *     for glob matching.
+   * @return if pattern ends in /*, we return true if this.givenDataProduct_name starts with pattern
+   *     without the * (matching up to and including the /)
+   */
+  private boolean globMatch(String pattern) {
     if (pattern.endsWith("/*")) {
-      return dataProduct_name.startsWith(pattern.substring(0, pattern.length() - 1));
+      return this.givenDataProduct_name.startsWith(pattern.substring(0, pattern.length() - 1));
     }
-    return pattern.equals(dataProduct_name);
+    return pattern.equals(this.givenDataProduct_name);
   }
 
+  /**
+   * getConfigItem searches the ConfigItems for this.givenDataProduct_name. if there is no exact
+   * match, try globMatch for configItems ending in /*
+   *
+   * @return the matching configItem
+   * @throws ConfigException if none matches.
+   */
   @Override
-  ImmutableConfigItem getConfigItem(String dataProduct_name) {
-    ImmutableConfigItem configItem = super.getConfigItem(dataProduct_name);
+  ImmutableConfigItem getConfigItem() {
+    ImmutableConfigItem configItem = super.getConfigItem();
     if (configItem == null) {
       // for WRITING dp's; we allow /* globbing if there is no exact match we look for a /* match
       configItem =
           this.getConfigItems().stream()
-              .filter(ci -> globMatch(ci.data_product(), dataProduct_name))
+              .filter(ci -> globMatch(ci.data_product()))
               .findFirst()
               .orElse(null);
     }
     if (configItem == null) {
-      throw (new ConfigException("DataProduct " + dataProduct_name + " not found in config"));
+      throw (new ConfigException(
+          "DataProduct " + this.givenDataProduct_name + " not found in config"));
     }
     return configItem;
   }
@@ -115,80 +112,11 @@ public class Data_product_write extends Data_product {
     this.do_hash();
   }
 
-  private void do_hash() {
+  void do_hash() {
     if (this.is_hashed) return;
-    String hash = coderun.hasher.fileHash(this.filePath.toString());
+    String hash = coderun.hasher.fileHash(this.getFilePath().toString());
     this.registryStorage_location.setHash(hash);
     this.is_hashed = true;
-  }
-
-  Path getFilePath() {
-    this.been_used = true;
-    this.is_hashed = false;
-    if (!this.filePath.getParent().toFile().exists()) {
-      try {
-        Files.createDirectories(this.filePath.getParent());
-      } catch (IOException e) {
-        logger.error("failed to create directory {}", this.filePath.getParent());
-        // throw, or continue?
-        return null;
-      }
-    }
-    return this.filePath;
-  }
-
-  CleanableFileChannel getFilechannel() throws IOException {
-    this.been_used = true;
-    Runnable onClose = this::executeOnCloseFileHandleDP;
-    if (this.filechannel == null) {
-      if (!this.filePath.getParent().toFile().exists()) {
-        Files.createDirectories(this.filePath.getParent());
-      }
-      this.filechannel =
-          new CleanableFileChannel(FileChannel.open(this.filePath, CREATE_NEW, WRITE), onClose);
-    } else {
-      if (!this.filechannel.isOpen()) {
-        this.filechannel =
-            new CleanableFileChannel(FileChannel.open(this.filePath, APPEND, WRITE), onClose);
-      }
-    }
-    this.is_hashed = false;
-    return this.filechannel;
-  }
-
-  @Override
-  void closeFileChannel() {
-    if (this.filechannel != null) {
-      this.filechannel.close();
-      this.filechannel = null;
-    }
-  }
-
-  /**
-   * Obtain an Object_component for writing.
-   *
-   * @param component_name the name of the object component.
-   * @return the Object_component_write object.
-   */
-  public Object_component_write getComponent(String component_name) {
-    if (componentMap.containsKey(component_name))
-      return (Object_component_write) componentMap.get(component_name);
-    Object_component_write dc;
-    dc =
-        new Object_component_write(
-            this, Objects.requireNonNullElse(component_name, "whole_object"));
-    componentMap.put(component_name, dc);
-    return dc;
-  }
-
-  /**
-   * Obtain an Object_component (whole_object) for writing.
-   *
-   * @return the Object_component class
-   */
-  public Object_component_write getComponent() {
-    if (this.whole_obj_oc == null) this.whole_obj_oc = new Object_component_write(this);
-    return (Object_component_write) this.whole_obj_oc;
   }
 
   void stolo_obj_and_dp_to_registry() {
@@ -208,7 +136,7 @@ public class Data_product_write extends Data_product {
       if (identical_sl != null) {
         // we've found an existing stolo with matching hash. delete this one.
         try {
-          Files.delete(this.filePath);
+          Files.delete(this.getFilePath());
         } catch (IOException e) {
           logger.warn(
               "Failed to delete current data file which is identical to a file already in the local registry.",
@@ -244,16 +172,5 @@ public class Data_product_write extends Data_product {
           "Failed to create in registry: Data_product " + this.registryData_product.getName()));
     }
     this.registryData_product = dp;
-  }
-
-  void components_to_registry() {
-    if (this.whole_obj_oc != null) this.whole_obj_oc.register_me_in_registry();
-    this.componentMap.forEach((key, value) -> value.register_me_in_registry());
-  }
-
-  void objects_to_registry() {
-    this.do_hash();
-    this.stolo_obj_and_dp_to_registry();
-    this.components_to_registry();
   }
 }

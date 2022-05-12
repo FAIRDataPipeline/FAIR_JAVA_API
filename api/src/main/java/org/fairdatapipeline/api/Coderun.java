@@ -320,16 +320,16 @@ public class Coderun implements AutoCloseable {
    * @param dataProduct_name the name of the dataProduct to obtain.
    * @return the data product.
    */
-  public Data_product_read get_dp_for_read(String dataProduct_name) {
+  public Data_product_read_link get_dp_for_read_link(String dataProduct_name) {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_read.class) {
         throw (new IllegalActionException(
             "You are trying to open the same data product twice in the same coderun, first for write and then for read. Please don't."));
       }
-      return (Data_product_read) dp_info_map.get(dataProduct_name);
+      return (Data_product_read_link) dp_info_map.get(dataProduct_name);
     }
-    Data_product_read dp = new Data_product_read(dataProduct_name, this);
+    Data_product_read_link dp = new Data_product_read_link(dataProduct_name, this);
     dp_info_map.put(dataProduct_name, dp);
     return dp;
   }
@@ -341,20 +341,22 @@ public class Coderun implements AutoCloseable {
    * @param extension the file extension representing the file type we will write, e.g. csv or toml
    * @return the data product
    */
-  public Data_product_write get_dp_for_write(String dataProduct_name, String extension) {
+  public Data_product_write_link get_dp_for_write_link(String dataProduct_name, String extension) {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
-      if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write.class) {
+      if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write_link.class) {
         throw (new IllegalActionException(
-            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't."));
+            "You have already opened Data_product with name '"
+                + dataProduct_name
+                + "' but it was not a Data_product_write_link."));
       }
       if (!dp_info_map.get(dataProduct_name).extension.equals(extension)) {
         throw (new IllegalActionException(
             "You are trying to open the same data product using two different file types. Please don't."));
       }
-      return (Data_product_write) dp_info_map.get(dataProduct_name);
+      return (Data_product_write_link) dp_info_map.get(dataProduct_name);
     }
-    Data_product_write dp = new Data_product_write(dataProduct_name, this, extension);
+    Data_product_write_link dp = new Data_product_write_link(dataProduct_name, this, extension);
     dp_info_map.put(dataProduct_name, dp);
     return dp;
   }
@@ -365,17 +367,94 @@ public class Coderun implements AutoCloseable {
    * @param dataProduct_name the name of the dataProduct to obtain.
    * @return the data product
    */
-  public Data_product_write get_dp_for_write(String dataProduct_name) {
+  public Data_product_write_link get_dp_for_write_link(String dataProduct_name) {
+    return this.get_dp_for_write_link(dataProduct_name, null);
+  }
+
+  /**
+   * Obtain a data product for writing. (gets the extension from config)
+   *
+   * @param dataProduct_name the name of the dataProduct to obtain.
+   * @return the data product
+   */
+  public Data_product_write_toml get_dp_for_write_toml(String dataProduct_name) {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
-      if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write.class) {
+      if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write_toml.class) {
         throw (new IllegalActionException(
-            "You are trying to open the same data product twice in the same coderun, first for read and then for write. Please don't."));
+            "You have already opened Data_product with name '"
+                + dataProduct_name
+                + "' but it was not a Data_product_write_json."));
       }
-      return (Data_product_write) dp_info_map.get(dataProduct_name);
+      return (Data_product_write_toml) dp_info_map.get(dataProduct_name);
     }
-    Data_product_write dp = new Data_product_write(dataProduct_name, this);
-    // if dp.extension != dp_info_map.get(dataProduct_name).extension) -> FAIL
+    Data_product_write_toml dp = new Data_product_write_toml(dataProduct_name, this);
+    dp_info_map.put(dataProduct_name, dp);
+    return dp;
+  }
+
+  /**
+   * Obtain a data product for writing. (gets the extension from config)
+   *
+   * @param dataProduct_name the name of the dataProduct to obtain.
+   * @return the data product
+   */
+  public Data_product_read_nc get_dp_for_read_nc(String dataProduct_name) {
+    if (dp_info_map.containsKey(dataProduct_name)) {
+      // I could of course refuse to serve up the same DP twice, but let's be friendly.
+      if (dp_info_map.get(dataProduct_name).getClass() != Data_product_read_nc.class) {
+        throw (new IllegalActionException(
+            "You have already opened Data_product with name '"
+                + dataProduct_name
+                + "' but it was not a Data_product_read_nc."));
+      }
+      return (Data_product_read_nc) dp_info_map.get(dataProduct_name);
+    }
+    Data_product_read_nc dp = new Data_product_read_nc(dataProduct_name, this);
+    dp_info_map.put(dataProduct_name, dp);
+    return dp;
+  }
+
+  /**
+   * Obtain a data product for writing. (gets the extension from config)
+   *
+   * @param dataProduct_name the name of the dataProduct to obtain.
+   * @return the data product
+   */
+  public Data_product_read_toml get_dp_for_read_toml(String dataProduct_name) {
+    if (dp_info_map.containsKey(dataProduct_name)) {
+      // I could of course refuse to serve up the same DP twice, but let's be friendly.
+      if (dp_info_map.get(dataProduct_name).getClass() != Data_product_read_toml.class) {
+        throw (new IllegalActionException(
+            "You have already opened Data_product with name '"
+                + dataProduct_name
+                + "' but it was not a Data_product_write_toml."));
+      }
+      return (Data_product_read_toml) dp_info_map.get(dataProduct_name);
+    }
+    Data_product_read_toml dp = new Data_product_read_toml(dataProduct_name, this);
+    dp_info_map.put(dataProduct_name, dp);
+    return dp;
+  }
+
+  /**
+   * Obtain a data product for writing. (gets the extension from config)
+   *
+   * @param dataProduct_name the name of the dataProduct to obtain.
+   * @return the data product
+   */
+  public Data_product_write_nc get_dp_for_write_nc(String dataProduct_name) {
+    if (dp_info_map.containsKey(dataProduct_name)) {
+      // I could of course refuse to serve up the same DP twice, but let's be friendly.
+      if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write_nc.class) {
+        throw (new IllegalActionException(
+            "You have already opened Data_product with name '"
+                + dataProduct_name
+                + "' but it was not a Data_product_write_json."));
+      }
+      return (Data_product_write_nc) dp_info_map.get(dataProduct_name);
+    }
+    Data_product_write_nc dp = new Data_product_write_nc(dataProduct_name, this);
     dp_info_map.put(dataProduct_name, dp);
     return dp;
   }
