@@ -86,8 +86,8 @@ public interface Config {
     ImmutableConfigUseItem use();
 
     /**
-     * Config write items may specify the file_type (such as csv, h5, or toml) but this can also be
-     * specified using {@link Coderun#get_dp_for_write(String, String)} method.
+     * Config write items may specify the file_type (such as csv, txt) but this can also be
+     * specified using {@link Coderun#get_dp_for_write_link(String, String)} method.
      *
      * @return String the file_type file extension, if given.
      */

@@ -22,14 +22,14 @@ class Author {
         (RegistryUsers)
             restClient.getFirst(RegistryUsers.class, Collections.singletonMap("username", "admin"));
     if (u == null) {
-      throw (new RegistryObjectNotfoundException("Couldn't find a User in the local registry!"));
+      throw (new RegistryObjectNotFoundException("Couldn't find a User in the local registry!"));
     }
     RegistryUser_author ua =
         (RegistryUser_author)
             restClient.getFirst(
                 RegistryUser_author.class, Collections.singletonMap("user", u.get_id().toString()));
     if (ua == null) {
-      throw (new RegistryObjectNotfoundException(
+      throw (new RegistryObjectNotFoundException(
           "Couldn't find a User_author in the local registry!"));
     }
     this.registryAuthor = (RegistryAuthor) restClient.get(RegistryAuthor.class, ua.getAuthor());

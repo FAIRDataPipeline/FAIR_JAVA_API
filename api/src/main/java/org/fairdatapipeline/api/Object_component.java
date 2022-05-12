@@ -1,20 +1,21 @@
 package org.fairdatapipeline.api;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import org.fairdatapipeline.dataregistry.content.RegistryObject_component;
-import org.fairdatapipeline.file.CleanableFileChannel;
 
 /**
  * This represents an object_component to read from or write to (or raise issues with) An
  * object_component without a name is the 'whole_object' component.
  */
-public abstract class Object_component {
+abstract class Object_component {
+  /** component_name is the name of this component; if not given we will use "whole_object" */
   final String component_name;
+  /** is this a 'whole_object' or a named part for a toml or netcdf file? */
   final boolean whole_object;
+  /** the Data_product we are part of */
   final Data_product dp;
+  /** registryObject_component is the */
   RegistryObject_component registryObject_component;
+
   boolean been_used = false;
 
   Object_component(Data_product dp, String component_name) {
@@ -43,21 +44,11 @@ public abstract class Object_component {
     i.add_components(this);
   }
 
-  CleanableFileChannel getFileChannel() throws IOException {
-    this.been_used = true;
-    return this.dp.getFilechannel();
-  }
-
+  /**
+   * populate_component() - sets this.registryObject_component - for READ component: retrieve from
+   * registry - for WRITE component: create an empty new registryObject_component.
+   */
   abstract void populate_component();
-
-  RegistryObject_component retrieveObject_component() {
-    Map<String, String> objcompmap = new HashMap<>();
-    objcompmap.put("object", dp.registryObject.get_id().toString());
-    if (this.whole_object) objcompmap.put("whole_object", "true");
-    else objcompmap.put("name", component_name);
-    return (RegistryObject_component)
-        dp.coderun.restClient.getFirst(RegistryObject_component.class, objcompmap);
-  }
 
   /** POST this registryObject_component to the registry, unless it's not been used */
   abstract void register_me_in_registry();
