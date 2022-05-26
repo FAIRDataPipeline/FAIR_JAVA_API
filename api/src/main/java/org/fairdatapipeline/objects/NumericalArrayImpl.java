@@ -8,6 +8,9 @@ public class NumericalArrayImpl implements NumericalArray {
   }
 
   @Override
+  public Object[] asOA() {return nDArray; }
+
+  @Override
   public Number[] as1DArray() {
     return (Number[]) nDArray;
   }
