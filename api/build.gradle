@@ -30,6 +30,7 @@ javadoc {
 
 dependencies {
     implementation project(':dataregistry')
+    implementation 'org.jetbrains:annotations:20.1.0'
     annotationProcessor 'org.immutables:value:2.9.0'
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'com.google.guava:guava:31.1-jre'

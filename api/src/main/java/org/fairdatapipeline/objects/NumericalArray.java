@@ -1,6 +1,8 @@
 package org.fairdatapipeline.objects;
 
 public interface NumericalArray {
+  Object[] asOA();
+
   Number[] as1DArray();
 
   Number[][] as2DArray();
