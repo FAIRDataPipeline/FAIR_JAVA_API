@@ -67,7 +67,7 @@ public class NetcdfWriter implements AutoCloseable {
         if(v == null) throw(new IllegalActionException("variable " + nadef.getName() + " (in group " + group_name + ") not found for writing."));
         //Array data = NetcdfDataType.translate_array(nadef.getDataType(), nadef.getDimension_sizes(), nadat.asOA());
         // the below works for primitive arrays.. if it might contain non primitives we need NetcdfDataType.translate_array instead.
-        Array data = ucar.ma2.Array.makeFromJavaArray(nadat.asOA());
+        Array data = ucar.ma2.Array.makeFromJavaArray(nadat.asObject());
         try{
             this.netcdfWriterWrapper.writer.write(v, data);
         }catch(IOException e) {
@@ -77,16 +77,16 @@ public class NetcdfWriter implements AutoCloseable {
         }
     }
 
-    public void writeArrayDataPart(String group_name, NumericalArrayDefinition nadef, NumericalArray nadat) {
+    public void writeArrayDataPart(String group_name, NumericalArrayDefinition nadef, NumericalArray nadat, int[] origin) {
         Group g = this.netcdfWriterWrapper.netcdfFile.findGroup(group_name);
         if(g == null) throw(new IllegalActionException("group " + group_name + " not found for writing."));
         Variable v = g.findVariableLocal(nadef.getName());
         if(v == null) throw(new IllegalActionException("variable " + nadef.getName() + " (in group " + group_name + ") not found for writing."));
         //Array data = NetcdfDataType.translate_array(nadef.getDataType(), nadef.getDimension_sizes(), nadat.asOA());
         // the below works for primitive arrays.. if it might contain non primitives we need NetcdfDataType.translate_array instead.
-        Array data = ucar.ma2.Array.makeFromJavaArray(nadat.asOA());
+        Array data = ucar.ma2.Array.makeFromJavaArray(nadat.asObject());
         try{
-            this.netcdfWriterWrapper.writer.write();
+            this.netcdfWriterWrapper.writer.write(v, origin, data);
         }catch(IOException e) {
             throw(new IllegalActionException("failed to write array data to file for group " + group_name));
         }catch(InvalidRangeException e) {
@@ -99,7 +99,7 @@ public class NetcdfWriter implements AutoCloseable {
         if(g == null) throw(new IllegalActionException("group " + group_name + " not found for writing."));
         Variable v = g.findVariableLocal(nadef.getName());
         if(v == null) throw(new IllegalActionException("variable " + nadef.getName() + " (in group " + group_name + ") not found for writing."));
-        
+        return new NetcdfWriteHandle(v, this.netcdfWriterWrapper.writer);
     }
 
 

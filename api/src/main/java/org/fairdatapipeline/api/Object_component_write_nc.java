@@ -1,12 +1,14 @@
 package org.fairdatapipeline.api;
 
 import org.fairdatapipeline.netcdf.NetcdfBuilder;
+import org.fairdatapipeline.netcdf.NetcdfWriteHandle;
 import org.fairdatapipeline.netcdf.NetcdfWriter;
 import org.fairdatapipeline.objects.NumericalArray;
 import org.fairdatapipeline.objects.NumericalArrayDefinition;
 
 public class Object_component_write_nc extends Object_component_write {
   NumericalArrayDefinition nadef;
+  NetcdfWriteHandle write_handle;
 
   Object_component_write_nc(Data_product_write_nc dp, String component_name) {
     super(dp, component_name);
@@ -29,7 +31,7 @@ public class Object_component_write_nc extends Object_component_write {
       this.write_handle = nWriter.get_write_handle(this.component_name, this.nadef);
     }
 
-    nWriter.writeArrayData(this.component_name, this.nadef, nadat);
+    //nWriter.writeArrayData(this.component_name, this.nadef, nadat);
   }
 
   void writeDimensionVariables(NetcdfWriter nWriter) {
