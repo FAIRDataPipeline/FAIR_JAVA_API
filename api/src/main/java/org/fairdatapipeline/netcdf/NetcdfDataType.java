@@ -54,26 +54,10 @@ public enum NetcdfDataType {
                 throw(new UnsupportedOperationException("can't translate object of class "+ o.getClass().getSimpleName() + " to NetCDF data type."));
         }
 
-        /**
-         *
-         * @param o an array cast to Object; can be an array of Object or int or double.
-         * @return the length of the array
-         */
-        static int get_array_length(Object o) {
-                if(o.getClass().equals(int[].class)) return ((int[])o).length;
-                if(o.getClass().equals(double[].class)) return ((double[])o).length;
-                try {
-                        return ((Object[])o).length;
-                }catch(ClassCastException e) {
-                        throw(new IllegalArgumentException("can't find the length of " + o.getClass().getSimpleName(), e));
-                }
 
-        }
 
         public static ucar.ma2.Array translate_array(Object o) {
-                DataType dt = translate_datatype(o);
-                System.out.println("data type: " + dt);
-                return ucar.ma2.Array.factory(dt, new int[] {get_array_length(o)}, o);
+                return ucar.ma2.Array.factory(translate_datatype(o), new int[] {Array.getLength(o)}, o);
         }
 
         /**

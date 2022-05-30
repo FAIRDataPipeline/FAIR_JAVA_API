@@ -1,7 +1,11 @@
 package org.fairdatapipeline.objects;
 
 public interface NumericalArray {
-  Object[] asOA();
+  Object asObject();
+
+  int[] getShape();
+
+  public NumericalArray matchShape(int[] longershape);
 
   Number[] as1DArray();
 

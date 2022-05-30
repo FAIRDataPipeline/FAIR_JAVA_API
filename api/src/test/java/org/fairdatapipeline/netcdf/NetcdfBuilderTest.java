@@ -1,9 +1,7 @@
 package org.fairdatapipeline.netcdf;
 
 import org.apache.commons.io.FileUtils;
-import org.checkerframework.common.reflection.qual.GetClass;
 import org.fairdatapipeline.hash.Hasher;
-import org.fairdatapipeline.file.FileReader;
 import org.fairdatapipeline.hash.Sha1Hasher;
 import org.fairdatapipeline.objects.NumericalArray;
 import org.fairdatapipeline.objects.NumericalArrayDefinition;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.TestInstance;
 import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 
-import org.w3c.dom.Attr;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
@@ -24,15 +21,11 @@ import ucar.nc2.write.Nc4ChunkingStrategy;
 import ucar.nc2.write.NetcdfFileFormat;
 import ucar.nc2.write.NetcdfFormatWriter;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class NetcdfBuilderTest {
@@ -46,34 +39,65 @@ public class NetcdfBuilderTest {
     }
 
 
+    /**
+     * testing creation of a single group in netcdf using NetcdfBuilder.getGroup()
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     @Test
     void test_create_group_with_dim() throws IOException, URISyntaxException {
-        Path filePath = Files.createTempFile("test1", ".nc");
+        String filename = "test_create_group_with_dim";
+        String resourceName = "/netcdf/test_create_group_with_dim.nc";
+        Path filePath = Files.createTempFile(filename, ".nc");
         try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
             Group.Builder g = b.getGroup(null, "/aap/noot/mies");
             g.addDimension(new Dimension("bla", 3));
         }
-        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource("/testfile1.nc").toURI()).toFile()));
+        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
         FileUtils.delete(filePath.toFile());
     }
 
+    /**
+     * testing creation of a group and its subgroup (each containing a dimension), using NetcdfBuilder.getGroup()
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     @Test
     void test_create_2groups_with_dims() throws IOException, URISyntaxException {
-        Path filePath = Files.createTempFile("test2", ".nc");
+        String filename = "test_create_2groups_with_dims";
+        String resourceName = "/netcdf/test_create_2groups_with_dims.nc";
+        Path filePath = Files.createTempFile(filename, ".nc");
         try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
             Group.Builder g1 = b.getGroup(null, "/aap/noot/mies");
             Group.Builder g2 = b.getGroup(null, "/aap/noot/mies/pis");
             g1.addDimension(new Dimension("miesdim", 3));
             g2.addDimension(new Dimension("pisdim", 2));
         }
-        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource("/testfile2.nc").toURI()).toFile()));
+        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
         FileUtils.delete(filePath.toFile());
     }
 
+    /**
+     * can't use Array.makeFromJavaArray() on a non-primitives array, such as String[]
+     */
+    @Test
+    void makeFromJavaNonPrimitive() {
+        Object o = new String[] {"bram"};
+        Assertions.assertThrows(NullPointerException.class, () -> {ucar.ma2.Array.makeFromJavaArray(o);});
+    }
+
+    /**
+     * test that we can store a String[] in a STRING variable.
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws InvalidRangeException
+     */
     @Test
     void test_write_string() throws IOException, URISyntaxException, InvalidRangeException {
+        String filename = "test_write_string";
+        String resourceName = "/netcdf/test_write_string.nc";
         String varname = "blavar";
-        Path filePath = Files.createTempFile("test_write_string", ".nc");
+        Path filePath = Files.createTempFile(filename, ".nc");
         Nc4Chunking chunker =
                 Nc4ChunkingStrategy.factory(Nc4Chunking.Strategy.none, 0, false);
         NetcdfFormatWriter.Builder builder = NetcdfFormatWriter.createNewNetcdf4(NetcdfFileFormat.NETCDF4, filePath.toString(), chunker);
@@ -83,17 +107,26 @@ public class NetcdfBuilderTest {
         Variable v = writer.findVariable(varname);
         if(v == null) throw(new UnsupportedOperationException("variable " + varname + " not found"));
         Object o = new String[] {"bram"};
-        ucar.ma2.Array values = ucar.ma2.Array.makeFromJavaArray(o);
+        ucar.ma2.Array values = NetcdfDataType.translate_array(o);
         writer.write(v, values);
         writer.close();
+        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+        FileUtils.delete(filePath.toFile());
     }
 
+    /**
+     * test a simple INT array stored using NetcdfBuilder.prepareArray and .writeDimensionVariables and .writeArrayData
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     @Test
-    void test_build_write1() throws IOException, URISyntaxException {
+    void test_build_prepare_write_INT() throws IOException, URISyntaxException {
+        String filename = "test_build_prepare_write_INT";
+        String resourceName = "/netcdf/test_build_prepare_write_INT.nc";
         NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature", NetcdfDataType.INT, "a test dataset with temperatures in 2d space", new String[] {"X", "Y"}, new int[] {2, 3}, new int[][] {{2, 4}, {3, 6, 9}}, new String[] {"cm", "cm"}, "C");
         String group = "/aap/noot/mies";
         NumericalArray nadat = new NumericalArrayImpl(new int[][] {{1,2,3}, {11, 12, 13}});
-        Path filePath = Files.createTempFile("test2", ".nc");
+        Path filePath = Files.createTempFile(filename, ".nc");
         try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
             b.prepareArray(group, nadef);
             try(NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
@@ -101,12 +134,17 @@ public class NetcdfBuilderTest {
                 w.writeArrayData(group, nadef, nadat);
             }
         }
-        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource("/testfile3.nc").toURI()).toFile()));
+        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
         FileUtils.delete(filePath.toFile());
     }
 
+    /**
+     * testing the prepare/write sequence with 2 arrays.
+     */
     @Test
-    void test_build_write2() {
+    void test_build_write_two_arrays() throws IOException, URISyntaxException{
+        String filename = "test_build_write_two_arrays";
+        String resourceName = "/netcdf/test_build_write_two_arrays.nc";
         NumericalArrayDefinition temperature = new NumericalArrayDefinition("temperature", NetcdfDataType.INT,
                 "a test dataset with int temperatures in 2d space, measure in a 2cm grid",
                 new String[] {"X", "Y"},
@@ -128,7 +166,8 @@ public class NetcdfBuilderTest {
         String group2 = "/my/othergroup/heights";
         NumericalArray temp_data = new NumericalArrayImpl(new int[][] {{1,2,3}, {11, 12, 13}});
         NumericalArray height_data = new NumericalArrayImpl(new double[][] {{1.832, 1.828, 1.823}, {1.229, 1.232, 1.239}});
-        try(NetcdfBuilder b = new NetcdfBuilder("D:\\testfile5.nc", this.onClose)) {
+        Path filePath = Files.createTempFile(filename, ".nc");
+        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
             b.prepareArray(group1, temperature);
             b.prepareArray(group2, heights);
             try(NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
@@ -138,33 +177,85 @@ public class NetcdfBuilderTest {
                 w.writeArrayData(group2, heights, height_data);
             }
         }
+        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+        FileUtils.delete(filePath.toFile());
     }
+
+
+    /**
+     * test using NetcdfWritehandle to write a 3d array in timeslices: an XY 2d set for 1 write each t
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     @Test
-    void test_build_write3() {
-        NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature", NetcdfDataType.INT, "a test dataset with temperatures in 2d space", new String[] {"X", "Y"}, new int[] {2, 3}, new int[][] {{2, 4}, {3, 6, 9}}, new String[] {"cm", "cm"}, "C");
-        String group = "/aap/noot/mies";
-        NumericalArray nadat = new NumericalArrayImpl(new int[][] {{1,2,3}, {11, 12, 13}});
-        try(NetcdfBuilder b = new NetcdfBuilder("D:\\testfile4.nc", this.onClose)) {
+    void test_build_write_in_parts1() throws IOException, URISyntaxException{
+        String filename = "test_build_write_in_parts1";
+        String resourceName = "/netcdf/test_build_write_in_parts.nc";
+
+        NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature",
+                NetcdfDataType.INT,
+                "a test dataset with temperatures in time", new String[] {"time", "X", "Y"},
+                new int[] {5, 2, 3}, new int[][] {{1640995200, 1640995201, 1640995202, 1640995203, 1640995204}, {2, 4}, {3, 6, 9}},
+                new String[] {"seconds since 01-01-1970", "cm", "cm"},
+                "C");
+        String group = "/three/d/intime";
+
+        Path filePath = Files.createTempFile(filename, ".nc");
+        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
             b.prepareArray(group, nadef);
             try(NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
                 w.writeDimensionVariables(group, nadef);
-                w.writeArrayData(group, nadef, nadat);
+                NetcdfWriteHandle h = w.get_write_handle(group, nadef);
+                int[][] xyMeasurements = new int[2][3];
+                int i = 0;
+                for(int time=0;time<5;time++) {
+                    for(int x=0;x<2;x++) for(int y=0;y<3;y++) xyMeasurements[x][y] = i++;
+                    h.write_data(new NumericalArrayImpl(xyMeasurements));
+                }
             }
         }
+        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+        FileUtils.delete(filePath.toFile());
     }
+
+
+    /**
+     * test using NetcdfWritehandle to write a TXY 3d array in 1d vectors: write a Y 1d vector set for 1 write each TX
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     @Test
-    void test_build_write4() {
-        NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature", NetcdfDataType.INT, "a test dataset with temperatures in 2d space", new String[] {"X", "Y"}, new int[] {2, 3}, new int[][] {{2, 4}, {3, 6, 9}}, new String[] {"cm", "cm"}, "C");
-        String group = "/aap/noot/mies";
-        NumericalArray nadat = new NumericalArrayImpl(new int[][] {{1,2,3}, {11, 12, 13}});
-        try(NetcdfBuilder b = new NetcdfBuilder("D:\\testfile4.nc", this.onClose)) {
+    void test_build_write_in_parts2() throws IOException, URISyntaxException{
+        String filename = "test_build_write_in_parts2";
+        String resourceName = "/netcdf/test_build_write_in_parts.nc";
+
+        NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature",
+                NetcdfDataType.INT,
+                "a test dataset with temperatures in time", new String[] {"time", "X", "Y"},
+                new int[] {5, 2, 3}, new int[][] {{1640995200, 1640995201, 1640995202, 1640995203, 1640995204}, {2, 4}, {3, 6, 9}},
+                new String[] {"seconds since 01-01-1970", "cm", "cm"},
+                "C");
+        String group = "/three/d/intime";
+
+        Path filePath = Files.createTempFile(filename, ".nc");
+        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
             b.prepareArray(group, nadef);
             try(NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
                 w.writeDimensionVariables(group, nadef);
-                w.writeArrayData(group, nadef, nadat);
+                NetcdfWriteHandle h = w.get_write_handle(group, nadef);
+                int[] yMeasurements = new int[3];
+                int i = 0;
+                for(int time=0;time<5;time++) for(int x=0;x<2;x++) {
+                    for(int y=0;y<3;y++) yMeasurements[y] = i++;
+                    h.write_data(new NumericalArrayImpl(yMeasurements));
+                }
             }
         }
+        Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+        FileUtils.delete(filePath.toFile());
     }
+
+
 
     @Test
     void test_make_from_javaarray() {

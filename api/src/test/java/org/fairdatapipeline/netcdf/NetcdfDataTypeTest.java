@@ -10,6 +10,8 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 
+import java.util.Arrays;
+
 public class NetcdfDataTypeTest {
     @Test
     void test_translate_datatype_integer() {
@@ -38,21 +40,6 @@ public class NetcdfDataTypeTest {
         DataType dt = NetcdfDataType.translate_datatype(o);
         Assertions.assertEquals(DataType.STRING, dt);
     }
-
-    @Test
-    void get_length() {
-        Object[] o = new Object[5];
-        o[0] = new int[]{1, 2, 3};
-        o[1] = new Integer[]{1, 2, 3};
-        o[2] = new String[]{"a", "b", "c"};
-        o[3] = new double[]{1.1, 2.2, 3.3};
-        o[4] = new Double[]{1.1, 2.2, 3.3};
-        for (int i = 0; i < o.length; i++) {
-            Assertions.assertEquals(3, NetcdfDataType.get_array_length(o[i]));
-        }
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {NetcdfDataType.get_array_length(1);});
-    }
-
 
     @Test
     void translate_array_test_int() {
@@ -94,6 +81,20 @@ public class NetcdfDataTypeTest {
         Object o = new double[] {1.1, 2.2, 3.3};
         Array a = Array.makeFromJavaArray(o);
         Assertions.assertEquals(2.2, a.getDouble(1));
+    }
+
+    @Test
+    void makeArrayFromJavaInt2d() {
+        Object o = new int[][] {{1,2,3},{11,22,22}};
+        Array a = Array.makeFromJavaArray(o);
+        Assertions.assertEquals(22, a.getInt(Index.factory(a.getShape()).set0(1).set1(1)));
+    }
+
+    @Test
+    void makeArrayFromJava_addedTopDimension() {
+        int[] i = new int[]  {1,2,3};
+        Array a = Array.makeArrayRankPlusOne(Array.makeFromJavaArray(i));
+        System.out.println(java.util.Arrays.toString(a.getShape()));
     }
 
     @Test
