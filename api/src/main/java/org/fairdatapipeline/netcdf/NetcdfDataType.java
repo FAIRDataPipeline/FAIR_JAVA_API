@@ -1,5 +1,6 @@
 package org.fairdatapipeline.netcdf;
 
+import org.jetbrains.annotations.NotNull;
 import ucar.ma2.DataType;
 
 import java.lang.reflect.Array;
@@ -43,7 +44,7 @@ public enum NetcdfDataType {
                 return DataType.BOOLEAN;
         }
 
-        public static DataType translate_datatype(Object o) {
+        public static DataType translate_datatype(@NotNull Object o) {
                 if (Array.newInstance(Integer.class, 0).getClass().equals(o.getClass()) || Array.newInstance(int.class, 0).getClass().equals(o.getClass())) {
                         return DataType.INT;
                 } else if (Array.newInstance(Double.class, 0).getClass().equals(o.getClass()) || Array.newInstance(double.class, 0).getClass().equals(o.getClass())) {
@@ -56,7 +57,7 @@ public enum NetcdfDataType {
 
 
 
-        public static ucar.ma2.Array translate_array(Object o) {
+        public static ucar.ma2.Array translate_array(@NotNull Object o) {
                 return ucar.ma2.Array.factory(translate_datatype(o), new int[] {Array.getLength(o)}, o);
         }
 
@@ -67,7 +68,7 @@ public enum NetcdfDataType {
          * @param o
          * @return
          */
-        public static ucar.ma2.Array translate_array(NetcdfDataType dataType, int[] dim_sizes, Object o) {
+        public static ucar.ma2.Array translate_array(@NotNull NetcdfDataType dataType, @NotNull int[] dim_sizes, @NotNull Object o) {
                 return ucar.ma2.Array.factory(dataType.translate(), dim_sizes, o);
         }
 }

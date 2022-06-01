@@ -17,6 +17,7 @@ public class NetcdfWriteHandle {
     Variable variable;
     int[] write_pointer;
     int[] shape;
+    int[] fakeShape;
     NetcdfFormatWriter writer;
     boolean eof = false;
 
@@ -24,6 +25,8 @@ public class NetcdfWriteHandle {
         this.writer = w;
         this.variable = v;
         this.shape = v.getShape();
+        this.fakeShape = this.shape.clone();
+        if(this.fakeShape[0] == 0) this.fakeShape[0] = Integer.MAX_VALUE;
         this.write_pointer = new int[this.shape.length];
     }
 
@@ -45,7 +48,7 @@ public class NetcdfWriteHandle {
                 writer.write(variable, this.write_pointer, a);
                 int update_dimension = this.shape.length - data.getShape().length - 1;
                 this.write_pointer[update_dimension] += 1;
-                while(this.write_pointer[update_dimension] >= this.shape[update_dimension]) {
+                while(this.write_pointer[update_dimension] >= this.fakeShape[update_dimension]) {
                     if(update_dimension == 0) {
                         eof = true;
                         System.out.println("write.. EOF reached");

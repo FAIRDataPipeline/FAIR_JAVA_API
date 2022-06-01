@@ -9,8 +9,6 @@ import org.fairdatapipeline.objects.NumericalArrayImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
-import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
@@ -23,6 +21,7 @@ import ucar.nc2.write.NetcdfFormatWriter;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -231,7 +230,8 @@ public class NetcdfBuilderTest {
 
         NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature",
                 NetcdfDataType.INT,
-                "a test dataset with temperatures in time", new String[] {"time", "X", "Y"},
+                "a test dataset with temperatures in time and space",
+                new String[] {"time", "X", "Y"},
                 new int[] {5, 2, 3}, new int[][] {{1640995200, 1640995201, 1640995202, 1640995203, 1640995204}, {2, 4}, {3, 6, 9}},
                 new String[] {"seconds since 01-01-1970", "cm", "cm"},
                 "C");
@@ -253,6 +253,49 @@ public class NetcdfBuilderTest {
         }
         Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
         FileUtils.delete(filePath.toFile());
+    }
+
+    @Test
+    void sharedDimension() throws IOException, URISyntaxException {
+        String filename = "sharedDimension";
+        String resourceName = "/netcdf/sharedDimension.nc";
+
+        DimensionDefinition time = new DimensionDefinition("time",
+                NetcdfDataType.INT,
+                "this is the time dimension that other arrays should link to",
+                0,
+                "seconds (since 01-01-1970)",
+                new int[] {12, 13, 14, 15, 16}
+                );
+
+        NumericalArrayDefinition nadef_temp = new NumericalArrayDefinition("temperature",
+                NetcdfDataType.INT,
+                "a test dataset with temperatures in time and space",
+                new String[]{"/time/time", "X", "Y"},
+                new int[]{0, 2, 3},
+                new int[][]{{}, {2, 4}, {3, 6, 9}},
+                new String[]{"", "cm", "cm"},
+                "C");
+        String group_temp = "/time/temp";
+        String group_time = "/time";
+
+        Path filePath = Files.createTempFile(filename, ".nc");
+        try (NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
+            b.prepareDimension(group_time, time);
+            b.prepareArray(group_temp, nadef_temp);
+            try (NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
+                w.writeDimensionVariables(group_temp, nadef_temp);
+                w.writeDimensionVariable(group_time, time);
+                NetcdfWriteHandle h = w.get_write_handle(group_temp, nadef_temp);
+                int[][] xyMeasurements = new int[2][3];
+                int i = 0;
+                for(int t=0;t<5;t++) {
+                    for(int x=0;x<2;x++) for(int y=0;y<3;y++) xyMeasurements[x][y] = i++;
+                    h.write_data(new NumericalArrayImpl(xyMeasurements));
+                }
+
+            }
+        }
     }
 
 
