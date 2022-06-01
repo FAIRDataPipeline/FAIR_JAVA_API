@@ -3,7 +3,6 @@ package org.fairdatapipeline.objects;
 import org.fairdatapipeline.api.IllegalActionException;
 import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
 
 public class NumericalArrayTest {
 
