@@ -16,28 +16,28 @@ public class NetcdfDataTypeTest {
     @Test
     void test_translate_datatype_integer() {
         Object o = new Integer[] {1, 2, 3};
-        DataType dt = NetcdfDataType.translate_datatype(o);
+        DataType dt = NetcdfDataType.translate(NetcdfDataType.translate_datatype(o));
         Assertions.assertEquals(DataType.INT, dt);
     }
 
     @Test
     void test_translate_datatype_int() {
         Object o = new int[] {1, 2, 3};
-        DataType dt = NetcdfDataType.translate_datatype(o);
+        DataType dt = NetcdfDataType.translate(NetcdfDataType.translate_datatype(o));
         Assertions.assertEquals(DataType.INT, dt);
     }
 
     @Test
     void test_translate_datatype_double() {
         Object o = new double[] {1.1, 2.2, 3.3};
-        DataType dt = NetcdfDataType.translate_datatype(o);
+        DataType dt = NetcdfDataType.translate(NetcdfDataType.translate_datatype(o));
         Assertions.assertEquals(DataType.DOUBLE, dt);
     }
 
     @Test
     void test_translate_datatype_string() {
         Object o = new String[] {"a", "s", "ee"};
-        DataType dt = NetcdfDataType.translate_datatype(o);
+        DataType dt = NetcdfDataType.translate(NetcdfDataType.translate_datatype(o));
         Assertions.assertEquals(DataType.STRING, dt);
     }
 

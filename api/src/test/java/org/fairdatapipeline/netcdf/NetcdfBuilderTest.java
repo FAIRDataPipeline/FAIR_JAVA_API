@@ -21,7 +21,6 @@ import ucar.nc2.write.NetcdfFormatWriter;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,7 +47,7 @@ public class NetcdfBuilderTest {
         String filename = "test_create_group_with_dim";
         String resourceName = "/netcdf/test_create_group_with_dim.nc";
         Path filePath = Files.createTempFile(filename, ".nc");
-        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
+        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
             Group.Builder g = b.getGroup(null, "/aap/noot/mies");
             g.addDimension(new Dimension("bla", 3));
         }
@@ -66,7 +65,7 @@ public class NetcdfBuilderTest {
         String filename = "test_create_2groups_with_dims";
         String resourceName = "/netcdf/test_create_2groups_with_dims.nc";
         Path filePath = Files.createTempFile(filename, ".nc");
-        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
+        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), Nc4Chunking.Strategy.standard, 3, true,  this.onClose)) {
             Group.Builder g1 = b.getGroup(null, "/aap/noot/mies");
             Group.Builder g2 = b.getGroup(null, "/aap/noot/mies/pis");
             g1.addDimension(new Dimension("miesdim", 3));
@@ -122,15 +121,26 @@ public class NetcdfBuilderTest {
     void test_build_prepare_write_INT() throws IOException, URISyntaxException {
         String filename = "test_build_prepare_write_INT";
         String resourceName = "/netcdf/test_build_prepare_write_INT.nc";
-        NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature", NetcdfDataType.INT, "a test dataset with temperatures in 2d space", new String[] {"X", "Y"}, new int[] {2, 3}, new int[][] {{2, 4}, {3, 6, 9}}, new String[] {"cm", "cm"}, "C");
+        DimensionDefinition[] dimensions = new DimensionDefinition[2];
+        dimensions[0] = new DimensionDefinitionLocal("X",
+                "the x-axis is measured in along the length of my football pitch; (0,0) is the southwest corner.",
+                "m",
+                new int[] {2,4});
+        dimensions[1] = new DimensionDefinitionLocal("Y",
+                "the y-axis is measured in along the width of my football pitch; (0,0) is the southwest corner.",
+                "m",
+                new int[] {3,6,9});
+        NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature", NetcdfDataType.INT, "a test dataset with temperatures in 2d space", "C", dimensions);
         String group = "/aap/noot/mies";
         NumericalArray nadat = new NumericalArrayImpl(new int[][] {{1,2,3}, {11, 12, 13}});
         Path filePath = Files.createTempFile(filename, ".nc");
-        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
+        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
             b.prepareArray(group, nadef);
             try(NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
                 w.writeDimensionVariables(group, nadef);
-                w.writeArrayData(group, nadef, nadat);
+                w.writeArrayData(w.getVariable(group, nadef), nadat);
+            }catch(InvalidRangeException e) {
+                //
             }
         }
         Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
@@ -144,36 +154,49 @@ public class NetcdfBuilderTest {
     void test_build_write_two_arrays() throws IOException, URISyntaxException{
         String filename = "test_build_write_two_arrays";
         String resourceName = "/netcdf/test_build_write_two_arrays.nc";
+        DimensionDefinition[] tempdimensions = new DimensionDefinition[2];
+        tempdimensions[0] = new DimensionDefinitionLocal("X",
+                "the x-axis runs east-west with 0 = south-east corner of my garden",
+                "cm",
+                new int[] {2,4});
+        tempdimensions[1] = new DimensionDefinitionLocal("Y",
+                "the y-axis runs south-north with 0 = south-east corner of my garden",
+                "cm",
+                new int[] {3,6,9});
         NumericalArrayDefinition temperature = new NumericalArrayDefinition("temperature", NetcdfDataType.INT,
                 "a test dataset with int temperatures in 2d space, measure in a 2cm grid",
-                new String[] {"X", "Y"},
-                new int[] {2, 3},
-                new int[][] {{2, 4}, {3, 6, 9}},
-                new String[] {"cm", "cm"},
-                "C");
-        Object[] height_dim_values = new Object[2];
-        height_dim_values[0] = new String[]{"Bram Boskamp", "Rosalie Boskamp"};
-        height_dim_values[1] = new int[]{1640995200, 1643673600, 1646092800}; // i haven't bothered to figure out if I could use actual Dates in my data.. these are seconds since 1970.
+                "C", tempdimensions);
+
+
+        DimensionDefinition[] heightdimensions = new DimensionDefinition[2];
+        heightdimensions[0] = new DimensionDefinitionLocal("person",
+                "the person's name is good enough an identifier for me",
+                "name",
+                new String[] {"Bram Boskamp", "Rosalie Boskamp"});
+        heightdimensions[1] = new DimensionDefinitionLocal("date",
+                "the date the measurement was taken",
+                "seconds since 01-01-1970 00:00:00",
+                new int[]{1640995200, 1643673600, 1646092800});
 
         NumericalArrayDefinition heights = new NumericalArrayDefinition("personheight", NetcdfDataType.DOUBLE,
-                "a test dataset with real height in 2d space, with measurements for each person on a number of dates",
-                new String[] {"person", "date"},
-                new int[] {2, 3},
-                height_dim_values,
-                new String[] {"name", "seconds since 1970"}, "m");
+               "a test dataset with real height in 2d space, with measurements for each person on a number of dates",
+               "m",
+                heightdimensions);
         String group1 = "/my/group/temps";
         String group2 = "/my/othergroup/heights";
         NumericalArray temp_data = new NumericalArrayImpl(new int[][] {{1,2,3}, {11, 12, 13}});
         NumericalArray height_data = new NumericalArrayImpl(new double[][] {{1.832, 1.828, 1.823}, {1.229, 1.232, 1.239}});
         Path filePath = Files.createTempFile(filename, ".nc");
-        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
+        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
             b.prepareArray(group1, temperature);
             b.prepareArray(group2, heights);
             try(NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
                 w.writeDimensionVariables(group1, temperature);
                 w.writeDimensionVariables(group2, heights);
-                w.writeArrayData(group1, temperature, temp_data);
-                w.writeArrayData(group2, heights, height_data);
+                w.writeArrayData(w.getVariable(group1, temperature), temp_data);
+                w.writeArrayData(w.getVariable(group2, heights), height_data);
+            }catch(InvalidRangeException e) {
+                //
             }
         }
         Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
@@ -191,26 +214,41 @@ public class NetcdfBuilderTest {
         String filename = "test_build_write_in_parts1";
         String resourceName = "/netcdf/test_build_write_in_parts.nc";
 
+        DimensionDefinition[] dimensions = new DimensionDefinition[3];
+        dimensions[0] = new DimensionDefinitionLocal("time",
+                "time",
+                "seconds since 01-01-1970",
+                new int[] {1640995200, 1640995201, 1640995202, 1640995203, 1640995204});
+        dimensions[1] = new DimensionDefinitionLocal("X",
+                "my x axis",
+                "cm",
+                new int[] {2, 4});
+        dimensions[2] = new DimensionDefinitionLocal("Y",
+                "my y axis",
+                "cm",
+                new int[] {3, 6, 9});
+
         NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature",
                 NetcdfDataType.INT,
-                "a test dataset with temperatures in time", new String[] {"time", "X", "Y"},
-                new int[] {5, 2, 3}, new int[][] {{1640995200, 1640995201, 1640995202, 1640995203, 1640995204}, {2, 4}, {3, 6, 9}},
-                new String[] {"seconds since 01-01-1970", "cm", "cm"},
-                "C");
+                "a test dataset with temperatures in time",
+                "C",
+                dimensions);
         String group = "/three/d/intime";
 
         Path filePath = Files.createTempFile(filename, ".nc");
-        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
+        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
             b.prepareArray(group, nadef);
             try(NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
                 w.writeDimensionVariables(group, nadef);
-                NetcdfWriteHandle h = w.get_write_handle(group, nadef);
+                Variable v = w.getVariable(group, nadef);
                 int[][] xyMeasurements = new int[2][3];
                 int i = 0;
                 for(int time=0;time<5;time++) {
                     for(int x=0;x<2;x++) for(int y=0;y<3;y++) xyMeasurements[x][y] = i++;
-                    h.write_data(new NumericalArrayImpl(xyMeasurements));
+                    w.writeArrayData(v, new NumericalArrayImpl(xyMeasurements));
                 }
+            }catch(InvalidRangeException e) {
+
             }
         }
         Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
@@ -228,27 +266,40 @@ public class NetcdfBuilderTest {
         String filename = "test_build_write_in_parts2";
         String resourceName = "/netcdf/test_build_write_in_parts.nc";
 
+        DimensionDefinition[] dimensions = new DimensionDefinition[3];
+        dimensions[0] = new DimensionDefinitionLocal("time",
+                "my time axis",
+                "seconds since 01-01-1970",
+                new int[] {1640995200, 1640995201, 1640995202, 1640995203, 1640995204});
+        dimensions[1] = new DimensionDefinitionLocal("X",
+                "my x axis",
+                "cm",
+                new int[] {2,4});
+        dimensions[2] = new DimensionDefinitionLocal("Y",
+                "my y axis",
+                "cm",
+                new int[] {3,6,9});
         NumericalArrayDefinition nadef = new NumericalArrayDefinition("temperature",
                 NetcdfDataType.INT,
                 "a test dataset with temperatures in time and space",
-                new String[] {"time", "X", "Y"},
-                new int[] {5, 2, 3}, new int[][] {{1640995200, 1640995201, 1640995202, 1640995203, 1640995204}, {2, 4}, {3, 6, 9}},
-                new String[] {"seconds since 01-01-1970", "cm", "cm"},
-                "C");
+                "C",
+                dimensions);
         String group = "/three/d/intime";
 
         Path filePath = Files.createTempFile(filename, ".nc");
-        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
+        try(NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
             b.prepareArray(group, nadef);
             try(NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
                 w.writeDimensionVariables(group, nadef);
-                NetcdfWriteHandle h = w.get_write_handle(group, nadef);
+                Variable v = w.getVariable(group, nadef);
                 int[] yMeasurements = new int[3];
                 int i = 0;
                 for(int time=0;time<5;time++) for(int x=0;x<2;x++) {
                     for(int y=0;y<3;y++) yMeasurements[y] = i++;
-                    h.write_data(new NumericalArrayImpl(yMeasurements));
+                    w.writeArrayData(v,new NumericalArrayImpl(yMeasurements));
                 }
+            }catch(InvalidRangeException e) {
+
             }
         }
         Assertions.assertTrue(FileUtils.contentEquals(filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
@@ -260,39 +311,49 @@ public class NetcdfBuilderTest {
         String filename = "sharedDimension";
         String resourceName = "/netcdf/sharedDimension.nc";
 
-        DimensionDefinition time = new DimensionDefinition("time",
-                NetcdfDataType.INT,
+        String group_time = "/time";
+
+
+        DimensionDefinitionLocal time = new DimensionDefinitionLocal("time",
                 "this is the time dimension that other arrays should link to",
-                0,
                 "seconds (since 01-01-1970)",
                 new int[] {12, 13, 14, 15, 16}
                 );
 
+        DimensionDefinition[] dimensions = new DimensionDefinition[3];
+        dimensions[0] = new DimensionDefinitionRemote("time", group_time);
+        dimensions[1] = new DimensionDefinitionLocal("X",
+                "my x axis",
+                "cm",
+                new int[] {2,4});
+        dimensions[2] = new DimensionDefinitionLocal("Y",
+                "my y axis",
+                "cm",
+                new int[] {3,6,9});
+
         NumericalArrayDefinition nadef_temp = new NumericalArrayDefinition("temperature",
                 NetcdfDataType.INT,
                 "a test dataset with temperatures in time and space",
-                new String[]{"/time/time", "X", "Y"},
-                new int[]{0, 2, 3},
-                new int[][]{{}, {2, 4}, {3, 6, 9}},
-                new String[]{"", "cm", "cm"},
-                "C");
-        String group_temp = "/time/temp";
-        String group_time = "/time";
+                "C",
+                dimensions);
+        String group_temp = group_time + "/temp";
 
         Path filePath = Files.createTempFile(filename, ".nc");
-        try (NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), this.onClose)) {
+        try (NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
             b.prepareDimension(group_time, time);
             b.prepareArray(group_temp, nadef_temp);
             try (NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
                 w.writeDimensionVariables(group_temp, nadef_temp);
                 w.writeDimensionVariable(group_time, time);
-                NetcdfWriteHandle h = w.get_write_handle(group_temp, nadef_temp);
+                Variable v = w.getVariable(group_temp, nadef_temp);
                 int[][] xyMeasurements = new int[2][3];
                 int i = 0;
                 for(int t=0;t<5;t++) {
                     for(int x=0;x<2;x++) for(int y=0;y<3;y++) xyMeasurements[x][y] = i++;
-                    h.write_data(new NumericalArrayImpl(xyMeasurements));
+                    w.writeArrayData(v, new NumericalArrayImpl(xyMeasurements));
                 }
+
+            }catch(InvalidRangeException e){
 
             }
         }
