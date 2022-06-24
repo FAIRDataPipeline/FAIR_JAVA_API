@@ -1,8 +1,12 @@
 package org.fairdatapipeline.api;
 
+import org.fairdatapipeline.netcdf.NetcdfReader;
+
 import java.util.Objects;
 
 public class Data_product_read_nc extends Data_product_read {
+  NetcdfReader reader;
+
   Data_product_read_nc(String dataProduct_name, Coderun coderun) {
     super(dataProduct_name, coderun);
   }
@@ -22,9 +26,12 @@ public class Data_product_read_nc extends Data_product_read {
     return dc;
   }
 
-  /*NetcdfBuilder*/ void getNetCDFBuilder() {
+  NetcdfReader getNetcdfReader() {
     this.been_used = true;
-    // return netcdfreader??
+    if(this.reader == null) {
+      this.reader = new NetcdfReader(this.getFilePath().toString());
+    }
+    return reader;
   }
 
   void closeNetcdfReader() {

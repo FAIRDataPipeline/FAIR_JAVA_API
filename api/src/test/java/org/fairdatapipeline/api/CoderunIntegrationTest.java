@@ -26,11 +26,19 @@ import org.fairdatapipeline.distribution.ImmutableDistribution;
 import org.fairdatapipeline.distribution.ImmutableMinMax;
 import org.fairdatapipeline.distribution.MinMax;
 import org.fairdatapipeline.file.CleanableFileChannel;
+import org.fairdatapipeline.netcdf.DimensionDefinition;
+import org.fairdatapipeline.netcdf.DimensionDefinitionLocal;
+import org.fairdatapipeline.netcdf.NetcdfDataType;
+import org.fairdatapipeline.objects.NumericalArray;
+import org.fairdatapipeline.objects.NumericalArrayDefinition;
+import org.fairdatapipeline.objects.NumericalArrayImpl;
 import org.fairdatapipeline.samples.ImmutableSamples;
 import org.fairdatapipeline.samples.Samples;
 import org.javatuples.Triplet;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+
+import javax.annotation.Nonnull;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
@@ -866,10 +874,18 @@ class CoderunIntegrationTest {
     String component1 = "component1/with/a/path";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
-
       Object_component_write_nc oc1 = dp.getComponent(component1);
-      // oc1.writeArray(array);
-
+      DimensionDefinition[] dims = new DimensionDefinition[2];
+      dims[0] = new DimensionDefinitionLocal("lat", "latitude", "degrees north", new double[] {-75, -60, -45, -30, -15, 0, 15, 30, 45, 60, 75});
+      dims[1] = new DimensionDefinitionLocal("lon", "longitude", "degrees east", new double[] {-180, -150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150});
+      NumericalArrayDefinition nadef = new NumericalArrayDefinition("i don't want a name here", NetcdfDataType.DOUBLE, "a test dataset of temperatures in space", "C", dims);
+      oc1.prepareArray(nadef);
+      double[][] temperatures = new double[11][12];
+      for(int lati=0;lati < 11;lati++)
+        for(int loni=0;loni < 12; loni++)
+          temperatures[lati][loni] = lati + (double)loni/12.0;
+      NumericalArray nadat = new NumericalArrayImpl(temperatures);
+      oc1.writeArrayData(nadat);
     }
     String hash = "";
     check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component1, hash)));
@@ -883,6 +899,7 @@ class CoderunIntegrationTest {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
       Object_component_read_nc oc1 = dc.getComponent(component1);
+      oc1.readArray();
       // assertThat(oc1.readSamples()).containsExactly(1, 2, 3);
     }
     String hash = "";

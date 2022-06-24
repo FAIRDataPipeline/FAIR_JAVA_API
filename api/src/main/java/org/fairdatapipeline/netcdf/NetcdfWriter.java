@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.ref.Cleaner;
 import java.lang.ref.Cleaner.Cleanable;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.fairdatapipeline.api.IllegalActionException;
 import org.fairdatapipeline.objects.NumericalArray;
 import org.fairdatapipeline.objects.NumericalArrayDefinition;
@@ -18,7 +19,7 @@ import ucar.nc2.write.NetcdfFormatWriter;
 
 
 public class NetcdfWriter implements AutoCloseable {
-    private static final Logger logger = LoggerFactory.getLogger(NetcdfBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetcdfWriter.class);
     private static final Cleaner cleaner = Cleaner.create();
     // todo: we should not create more cleaners than necessary
     private final Cleanable cleanable;
@@ -61,50 +62,41 @@ public class NetcdfWriter implements AutoCloseable {
         }
     }
 
-
-    public void writeArrayData(String group_name, NumericalArrayDefinition nadef, NumericalArray nadat) {
+    public Variable getVariable(String group_name, NumericalArrayDefinition nadef) {
         Group g = this.netcdfWriterWrapper.netcdfFile.findGroup(group_name);
         if(g == null) throw(new IllegalActionException("group " + group_name + " not found for writing."));
         Variable v = g.findVariableLocal(nadef.getName());
         if(v == null) throw(new IllegalActionException("variable " + nadef.getName() + " (in group " + group_name + ") not found for writing."));
+        return v;
+    }
+
+    public void writeArrayData(Variable v, NumericalArray nadat) throws InvalidRangeException {
+        writeArrayData(v, nadat, null);
+    }
+
+    public void writeArrayData(Variable v, Array data)  throws InvalidRangeException{
+        writeArrayData(v, data, null);
+    }
+    public void writeArrayData(Variable v, NumericalArray nadat, @Nullable int[] origin) throws InvalidRangeException {
+        Array data = ucar.ma2.Array.makeFromJavaArray(nadat.asObject());
+        writeArrayData(v, data, origin);
+    }
+
+    public void writeArrayData(Variable v, Array data, @Nullable int[] origin) throws InvalidRangeException {
         //Array data = NetcdfDataType.translate_array(nadef.getDataType(), nadef.getDimension_sizes(), nadat.asOA());
         // the below works for primitive arrays.. if it might contain non primitives we need NetcdfDataType.translate_array instead.
-        Array data = ucar.ma2.Array.makeFromJavaArray(nadat.asObject());
+
         try{
-            this.netcdfWriterWrapper.writer.write(v, data);
+            if(origin == null) this.netcdfWriterWrapper.writer.write(v, data);
+            else this.netcdfWriterWrapper.writer.write(v, origin, data);
         }catch(IOException e) {
-            throw(new IllegalActionException("failed to write array data to file for group " + group_name));
-        }catch(InvalidRangeException e) {
-            throw(new IllegalActionException("invalid range for array data for group " + group_name));
+            throw(new IllegalActionException("failed to write array data to file"));
+        //}catch(InvalidRangeException e) {
+        //    throw(new IllegalActionException("invalid range for array data"));
         }
     }
 
-    public void writeArrayDataPart(String group_name, NumericalArrayDefinition nadef, NumericalArray nadat, int[] origin) {
-        Group g = this.netcdfWriterWrapper.netcdfFile.findGroup(group_name);
-        if(g == null) throw(new IllegalActionException("group " + group_name + " not found for writing."));
-        Variable v = g.findVariableLocal(nadef.getName());
-        if(v == null) throw(new IllegalActionException("variable " + nadef.getName() + " (in group " + group_name + ") not found for writing."));
-        //Array data = NetcdfDataType.translate_array(nadef.getDataType(), nadef.getDimension_sizes(), nadat.asOA());
-        // the below works for primitive arrays.. if it might contain non primitives we need NetcdfDataType.translate_array instead.
-        Array data = ucar.ma2.Array.makeFromJavaArray(nadat.asObject());
-        try{
-            this.netcdfWriterWrapper.writer.write(v, origin, data);
-        }catch(IOException e) {
-            throw(new IllegalActionException("failed to write array data to file for group " + group_name));
-        }catch(InvalidRangeException e) {
-            throw(new IllegalActionException("invalid range for array data for group " + group_name));
-        }
-    }
-
-    public NetcdfWriteHandle get_write_handle(String group_name, NumericalArrayDefinition nadef) {
-        Group g = this.netcdfWriterWrapper.netcdfFile.findGroup(group_name);
-        if(g == null) throw(new IllegalActionException("group " + group_name + " not found for writing."));
-        Variable v = g.findVariableLocal(nadef.getName());
-        if(v == null) throw(new IllegalActionException("variable " + nadef.getName() + " (in group " + group_name + ") not found for writing."));
-        return new NetcdfWriteHandle(v, this.netcdfWriterWrapper.writer);
-    }
-
-    public void writeDimensionVariable(String group_name, DimensionDefinition dimensionDefinition) {
+    public void writeDimensionVariable(String group_name, DimensionDefinitionLocal dimensionDefinition) {
         Group g = this.netcdfWriterWrapper.netcdfFile.findGroup(group_name);
         if(g == null) throw(new IllegalActionException("can't find group " + group_name));
         Variable v = g.findVariableLocal(dimensionDefinition.getName());
@@ -123,15 +115,14 @@ public class NetcdfWriter implements AutoCloseable {
     public void writeDimensionVariables(String group_name, NumericalArrayDefinition nadef) {
         Group g = this.netcdfWriterWrapper.netcdfFile.findGroup(group_name);
         if(g == null) throw(new IllegalActionException("can't find group " + group_name));
-        int num_dims = nadef.getDimension_sizes().length;
+        int num_dims = nadef.getDimensions().length;
         for(int i=0;i<num_dims;i++) {
-            logger.debug("writeDimensionVariables i=" + i);
-            if(!nadef.getDimension_names()[i].startsWith("/")) {
-                Variable v = g.findVariableLocal(nadef.getDimension_names()[i]);
+            if(nadef.getDimensions()[i].isLocal()) {
+                DimensionDefinitionLocal dimdef = (DimensionDefinitionLocal) nadef.getDimensions()[i];
+                Variable v = g.findVariableLocal(dimdef.getName());
                 if (v == null)
-                    throw (new IllegalActionException("can't find variable " + nadef.getDimension_names()[i] + " (in group " + group_name + ")"));
-                logger.debug("type: " + nadef.getDimension_values()[i].getClass().getSimpleName());
-                Array data = NetcdfDataType.translate_array(nadef.getDimension_values()[i]);
+                    throw (new IllegalActionException("can't find variable " + dimdef.getName() + " (in group " + group_name + ")"));
+                Array data = NetcdfDataType.translate_array(dimdef.getValues());
                 // Array.makeFromJavaArray only works for primitives.. i want it to work for Strings too, and need to use NetcdfDataType.translate_array
                 //Array data = Array.makeFromJavaArray(nadef.getDimension_values()[i]);
 

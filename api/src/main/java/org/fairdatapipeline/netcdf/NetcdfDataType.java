@@ -19,7 +19,11 @@ public enum NetcdfDataType {
 
 
         DataType translate() {
-                switch(this) {
+                return NetcdfDataType.translate(this);
+        }
+
+        public static DataType translate(NetcdfDataType dataType) {
+                switch(dataType) {
                         case BOOLEAN:
                                 return DataType.BOOLEAN;
                         case BYTE:
@@ -44,13 +48,13 @@ public enum NetcdfDataType {
                 return DataType.BOOLEAN;
         }
 
-        public static DataType translate_datatype(@NotNull Object o) {
+        public static NetcdfDataType translate_datatype(@NotNull Object o) {
                 if (Array.newInstance(Integer.class, 0).getClass().equals(o.getClass()) || Array.newInstance(int.class, 0).getClass().equals(o.getClass())) {
-                        return DataType.INT;
+                        return NetcdfDataType.INT;
                 } else if (Array.newInstance(Double.class, 0).getClass().equals(o.getClass()) || Array.newInstance(double.class, 0).getClass().equals(o.getClass())) {
-                        return DataType.DOUBLE;
+                        return NetcdfDataType.DOUBLE;
                 } else if(Array.newInstance(String.class, 0).getClass().equals(o.getClass())) {
-                        return DataType.STRING;
+                        return NetcdfDataType.STRING;
                 }
                 throw(new UnsupportedOperationException("can't translate object of class "+ o.getClass().getSimpleName() + " to NetCDF data type."));
         }
@@ -58,7 +62,7 @@ public enum NetcdfDataType {
 
 
         public static ucar.ma2.Array translate_array(@NotNull Object o) {
-                return ucar.ma2.Array.factory(translate_datatype(o), new int[] {Array.getLength(o)}, o);
+                return ucar.ma2.Array.factory(translate(translate_datatype(o)), new int[] {Array.getLength(o)}, o);
         }
 
         /**

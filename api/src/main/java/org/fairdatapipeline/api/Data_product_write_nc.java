@@ -10,6 +10,7 @@ import org.fairdatapipeline.netcdf.NetcdfBuilder;
 import org.fairdatapipeline.netcdf.NetcdfWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ucar.nc2.write.Nc4Chunking;
 
 /**
  * Data_product_write_nc is created by Coderun: {@link Coderun#get_dp_for_write_nc(String)}
@@ -21,6 +22,23 @@ public class Data_product_write_nc extends Data_product_write {
   private static final Logger logger = LoggerFactory.getLogger(Data_product_write_nc.class);
   private NetcdfBuilder netCDFBuilder;
   private NetcdfWriter netCDFWriter;
+  public enum chunkingStrategies {
+    grib,
+    none,
+    standard;
+
+    private Nc4Chunking.Strategy getNc4Strategy() {
+      switch(this){
+        case grib: return Nc4Chunking.Strategy.grib;
+        case none: return Nc4Chunking.Strategy.none;
+        case standard: return Nc4Chunking.Strategy.standard;
+      }
+      return Nc4Chunking.Strategy.standard;
+    }
+  }
+  private chunkingStrategies chunkingStrategy = chunkingStrategies.standard;
+  private int nc4deflateLevel = 2;
+  private boolean nc4shuffle = true;
 
   Data_product_write_nc(String dataProduct_name, Coderun coderun) {
     super(dataProduct_name, coderun, "nc");
@@ -48,6 +66,22 @@ public class Data_product_write_nc extends Data_product_write {
     this.do_hash();
   }
 
+  public void setChunkingStrategy(chunkingStrategies chunkingStrategy) {
+    if(this.netCDFWriter != null || this.netCDFBuilder != null) throw(new IllegalActionException("too late.. you can only set chunking details BEFORE any of the components has prepared any array variables."));
+    this.chunkingStrategy = chunkingStrategy;
+  }
+
+  public void setChunkingDeflate(int deflateLevel) {
+    if(this.netCDFWriter != null || this.netCDFBuilder != null) throw(new IllegalActionException("too late.. you can only set chunking details BEFORE any of the components has prepared any array variables."));
+    this.nc4deflateLevel = deflateLevel;
+  }
+
+  public void setChunkingShuffle(boolean shuffle) {
+    if(this.netCDFWriter != null || this.netCDFBuilder != null) throw(new IllegalActionException("too late.. you can only set chunking details BEFORE any of the components has prepared any array variables."));
+    this.nc4shuffle = shuffle;
+  }
+
+
   NetcdfBuilder getNetCDFBuilder() {
     if(this.netCDFWriter != null) {
       throw(new IllegalActionException("you've already started writing data to the netCDF file, you can't go back preparing arrays once writing has started."));
@@ -55,7 +89,7 @@ public class Data_product_write_nc extends Data_product_write {
     this.been_used = true;
     Runnable onClose = this::executeOnCloseDP;
     if (this.netCDFBuilder == null) {
-      this.netCDFBuilder = new NetcdfBuilder(this.getFilePath().toString(), onClose);
+      this.netCDFBuilder = new NetcdfBuilder(this.getFilePath().toString(), this.chunkingStrategy.getNc4Strategy(), this.nc4deflateLevel, this.nc4shuffle, onClose);
     }
     return this.netCDFBuilder;
   }
