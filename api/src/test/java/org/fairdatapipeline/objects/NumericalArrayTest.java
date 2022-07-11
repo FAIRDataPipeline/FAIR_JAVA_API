@@ -3,7 +3,6 @@ package org.fairdatapipeline.objects;
 import org.fairdatapipeline.api.IllegalActionException;
 import org.junit.jupiter.api.*;
 
-
 public class NumericalArrayTest {
 
   @Test
@@ -23,40 +22,44 @@ public class NumericalArrayTest {
     Assertions.assertEquals(n, r);
   }
 
-  public void check_type2(Object a){
+  public void check_type2(Object a) {
     System.out.println(a.getClass().getSimpleName());
   }
 
   @Test
-  void  check_type() {
-    Object o = new int[][] {{1,2,3},{4,5,6}};
+  void check_type() {
+    Object o = new int[][] {{1, 2, 3}, {4, 5, 6}};
     new NumericalArrayImpl(o);
 
-    o = new int[] {1,2,3,4,5};
+    o = new int[] {1, 2, 3, 4, 5};
     new NumericalArrayImpl(o);
 
-    o = new double[] {1.1,2.2,3.3,4.4,5.5};
+    o = new double[] {1.1, 2.2, 3.3, 4.4, 5.5};
     new NumericalArrayImpl(o);
 
-    o = new Integer[] {1,2,3,4,5};
+    o = new Integer[] {1, 2, 3, 4, 5};
     new NumericalArrayImpl(o);
 
-    Assertions.assertThrows(IllegalActionException.class, () -> {new NumericalArrayImpl(
-            new Integer[][] {{1,2,3},{4,5}});});
+    Assertions.assertThrows(
+        IllegalActionException.class,
+        () -> {
+          new NumericalArrayImpl(new Integer[][] {{1, 2, 3}, {4, 5}});
+        });
 
-    Assertions.assertThrows(IllegalActionException.class, () -> {new NumericalArrayImpl(
-            new Integer[][][] {{{1,2}, {3,4}},{{5,6},{7,8,9}}});});
+    Assertions.assertThrows(
+        IllegalActionException.class,
+        () -> {
+          new NumericalArrayImpl(new Integer[][][] {{{1, 2}, {3, 4}}, {{5, 6}, {7, 8, 9}}});
+        });
 
-    Assertions.assertThrows(IllegalActionException.class, () -> {new NumericalArrayImpl(
-            new Integer[][][] {{{1,2},{3,4}},{{5,6},{7,8},{9,10}}});});
+    Assertions.assertThrows(
+        IllegalActionException.class,
+        () -> {
+          new NumericalArrayImpl(new Integer[][][] {{{1, 2}, {3, 4}}, {{5, 6}, {7, 8}, {9, 10}}});
+        });
 
-
-
-
-
-
-    //int[] o2 = new int[] {1,2,3,4,5,6};
-    //check_type2(o2);
+    // int[] o2 = new int[] {1,2,3,4,5,6};
+    // check_type2(o2);
 
   }
 }

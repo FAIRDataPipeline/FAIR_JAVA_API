@@ -48,6 +48,9 @@ read:
   - data_product: animal/chicken
     use:
       version: 0.0.1
+  - data_product: test/array1
+    use:
+      version: 0.0.1
 
 write:
   - data_product: human/population
@@ -87,6 +90,11 @@ write:
   - data_product: animal/chicken
     description: chicken with config filetype
     file_type: txt
+    use:
+      version: 0.0.1
+  - data_product: test/array1
+    description: the first NC array test
+    file_type: nc
     use:
       version: 0.0.1
 
