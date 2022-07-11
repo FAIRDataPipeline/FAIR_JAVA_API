@@ -1,8 +1,8 @@
 package org.fairdatapipeline.api;
 
+import javax.annotation.Nonnull;
 import org.fairdatapipeline.netcdf.NetcdfReader;
-
-import java.util.Objects;
+import org.fairdatapipeline.netcdf.VariableName;
 
 public class Data_product_read_nc extends Data_product_read {
   NetcdfReader reader;
@@ -17,18 +17,19 @@ public class Data_product_read_nc extends Data_product_read {
    * @param component_name the name of the object component.
    * @return the Object_component_read_nc object.
    */
-  public Object_component_read_nc getComponent(String component_name) {
+  public Object_component_read_nc getComponent(@Nonnull String component_name) {
     if (componentMap.containsKey(component_name))
       return (Object_component_read_nc) componentMap.get(component_name);
     Object_component_read_nc dc;
-    dc = new Object_component_read_nc(this, Objects.requireNonNull(component_name));
+    VariableName vn = new VariableName(component_name);
+    dc = new Object_component_read_nc(this, vn);
     componentMap.put(component_name, dc);
     return dc;
   }
 
   NetcdfReader getNetcdfReader() {
     this.been_used = true;
-    if(this.reader == null) {
+    if (this.reader == null) {
       this.reader = new NetcdfReader(this.getFilePath().toString());
     }
     return reader;

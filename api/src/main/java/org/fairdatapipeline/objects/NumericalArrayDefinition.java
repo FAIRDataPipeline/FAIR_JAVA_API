@@ -1,52 +1,97 @@
 package org.fairdatapipeline.objects;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import javax.annotation.Nonnull;
 import org.fairdatapipeline.api.IllegalActionException;
 import org.fairdatapipeline.netcdf.*;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-
 public class NumericalArrayDefinition {
-    private final String name;
-    private final NetcdfDataType dataType;
-    private final String description;
-    private final String units;
-    private final DimensionDefinition[] dimensions;
+  private final @Nonnull VariableName variableName;
+  private final @Nonnull NetcdfDataType dataType;
+  private final @Nonnull VariableName[] dimensions;
+  private final @Nonnull String description;
+  private final @Nonnull String units;
+  private final @Nonnull String long_name;
 
-    /**
-     *
-     * @param description this gets stored in the ':short' attribute
-     * @param units
-     * @param dimensions - a list of dimensions
-     */
-    public NumericalArrayDefinition(@Nonnull String name, @Nonnull NetcdfDataType dataType, @Nonnull String description, @Nonnull String units, @Nonnull DimensionDefinition[] dimensions) {
-        // check that:
-        // dimension_names are unique
-        // not more than 1 unlimited dimensions (we can't check external dimensions)
+  /**
+   * @param name
+   * @param dataType
+   * @param dimensions
+   * @param description
+   * @param units
+   * @param long_name
+   */
+  public NumericalArrayDefinition(
+      @Nonnull VariableName name,
+      @Nonnull NetcdfDataType dataType,
+      @Nonnull String[] dimensions,
+      @Nonnull String description,
+      @Nonnull String units,
+      @Nonnull String long_name) {
+    this(
+        name,
+        dataType,
+        (VariableName[]) Arrays.stream(dimensions).map(s -> new VariableName(s, null)).toArray(),
+        description,
+        units,
+        long_name);
+  }
 
-        int num_dims = dimensions.length;
-        ArrayList<String> dimension_names = new ArrayList<>();
-        int unlimited_dimensions = 0;
+  /**
+   * @param name
+   * @param dataType
+   * @param dimensions
+   * @param description
+   * @param units
+   * @param long_name
+   */
+  public NumericalArrayDefinition(
+      @Nonnull VariableName name,
+      @Nonnull NetcdfDataType dataType,
+      @Nonnull VariableName[] dimensions,
+      @Nonnull String description,
+      @Nonnull String units,
+      @Nonnull String long_name) {
 
-        for(int i=0;i< num_dims;i++){
-            if(dimensions[i].getClass() == DimensionDefinitionLocal.class){
-                DimensionDefinitionLocal d = (DimensionDefinitionLocal)  dimensions[i];
-                if(dimension_names.contains(d.getName())) throw(new IllegalActionException("dimension names must be unique; duplicate: " + d.getName()));
-                if(d.isUnlimited()) unlimited_dimensions += 1;
-                if(unlimited_dimensions > 1) throw(new IllegalArgumentException("you can only have 1 unlimited dimension."));
-                dimension_names.add(d.getName());
-            }
-        }
-        this.name = name;
-        this.dataType = dataType;
-        this.description = description;
-        this.units = units;
-        this.dimensions = dimensions;
+    int num_dims = dimensions.length;
+    ArrayList<String> dimension_names = new ArrayList<>();
+
+    for (int i = 0; i < num_dims; i++) {
+      if (dimension_names.contains(dimensions[i].getFullPath()))
+        throw (new IllegalActionException(
+            "dimension names must be unique; duplicate: " + dimensions[i].getFullPath()));
+      dimension_names.add(dimensions[i].getFullPath());
     }
+    this.variableName = name;
+    this.dataType = dataType;
+    this.description = description;
+    this.units = units;
+    this.dimensions = dimensions;
+    this.long_name = long_name;
+  }
 
-    public String getName() { return name; }
-    public NetcdfDataType getDataType() { return dataType; }
-    public String getDescription() { return description;}
-    public DimensionDefinition[] getDimensions() { return this.dimensions.clone();}
-    public String getUnits() { return this.units; }
+  public VariableName getVariableName() {
+    return variableName;
+  }
+
+  public NetcdfDataType getDataType() {
+    return dataType;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public VariableName[] getDimensions() {
+    return this.dimensions.clone();
+  }
+
+  public String getUnits() {
+    return this.units;
+  }
+
+  public String getLong_name() {
+    return long_name;
+  }
 }
