@@ -18,7 +18,7 @@ import ucar.nc2.write.NetcdfFileFormat;
 import ucar.nc2.write.NetcdfFormatWriter;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class NetcdfBuilderTest {
+class NetcdfBuilderTest {
   final Runnable onClose = this::myClose;
 
   private void myClose() {
@@ -85,40 +85,6 @@ public class NetcdfBuilderTest {
         });
   }
 
-  /**
-   * test that we can store a String[] in a STRING variable.
-   *
-   * @throws IOException
-   * @throws URISyntaxException
-   * @throws InvalidRangeException
-   */
-  @Test
-  void test_write_string() throws IOException, URISyntaxException, InvalidRangeException {
-    String filename = "test_write_string";
-    String resourceName = "/netcdf/test_write_string.nc";
-    String varname = "blavar";
-    Path filePath = Files.createTempFile(filename, ".nc");
-    Nc4Chunking chunker = Nc4ChunkingStrategy.factory(Nc4Chunking.Strategy.none, 0, false);
-    NetcdfFormatWriter.Builder builder =
-        NetcdfFormatWriter.createNewNetcdf4(NetcdfFileFormat.NETCDF4, filePath.toString(), chunker);
-    Variable.Builder vb =
-        Variable.builder()
-            .setName(varname)
-            .setDataType(DataType.STRING)
-            .addAttribute(new Attribute("test", "testing a string var"));
-    builder.getRootGroup().addVariable(vb);
-    NetcdfFormatWriter writer = builder.build();
-    Variable v = writer.findVariable(varname);
-    if (v == null) throw (new UnsupportedOperationException("variable " + varname + " not found"));
-    Object o = new String[] {"bram"};
-    ucar.ma2.Array values = NetcdfDataType.translate_array(o);
-    writer.write(v, values);
-    writer.close();
-    Assertions.assertTrue(
-        FileUtils.contentEquals(
-            filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
-    FileUtils.delete(filePath.toFile());
-  }
 
   /** test that Array.makeFromJavaArray works on an int[][] */
   @Test
