@@ -56,13 +56,13 @@ public class NetcdfBuilder implements AutoCloseable {
       this.runOnClose = runOnClose;
     }
 
-    public NetcdfFormatWriter build() throws Exception {
+    public NetcdfFormatWriter build() throws IOException {
       try {
         NetcdfFormatWriter w = builder.build();
         has_been_built = true;
         return w;
       } catch (IOException e) {
-        throw (new Exception("failed to create the netCDF file"));
+        throw (new IOException("failed to create the netCDF file", e));
       }
     }
 
@@ -84,7 +84,7 @@ public class NetcdfBuilder implements AutoCloseable {
     }
   }
 
-  NetcdfFormatWriter build() throws Exception {
+  NetcdfFormatWriter build() throws IOException {
     return this.netcdfBuilderWrapper.build();
   }
 
@@ -111,18 +111,18 @@ public class NetcdfBuilder implements AutoCloseable {
               dimensionDefinition.getVariableName().getName(), dimensionDefinition.getSize());
     }
     gb.addDimension(d);
-    Variable.Builder var =
+    Variable.Builder<?> varbuilder =
         Variable.builder()
             .setName(dimensionDefinition.getVariableName().getName())
             .setDataType(dimensionDefinition.getDataType().translate())
             .setDimensions(Collections.singletonList(d));
     if (dimensionDefinition.getDescription().length() > 0)
-      var.addAttribute(new Attribute("description", dimensionDefinition.getDescription()));
+      varbuilder.addAttribute(new Attribute("description", dimensionDefinition.getDescription()));
     if (dimensionDefinition.getUnits().length() > 0)
-      var.addAttribute(new Attribute("units", dimensionDefinition.getUnits()));
+      varbuilder.addAttribute(new Attribute("units", dimensionDefinition.getUnits()));
     if (dimensionDefinition.getLong_name().length() > 0)
-      var.addAttribute(new Attribute("long_name", dimensionDefinition.getLong_name()));
-    gb.addVariable(var);
+      varbuilder.addAttribute(new Attribute("long_name", dimensionDefinition.getLong_name()));
+    gb.addVariable(varbuilder);
   }
 
   /**
@@ -138,7 +138,7 @@ public class NetcdfBuilder implements AutoCloseable {
             netcdfBuilderWrapper.builder.getRootGroup(), nadef.getVariableName().getGroupName());
     for (int i = 0; i < nadef.getDimensions().length; i++) {
       VariableName dimName = (VariableName) nadef.getDimensions()[i];
-      if (nadef.getVariableName().getGroupName() != dimName.getGroupName()
+      if (!nadef.getVariableName().getGroupName().equals(dimName.getGroupName())
           && !nadef.getVariableName().getGroupName().startsWith(dimName.getGroupName() + "/")) {
         throw (new IllegalArgumentException(
             "you can only link to variables in parent groups; "
@@ -161,17 +161,17 @@ public class NetcdfBuilder implements AutoCloseable {
       Dimension d = optionalDimension.get();
       dims.add(d);
     }
-    Variable.Builder vb =
+    Variable.Builder<?> varbuilder =
         Variable.builder()
             .setName(nadef.getVariableName().getName())
             .setDataType(nadef.getDataType().translate())
             .setDimensions(dims);
     if (nadef.getDescription().length() > 0)
-      vb.addAttribute(new Attribute("description", nadef.getDescription()));
-    if (nadef.getUnits().length() > 0) vb.addAttribute(new Attribute("units", nadef.getUnits()));
+      varbuilder.addAttribute(new Attribute("description", nadef.getDescription()));
+    if (nadef.getUnits().length() > 0) varbuilder.addAttribute(new Attribute("units", nadef.getUnits()));
     if (nadef.getLong_name().length() > 0)
-      vb.addAttribute(new Attribute("long_name", nadef.getLong_name()));
-    gb.addVariable(vb);
+      varbuilder.addAttribute(new Attribute("long_name", nadef.getLong_name()));
+    gb.addVariable(varbuilder);
   }
 
   Group.Builder getGroup(Group.Builder start_group, String group_name) {

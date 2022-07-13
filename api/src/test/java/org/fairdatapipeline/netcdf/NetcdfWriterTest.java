@@ -12,9 +12,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 import ucar.nc2.write.Nc4Chunking;
+import ucar.nc2.write.Nc4ChunkingStrategy;
+import ucar.nc2.write.NetcdfFileFormat;
+import ucar.nc2.write.NetcdfFormatWriter;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NetcdfWriterTest {
@@ -436,4 +441,5 @@ class NetcdfWriterTest {
             filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
     FileUtils.delete(filePath.toFile());
   }
+
 }

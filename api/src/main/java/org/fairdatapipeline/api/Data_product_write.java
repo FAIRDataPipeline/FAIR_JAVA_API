@@ -108,10 +108,6 @@ abstract class Data_product_write extends Data_product {
     return configItem;
   }
 
-  private void executeOnCloseFileHandleDP() {
-    this.do_hash();
-  }
-
   void do_hash() {
     if (this.is_hashed) return;
     String hash = coderun.hasher.fileHash(this.getFilePath().toString());

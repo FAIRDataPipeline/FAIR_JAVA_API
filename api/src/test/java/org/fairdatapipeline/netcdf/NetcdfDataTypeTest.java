@@ -7,7 +7,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;
 
-public class NetcdfDataTypeTest {
+class NetcdfDataTypeTest {
   @Test
   void test_translate_datatype_integer() {
     Object o = new Integer[] {1, 2, 3};
@@ -89,7 +89,7 @@ public class NetcdfDataTypeTest {
   void makeArrayFromJava_addedTopDimension() {
     int[] i = new int[] {1, 2, 3};
     Array a = Array.makeArrayRankPlusOne(Array.makeFromJavaArray(i));
-    System.out.println(java.util.Arrays.toString(a.getShape()));
+    Assertions.assertEquals(2, a.getShape().length);
   }
 
   @Test

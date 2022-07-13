@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
  * then register its components in the coderun.
  */
 public class Data_product_write_toml extends Data_product_write_filechannel {
-  private static final Logger logger = LoggerFactory.getLogger(Data_product_write_toml.class);
 
   Data_product_write_toml(String dataProduct_name, Coderun coderun) {
     super(dataProduct_name, coderun);

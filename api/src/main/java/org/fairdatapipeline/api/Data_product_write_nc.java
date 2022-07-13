@@ -19,26 +19,27 @@ public class Data_product_write_nc extends Data_product_write {
   private static final Logger logger = LoggerFactory.getLogger(Data_product_write_nc.class);
   private NetcdfBuilder netCDFBuilder;
   private NetcdfWriter netCDFWriter;
+  private static String TOOLATE = "too late.. you can only set chunking details BEFORE any of the components has prepared any array variables.";
 
   public enum chunkingStrategies {
-    grib,
-    none,
-    standard;
+    GRIB,
+    NONE,
+    STANDARD;
 
     private Nc4Chunking.Strategy getNc4Strategy() {
       switch (this) {
-        case grib:
+        case GRIB:
           return Nc4Chunking.Strategy.grib;
-        case none:
+        case NONE:
           return Nc4Chunking.Strategy.none;
-        case standard:
+        case STANDARD:
           return Nc4Chunking.Strategy.standard;
       }
       return Nc4Chunking.Strategy.standard;
     }
   }
 
-  private chunkingStrategies chunkingStrategy = chunkingStrategies.standard;
+  private chunkingStrategies chunkingStrategy = chunkingStrategies.STANDARD;
   private int nc4deflateLevel = 2;
   private boolean nc4shuffle = true;
 
@@ -75,22 +76,22 @@ public class Data_product_write_nc extends Data_product_write {
 
   public void setChunkingStrategy(chunkingStrategies chunkingStrategy) {
     if (this.netCDFWriter != null || this.netCDFBuilder != null)
-      throw (new IllegalActionException(
-          "too late.. you can only set chunking details BEFORE any of the components has prepared any array variables."));
+      throw (new IllegalActionException(TOOLATE
+          ));
     this.chunkingStrategy = chunkingStrategy;
   }
 
   public void setChunkingDeflate(int deflateLevel) {
     if (this.netCDFWriter != null || this.netCDFBuilder != null)
       throw (new IllegalActionException(
-          "too late.. you can only set chunking details BEFORE any of the components has prepared any array variables."));
+          TOOLATE));
     this.nc4deflateLevel = deflateLevel;
   }
 
   public void setChunkingShuffle(boolean shuffle) {
     if (this.netCDFWriter != null || this.netCDFBuilder != null)
       throw (new IllegalActionException(
-          "too late.. you can only set chunking details BEFORE any of the components has prepared any array variables."));
+          TOOLATE));
     this.nc4shuffle = shuffle;
   }
 
