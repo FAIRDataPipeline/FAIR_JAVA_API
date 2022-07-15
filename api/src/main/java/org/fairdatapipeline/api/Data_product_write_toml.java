@@ -1,11 +1,6 @@
 package org.fairdatapipeline.api;
 
-import static java.nio.file.StandardOpenOption.*;
-
 import java.util.Objects;
-import org.fairdatapipeline.dataregistry.content.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Data_product_write is created by Coderun: {@link Coderun#get_dp_for_write_toml(String)}

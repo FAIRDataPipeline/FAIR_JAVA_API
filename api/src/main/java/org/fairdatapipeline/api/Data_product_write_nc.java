@@ -19,7 +19,8 @@ public class Data_product_write_nc extends Data_product_write {
   private static final Logger logger = LoggerFactory.getLogger(Data_product_write_nc.class);
   private NetcdfBuilder netCDFBuilder;
   private NetcdfWriter netCDFWriter;
-  private static String TOOLATE = "too late.. you can only set chunking details BEFORE any of the components has prepared any array variables.";
+  private static String TOOLATE =
+      "too late.. you can only set chunking details BEFORE any of the components has prepared any array variables.";
 
   public enum chunkingStrategies {
     GRIB,
@@ -76,22 +77,19 @@ public class Data_product_write_nc extends Data_product_write {
 
   public void setChunkingStrategy(chunkingStrategies chunkingStrategy) {
     if (this.netCDFWriter != null || this.netCDFBuilder != null)
-      throw (new IllegalActionException(TOOLATE
-          ));
+      throw (new IllegalActionException(TOOLATE));
     this.chunkingStrategy = chunkingStrategy;
   }
 
   public void setChunkingDeflate(int deflateLevel) {
     if (this.netCDFWriter != null || this.netCDFBuilder != null)
-      throw (new IllegalActionException(
-          TOOLATE));
+      throw (new IllegalActionException(TOOLATE));
     this.nc4deflateLevel = deflateLevel;
   }
 
   public void setChunkingShuffle(boolean shuffle) {
     if (this.netCDFWriter != null || this.netCDFBuilder != null)
-      throw (new IllegalActionException(
-          TOOLATE));
+      throw (new IllegalActionException(TOOLATE));
     this.nc4shuffle = shuffle;
   }
 

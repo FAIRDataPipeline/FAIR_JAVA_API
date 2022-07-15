@@ -168,7 +168,8 @@ public class NetcdfBuilder implements AutoCloseable {
             .setDimensions(dims);
     if (nadef.getDescription().length() > 0)
       varbuilder.addAttribute(new Attribute("description", nadef.getDescription()));
-    if (nadef.getUnits().length() > 0) varbuilder.addAttribute(new Attribute("units", nadef.getUnits()));
+    if (nadef.getUnits().length() > 0)
+      varbuilder.addAttribute(new Attribute("units", nadef.getUnits()));
     if (nadef.getLong_name().length() > 0)
       varbuilder.addAttribute(new Attribute("long_name", nadef.getLong_name()));
     gb.addVariable(varbuilder);

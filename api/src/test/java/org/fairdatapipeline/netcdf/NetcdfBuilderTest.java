@@ -8,14 +8,9 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import ucar.ma2.DataType;
 import ucar.ma2.Index;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.*;
 import ucar.nc2.write.Nc4Chunking;
-import ucar.nc2.write.Nc4ChunkingStrategy;
-import ucar.nc2.write.NetcdfFileFormat;
-import ucar.nc2.write.NetcdfFormatWriter;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NetcdfBuilderTest {
@@ -84,7 +79,6 @@ class NetcdfBuilderTest {
           ucar.ma2.Array.makeFromJavaArray(o);
         });
   }
-
 
   /** test that Array.makeFromJavaArray works on an int[][] */
   @Test
