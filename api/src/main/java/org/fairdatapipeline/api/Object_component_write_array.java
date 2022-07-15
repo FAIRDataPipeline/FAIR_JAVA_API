@@ -53,9 +53,6 @@ public class Object_component_write_array extends Object_component_write {
       }
       eof = true;
     } else {
-      System.out.println("nadat and variable appear to be different shape?");
-      System.out.println("nadat shape: " + Arrays.toString(nadat.getShape()));
-      System.out.println("variable.shape: " + Arrays.toString(this.variable.getShape()));
       try {
         Array a = Array.makeFromJavaArray(nadat.asObject());
         while (a.getShape().length < this.shape.length) a = Array.makeArrayRankPlusOne(a);
