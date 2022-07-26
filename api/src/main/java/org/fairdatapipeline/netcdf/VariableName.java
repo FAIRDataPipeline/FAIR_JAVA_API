@@ -17,7 +17,7 @@ public class VariableName {
   // public static Pattern netcdffullpath_pre_netCDF363 =
   // Pattern.compile("^\\p{Alnum}[\\p{Alnum}_@.+-]*(/\\p{Alnum}[\\p{Alnum}_@.+-])*$");
   private static Pattern netcdffullpath =
-      Pattern.compile("^\\p{Alnum}[^/\n]*(/\\p{Alnum}[^/\n]*)*$");
+      Pattern.compile("^\\p{Alnum}[^/\n]*+(?:/\\p{Alnum}[^/\n]*+)*+$");
 
   /**
    * create the VariableName from a full path with variable name (e.g. 'human/mortality_data') will
@@ -67,5 +67,13 @@ public class VariableName {
 
   public @Nonnull String toString() {
     return getFullPath();
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    return (other != null
+        && other.getClass() == getClass()
+        && ((VariableName) other).getGroupName().equals(this.groupName)
+        && ((VariableName) other).getName().equals(this.name));
   }
 }

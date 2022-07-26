@@ -5,69 +5,68 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class VariableNameTest {
+class VariableNameTest {
   /*
-  @Test
-  void testNetCdfNamePRE363() {
-      // FALSE:
-      System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("_bla").find());
-      System.out.println(VariableName.netcdfname_pre_netCDF363.matcher(".bla").find());
-      System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("/bla").find());
-      System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("").find());
-      System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("bla/").find());
-      System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("bla\na").find());
+    @Test
+    void testNetCdfNamePRE363() {
+        // FALSE:
+        System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("_bla").find());
+        System.out.println(VariableName.netcdfname_pre_netCDF363.matcher(".bla").find());
+        System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("/bla").find());
+        System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("").find());
+        System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("bla/").find());
+        System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("bla\na").find());
 
-      // TRUE:
-      System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("b.@la").find());
-      System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("1bla").find());
-      System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("090").find());
-  }
+        // TRUE:
+        System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("b.@la").find());
+        System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("1bla").find());
+        System.out.println(VariableName.netcdfname_pre_netCDF363.matcher("090").find());
+    }
 
-  @Test
-  void testNetCdfName() {
-      // FALSE:
-      System.out.println(VariableName.netcdfname.matcher("_bla").find());
-      System.out.println(VariableName.netcdfname.matcher(".bla").find());
-      System.out.println(VariableName.netcdfname.matcher("/bla").find());
-      System.out.println(VariableName.netcdfname.matcher("").find());
-      System.out.println(VariableName.netcdfname.matcher("bla/").find());
-      System.out.println(VariableName.netcdfname.matcher("*bla/").find());
-      System.out.println(VariableName.netcdfname.matcher("bla\na").find());
+    @Test
+    void testNetCdfName() {
+        // FALSE:
+        System.out.println(VariableName.netcdfname.matcher("_bla").find());
+        System.out.println(VariableName.netcdfname.matcher(".bla").find());
+        System.out.println(VariableName.netcdfname.matcher("/bla").find());
+        System.out.println(VariableName.netcdfname.matcher("").find());
+        System.out.println(VariableName.netcdfname.matcher("bla/").find());
+        System.out.println(VariableName.netcdfname.matcher("*bla/").find());
+        System.out.println(VariableName.netcdfname.matcher("bla\na").find());
 
-      // TRUE:
-      System.out.println(VariableName.netcdfname.matcher("b.@la").find());
-      System.out.println(VariableName.netcdfname.matcher("1bla").find());
-      System.out.println(VariableName.netcdfname.matcher("090").find());
-      System.out.println(VariableName.netcdfname.matcher("b.@*&%$£la").find());
-      System.out.println(VariableName.netcdfname.matcher("1\"bla").find());
-      System.out.println(VariableName.netcdfname.matcher("0;:~&%€").find());
+        // TRUE:
+        System.out.println(VariableName.netcdfname.matcher("b.@la").find());
+        System.out.println(VariableName.netcdfname.matcher("1bla").find());
+        System.out.println(VariableName.netcdfname.matcher("090").find());
+        System.out.println(VariableName.netcdfname.matcher("b.@*&%$£la").find());
+        System.out.println(VariableName.netcdfname.matcher("1\"bla").find());
+        System.out.println(VariableName.netcdfname.matcher("0;:~&%€").find());
 
-  }
+    }
 
-  @Test
-  void testNetCdfFullpath() {
-      // FALSE:
-      System.out.println(VariableName.netcdffullpath.matcher("_bla").find());
-      System.out.println(VariableName.netcdffullpath.matcher(".bla").find());
-      System.out.println(VariableName.netcdffullpath.matcher("/bla").find());
-      System.out.println(VariableName.netcdffullpath.matcher("").find());
-      System.out.println(VariableName.netcdffullpath.matcher("bla/").find());
-      System.out.println(VariableName.netcdffullpath.matcher("*bla/").find());
-      System.out.println(VariableName.netcdffullpath.matcher("bla\na").find());
-      System.out.println(VariableName.netcdffullpath.matcher("1b//la").find());
+    @Test
+    void testNetCdfFullpath() {
+        // FALSE:
+        System.out.println(VariableName.netcdffullpath.matcher("_bla").find());
+        System.out.println(VariableName.netcdffullpath.matcher(".bla").find());
+        System.out.println(VariableName.netcdffullpath.matcher("/bla").find());
+        System.out.println(VariableName.netcdffullpath.matcher("").find());
+        System.out.println(VariableName.netcdffullpath.matcher("bla/").find());
+        System.out.println(VariableName.netcdffullpath.matcher("*bla/").find());
+        System.out.println(VariableName.netcdffullpath.matcher("bla\na").find());
+        System.out.println(VariableName.netcdffullpath.matcher("1b//la").find());
 
-      // TRUE:
-      System.out.println(VariableName.netcdffullpath.matcher("b.@la").find());
-      System.out.println(VariableName.netcdffullpath.matcher("1bla").find());
-      System.out.println(VariableName.netcdffullpath.matcher("090").find());
-      System.out.println(VariableName.netcdffullpath.matcher("b.@*&%$£la").find());
-      System.out.println(VariableName.netcdffullpath.matcher("1\"bla").find());
-      System.out.println(VariableName.netcdffullpath.matcher("0;:~&%€").find());
-      System.out.println(VariableName.netcdffullpath.matcher("1bla/bla").find());
-      System.out.println(VariableName.netcdffullpath.matcher("1bla/1bla/2bla").find());
-  }
-
-   */
+        // TRUE:
+        System.out.println(VariableName.netcdffullpath.matcher("b.@la").find());
+        System.out.println(VariableName.netcdffullpath.matcher("1bla").find());
+        System.out.println(VariableName.netcdffullpath.matcher("090").find());
+        System.out.println(VariableName.netcdffullpath.matcher("b.@*&%$£la").find());
+        System.out.println(VariableName.netcdffullpath.matcher("1\"bla").find());
+        System.out.println(VariableName.netcdffullpath.matcher("0;:~&%€").find());
+        System.out.println(VariableName.netcdffullpath.matcher("1bla/bla").find());
+        System.out.println(VariableName.netcdffullpath.matcher("1bla/1bla/2bla").find());
+    }
+  */
 
   @ParameterizedTest
   @ValueSource(strings = {"", "/", " ", "_bla", "bla//bla", "bla/", "*bla", "bla\nbla"})

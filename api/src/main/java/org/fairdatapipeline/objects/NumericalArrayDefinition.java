@@ -2,6 +2,8 @@ package org.fairdatapipeline.objects;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import org.fairdatapipeline.api.IllegalActionException;
 import org.fairdatapipeline.netcdf.*;
@@ -13,6 +15,7 @@ public class NumericalArrayDefinition {
   private final @Nonnull String description;
   private final @Nonnull String units;
   private final @Nonnull String long_name;
+  private final Map<String, String> optional_attribs;
 
   /**
    * @param name
@@ -32,10 +35,32 @@ public class NumericalArrayDefinition {
     this(
         name,
         dataType,
-        (VariableName[]) Arrays.stream(dimensions).map(s -> new VariableName(s, null)).toArray(),
+        Arrays.stream(dimensions)
+            .map(s -> new VariableName(s, name.getGroupName()))
+            .toArray(VariableName[]::new),
         description,
         units,
         long_name);
+  }
+
+  public NumericalArrayDefinition(
+      @Nonnull VariableName name,
+      @Nonnull NetcdfDataType dataType,
+      @Nonnull String[] dimensions,
+      @Nonnull String description,
+      @Nonnull String units,
+      @Nonnull String long_name,
+      Map<String, String> optional_attribs) {
+    this(
+        name,
+        dataType,
+        Arrays.stream(dimensions)
+            .map(s -> new VariableName(s, name.getGroupName()))
+            .toArray(VariableName[]::new),
+        description,
+        units,
+        long_name,
+        optional_attribs);
   }
 
   /**
@@ -53,7 +78,18 @@ public class NumericalArrayDefinition {
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name) {
+    this(name, dataType, dimensions, description, units, long_name, Collections.emptyMap());
+  }
 
+  public NumericalArrayDefinition(
+      @Nonnull VariableName name,
+      @Nonnull NetcdfDataType dataType,
+      @Nonnull VariableName[] dimensions,
+      @Nonnull String description,
+      @Nonnull String units,
+      @Nonnull String long_name,
+      Map<String, String> optional_attribs) {
+    this.optional_attribs = optional_attribs;
     int num_dims = dimensions.length;
     ArrayList<String> dimension_names = new ArrayList<>();
 
@@ -93,5 +129,9 @@ public class NumericalArrayDefinition {
 
   public String getLong_name() {
     return long_name;
+  }
+
+  public Map<String, String> getOptional_attribs() {
+    return optional_attribs;
   }
 }

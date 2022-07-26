@@ -11,56 +11,56 @@ class NetcdfDataTypeTest {
   @Test
   void test_translate_datatype_integer() {
     Object o = new Integer[] {1, 2, 3};
-    DataType dt = NetcdfDataType.translate(NetcdfDataType.translate_datatype(o));
+    DataType dt = NetcdfDataType.translate(NetcdfDataType.translateDatatype(o));
     Assertions.assertEquals(DataType.INT, dt);
   }
 
   @Test
   void test_translate_datatype_int() {
     Object o = new int[] {1, 2, 3};
-    DataType dt = NetcdfDataType.translate(NetcdfDataType.translate_datatype(o));
+    DataType dt = NetcdfDataType.translate(NetcdfDataType.translateDatatype(o));
     Assertions.assertEquals(DataType.INT, dt);
   }
 
   @Test
   void test_translate_datatype_double() {
     Object o = new double[] {1.1, 2.2, 3.3};
-    DataType dt = NetcdfDataType.translate(NetcdfDataType.translate_datatype(o));
+    DataType dt = NetcdfDataType.translate(NetcdfDataType.translateDatatype(o));
     Assertions.assertEquals(DataType.DOUBLE, dt);
   }
 
   @Test
   void test_translate_datatype_string() {
     Object o = new String[] {"a", "s", "ee"};
-    DataType dt = NetcdfDataType.translate(NetcdfDataType.translate_datatype(o));
+    DataType dt = NetcdfDataType.translate(NetcdfDataType.translateDatatype(o));
     Assertions.assertEquals(DataType.STRING, dt);
   }
 
   @Test
   void translate_array_test_int() {
     Object o = new int[] {1, 2, 3, 4};
-    ucar.ma2.Array a = NetcdfDataType.translate_array(o);
+    ucar.ma2.Array a = NetcdfDataType.translateArray(o);
     Assertions.assertEquals(2, a.getInt(1));
   }
 
   @Test
   void translate_array_test_double() {
     Object o = new double[] {1.1, 2.2, 3.3, 4.4};
-    ucar.ma2.Array a = NetcdfDataType.translate_array(o);
+    ucar.ma2.Array a = NetcdfDataType.translateArray(o);
     Assertions.assertEquals(2.2, a.getDouble(1));
   }
 
   @Test
   void translate_array_test_string() {
     Object o = new String[] {"aap", "noot", "mies"};
-    ucar.ma2.Array a = NetcdfDataType.translate_array(o);
+    ucar.ma2.Array a = NetcdfDataType.translateArray(o);
     Assertions.assertEquals("noot", a.getObject(1));
   }
 
   @Test
   void translate_array_test_multidim() {
     Object o = new int[] {1, 2, 3, 11, 12, 13};
-    ucar.ma2.Array a = NetcdfDataType.translate_array(NetcdfDataType.INT, new int[] {2, 3}, o);
+    ucar.ma2.Array a = NetcdfDataType.translateArray(NetcdfDataType.INT, new int[] {2, 3}, o);
     Assertions.assertEquals(13, a.getInt(Index.factory(a.getShape()).set0(1).set1(2)));
   }
 

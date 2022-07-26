@@ -57,13 +57,9 @@ public class NetcdfBuilder implements AutoCloseable {
     }
 
     public NetcdfFormatWriter build() throws IOException {
-      try {
-        NetcdfFormatWriter w = builder.build();
-        has_been_built = true;
-        return w;
-      } catch (IOException e) {
-        throw (new IOException("failed to create the netCDF file", e));
-      }
+      NetcdfFormatWriter w = builder.build();
+      has_been_built = true;
+      return w;
     }
 
     // Invoked by close method or cleaner
@@ -132,12 +128,12 @@ public class NetcdfBuilder implements AutoCloseable {
    * @param nadef
    */
   public void prepareArray(NumericalArrayDefinition nadef) {
-    List<Dimension> dims = new ArrayList<Dimension>();
+    List<Dimension> dims = new ArrayList<>();
     Group.Builder gb =
         getGroup(
             netcdfBuilderWrapper.builder.getRootGroup(), nadef.getVariableName().getGroupName());
     for (int i = 0; i < nadef.getDimensions().length; i++) {
-      VariableName dimName = (VariableName) nadef.getDimensions()[i];
+      VariableName dimName = nadef.getDimensions()[i];
       if (!nadef.getVariableName().getGroupName().equals(dimName.getGroupName())
           && !nadef.getVariableName().getGroupName().startsWith(dimName.getGroupName() + "/")) {
         throw (new IllegalArgumentException(
@@ -181,11 +177,13 @@ public class NetcdfBuilder implements AutoCloseable {
     if (start_group == null) start_group = netcdfBuilderWrapper.builder.getRootGroup();
     if (group_name.equals("")) return start_group;
     String[] split = group_name.split("/", 2);
-    if (start_group.findGroupLocal(split[0]).isPresent()) {
+    Optional<Group.Builder> optGroupBuilder = start_group.findGroupLocal(split[0]);
+    if (optGroupBuilder.isPresent()) {
+      Group.Builder found_group = optGroupBuilder.get();
       if (split.length == 2) {
-        return getGroup(start_group.findGroupLocal(split[0]).get(), split[1]);
+        return getGroup(found_group, split[1]);
       } else {
-        return start_group.findGroupLocal(split[0]).get();
+        return found_group;
       }
     } else {
       if (split.length == 2) {

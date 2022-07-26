@@ -868,7 +868,7 @@ class CoderunIntegrationTest {
 
   @Test
   @Order(27)
-  void testWriteArray() {
+  void testWriteArray() throws IOException {
     String dataProduct = "test/array1";
     String component_path = "component1/with/a/path";
     VariableName latname = new VariableName("lat", component_path);
@@ -930,7 +930,7 @@ class CoderunIntegrationTest {
 
   @Test
   @Order(28)
-  void testReadArray() {
+  void testReadArray() throws IOException {
     String dataProduct = "test/array1";
     String component1 = "component1/with/a/path/array1";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {

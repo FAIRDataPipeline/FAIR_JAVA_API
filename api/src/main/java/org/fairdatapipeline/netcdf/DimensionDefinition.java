@@ -53,7 +53,7 @@ public class DimensionDefinition {
       @Nonnull String long_name) {
     this(
         variableName,
-        NetcdfDataType.translate_datatype(values),
+        NetcdfDataType.translateDatatype(values),
         Array.getLength(values),
         values,
         description,

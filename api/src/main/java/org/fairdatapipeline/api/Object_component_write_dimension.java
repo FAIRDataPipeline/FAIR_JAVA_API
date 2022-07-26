@@ -1,6 +1,7 @@
 package org.fairdatapipeline.api;
 
 import java.io.EOFException;
+import java.io.IOException;
 import java.util.Arrays;
 import org.fairdatapipeline.netcdf.DimensionDefinition;
 import org.fairdatapipeline.netcdf.NetcdfBuilder;
@@ -40,7 +41,7 @@ public class Object_component_write_dimension extends Object_component_write {
    * @param nadat
    * @throws EOFException
    */
-  public void writeData(NumericalArray nadat) throws EOFException {
+  public void writeData(NumericalArray nadat) throws /*EOFException, */ IOException {
     if (eof) throw (new EOFException("trying to write beyond end of data"));
     NetcdfWriter nWriter = ((Data_product_write_nc) this.dp).getNetCDFWriter();
     if (this.variable == null) this.getVariable();

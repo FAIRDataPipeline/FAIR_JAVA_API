@@ -1,5 +1,6 @@
 package org.fairdatapipeline.api;
 
+import java.io.IOException;
 import org.fairdatapipeline.netcdf.NetcdfReader;
 import org.fairdatapipeline.netcdf.VariableName;
 import org.fairdatapipeline.objects.NumericalArray;
@@ -13,7 +14,7 @@ public class Object_component_read_nc extends Object_component_read {
   //    this(dp, new VariableName(component_name));
   // }
 
-  Object_component_read_nc(Data_product dp, VariableName variableName) {
+  Object_component_read_nc(Data_product dp, VariableName variableName) throws IOException {
     super(dp, variableName.getFullPath());
     Data_product_read_nc dpr = (Data_product_read_nc) this.dp;
     NetcdfReader r = dpr.getNetcdfReader();
@@ -22,13 +23,13 @@ public class Object_component_read_nc extends Object_component_read {
     for (int i = 0; i < origin_read_pointer.length; i++) origin_read_pointer[i] = 0;
   }
 
-  public NumericalArray readArray() {
+  public NumericalArray readArray() throws IOException {
     Data_product_read_nc dpr = (Data_product_read_nc) this.dp;
     NetcdfReader r = dpr.getNetcdfReader();
     return r.read(r.getVariable(this.component_name));
   }
 
-  public NumericalArray readArray(int[] shape) {
+  public NumericalArray readArray(int[] shape) throws IOException {
     Data_product_read_nc dpr = (Data_product_read_nc) this.dp;
     NetcdfReader r = dpr.getNetcdfReader();
 

@@ -75,16 +75,17 @@ public class NetcdfWriter implements AutoCloseable {
     return v;
   }
 
-  public void writeArrayData(Variable v, NumericalArray nadat) throws InvalidRangeException {
+  public void writeArrayData(Variable v, NumericalArray nadat)
+      throws InvalidRangeException, IOException {
     writeArrayData(v, nadat, null);
   }
 
-  public void writeArrayData(Variable v, Array data) throws InvalidRangeException {
+  public void writeArrayData(Variable v, Array data) throws InvalidRangeException, IOException {
     writeArrayData(v, data, null);
   }
 
   public void writeArrayData(Variable v, NumericalArray nadat, @Nullable int[] origin)
-      throws InvalidRangeException {
+      throws InvalidRangeException, IOException {
     Array data = ucar.ma2.Array.makeFromJavaArray(nadat.asObject());
     writeArrayData(v, data, origin);
   }
@@ -98,29 +99,28 @@ public class NetcdfWriter implements AutoCloseable {
    * @throws InvalidRangeException
    */
   public void writeArrayData(Variable v, Array data, @Nullable int[] origin)
-      throws InvalidRangeException {
+      throws InvalidRangeException, IOException {
     // TODO: check if data fill fit? correct stride and size..
     // Array data = NetcdfDataType.translate_array(nadef.getDataType(), nadef.getDimension_sizes(),
     // nadat.asOA());
     // the below works for primitive arrays.. if it might contain non primitives we need
     // NetcdfDataType.translate_array instead.
 
-    try {
-      if (origin == null) {
-        logger.trace("origin == null");
-        logger.trace("data.shape: " + Arrays.toString(data.getShape()));
-        logger.trace("v.shape: " + Arrays.toString(v.getShape()));
-        this.netcdfWriterWrapper.writer.write(v, data);
-      } else {
-        logger.trace("origin: " + Arrays.toString(origin));
-        logger.trace("v.shape: " + Arrays.toString(v.getShape()));
-        logger.trace("data.shape: " + Arrays.toString(data.getShape()));
-        this.netcdfWriterWrapper.writer.write(v, origin, data);
+    if (origin == null) {
+      logger.debug("origin == null");
+      this.netcdfWriterWrapper.writer.write(v, data);
+    } else {
+      if (logger.isDebugEnabled()) {
+        String originstring = Arrays.toString(origin);
+        logger.debug("origin: {}", originstring);
       }
-    } catch (IOException e) {
-      throw (new IllegalActionException("failed to write array data to file", e));
-      // }catch(InvalidRangeException e) {
-      //    throw(new IllegalActionException("invalid range for array data"));
+      this.netcdfWriterWrapper.writer.write(v, origin, data);
+    }
+    if (logger.isDebugEnabled()) {
+      String datashape = Arrays.toString(data.getShape());
+      String vshape = Arrays.toString(v.getShape());
+      logger.trace("data.shape: {}", datashape);
+      logger.trace("v.shape: {}", vshape);
     }
   }
 
@@ -136,7 +136,7 @@ public class NetcdfWriter implements AutoCloseable {
     if (v == null)
       throw (new IllegalActionException(
           "can't find variable " + dimensionDefinition.getVariableName()));
-    Array data = NetcdfDataType.translate_array(dimensionDefinition.getValues());
+    Array data = NetcdfDataType.translateArray(dimensionDefinition.getValues());
 
     try {
       this.netcdfWriterWrapper.writer.write(v, data);
