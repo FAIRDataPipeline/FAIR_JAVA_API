@@ -33,6 +33,7 @@ public class CoordinateVariable extends Variable {
       @Nonnull String long_name) {
     super(variableName, dataType, description, units, long_name, Collections.emptyMap());
     this.size = size;
+    this.values = null;
   }
 
   /**
@@ -57,6 +58,7 @@ public class CoordinateVariable extends Variable {
       @Nonnull Map<String, String> optional_attribs) {
     super(variableName, dataType, description, units, long_name, optional_attribs);
     this.size = size;
+    this.values = null;
   }
 
   /**
