@@ -5,20 +5,20 @@ import java.io.IOException;
 import java.util.Arrays;
 import org.fairdatapipeline.netcdf.NetcdfBuilder;
 import org.fairdatapipeline.netcdf.NetcdfWriter;
+import org.fairdatapipeline.objects.DimensionalVariable;
 import org.fairdatapipeline.objects.NumericalArray;
-import org.fairdatapipeline.objects.NumericalArrayDefinition;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 public class Object_component_write_array extends Object_component_write {
-  NumericalArrayDefinition nadef;
+  DimensionalVariable nadef;
   Variable variable;
   int[] write_pointer;
   int[] shape;
   boolean eof = false;
 
-  Object_component_write_array(Data_product_write_nc dp, NumericalArrayDefinition nadef) {
+  Object_component_write_array(Data_product_write_nc dp, DimensionalVariable nadef) {
     super(dp, nadef.getVariableName().toString());
     this.nadef = nadef;
     NetcdfBuilder nBuilder = ((Data_product_write_nc) this.dp).getNetCDFBuilder();
@@ -40,7 +40,7 @@ public class Object_component_write_array extends Object_component_write {
    * @param nadat
    * @throws EOFException
    */
-  public void writeArrayData(NumericalArray nadat) throws EOFException, IOException {
+  public void writeArrayData(NumericalArray nadat) throws IOException {
     if (eof) throw (new EOFException("trying to write beyond end of data"));
     NetcdfWriter nWriter = ((Data_product_write_nc) this.dp).getNetCDFWriter();
     if (this.variable == null)

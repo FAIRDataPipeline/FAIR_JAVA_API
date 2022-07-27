@@ -8,14 +8,8 @@ import javax.annotation.Nonnull;
 import org.fairdatapipeline.api.IllegalActionException;
 import org.fairdatapipeline.netcdf.*;
 
-public class NumericalArrayDefinition {
-  private final @Nonnull VariableName variableName;
-  private final @Nonnull NetcdfDataType dataType;
+public class DimensionalVariable extends Variable {
   private final @Nonnull VariableName[] dimensions;
-  private final @Nonnull String description;
-  private final @Nonnull String units;
-  private final @Nonnull String long_name;
-  private final Map<String, String> optional_attribs;
 
   /**
    * @param name
@@ -25,7 +19,7 @@ public class NumericalArrayDefinition {
    * @param units
    * @param long_name
    */
-  public NumericalArrayDefinition(
+  public DimensionalVariable(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
       @Nonnull String[] dimensions,
@@ -43,7 +37,7 @@ public class NumericalArrayDefinition {
         long_name);
   }
 
-  public NumericalArrayDefinition(
+  public DimensionalVariable(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
       @Nonnull String[] dimensions,
@@ -71,7 +65,7 @@ public class NumericalArrayDefinition {
    * @param units
    * @param long_name
    */
-  public NumericalArrayDefinition(
+  public DimensionalVariable(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
       @Nonnull VariableName[] dimensions,
@@ -81,16 +75,17 @@ public class NumericalArrayDefinition {
     this(name, dataType, dimensions, description, units, long_name, Collections.emptyMap());
   }
 
-  public NumericalArrayDefinition(
+  public DimensionalVariable(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
       @Nonnull VariableName[] dimensions,
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name,
-      Map<String, String> optional_attribs) {
-    this.optional_attribs = optional_attribs;
+      @Nonnull Map<String, String> optional_attribs) {
+    super(name, dataType, description, units, long_name, optional_attribs);
     int num_dims = dimensions.length;
+
     ArrayList<String> dimension_names = new ArrayList<>();
 
     for (int i = 0; i < num_dims; i++) {
@@ -99,39 +94,10 @@ public class NumericalArrayDefinition {
             "dimension names must be unique; duplicate: " + dimensions[i].getFullPath()));
       dimension_names.add(dimensions[i].getFullPath());
     }
-    this.variableName = name;
-    this.dataType = dataType;
-    this.description = description;
-    this.units = units;
     this.dimensions = dimensions;
-    this.long_name = long_name;
-  }
-
-  public VariableName getVariableName() {
-    return variableName;
-  }
-
-  public NetcdfDataType getDataType() {
-    return dataType;
-  }
-
-  public String getDescription() {
-    return description;
   }
 
   public VariableName[] getDimensions() {
     return this.dimensions.clone();
-  }
-
-  public String getUnits() {
-    return this.units;
-  }
-
-  public String getLong_name() {
-    return long_name;
-  }
-
-  public Map<String, String> getOptional_attribs() {
-    return optional_attribs;
   }
 }

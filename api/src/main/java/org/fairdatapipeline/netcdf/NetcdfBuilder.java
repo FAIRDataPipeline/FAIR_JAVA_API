@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.lang.ref.Cleaner;
 import java.lang.ref.Cleaner.Cleanable;
 import java.util.*;
-import org.fairdatapipeline.objects.NumericalArrayDefinition;
+import org.fairdatapipeline.objects.CoordinateVariable;
+import org.fairdatapipeline.objects.DimensionalVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ucar.nc2.*;
@@ -91,33 +92,33 @@ public class NetcdfBuilder implements AutoCloseable {
    * dimension of the array in /time_group/personal_data/ but cannot be used as a dimension of the
    * array in /other_group/somedata
    *
-   * @param dimensionDefinition
+   * @param coordinateVariable
    */
-  public void prepareDimension(DimensionDefinition dimensionDefinition) {
+  public void prepareDimension(CoordinateVariable coordinateVariable) {
     Group.Builder gb =
         getGroup(
             netcdfBuilderWrapper.builder.getRootGroup(),
-            dimensionDefinition.getVariableName().getGroupName());
+            coordinateVariable.getVariableName().getGroupName());
     Dimension d;
-    if (dimensionDefinition.isUnlimited()) {
-      d = new Dimension(dimensionDefinition.getVariableName().getName(), 0, true, true, false);
+    if (coordinateVariable.isUnlimited()) {
+      d = new Dimension(coordinateVariable.getVariableName().getName(), 0, true, true, false);
     } else {
       d =
           new Dimension(
-              dimensionDefinition.getVariableName().getName(), dimensionDefinition.getSize());
+              coordinateVariable.getVariableName().getName(), coordinateVariable.getSize());
     }
     gb.addDimension(d);
     Variable.Builder<?> varbuilder =
         Variable.builder()
-            .setName(dimensionDefinition.getVariableName().getName())
-            .setDataType(dimensionDefinition.getDataType().translate())
+            .setName(coordinateVariable.getVariableName().getName())
+            .setDataType(coordinateVariable.getDataType().translate())
             .setDimensions(Collections.singletonList(d));
-    if (dimensionDefinition.getDescription().length() > 0)
-      varbuilder.addAttribute(new Attribute("description", dimensionDefinition.getDescription()));
-    if (dimensionDefinition.getUnits().length() > 0)
-      varbuilder.addAttribute(new Attribute("units", dimensionDefinition.getUnits()));
-    if (dimensionDefinition.getLong_name().length() > 0)
-      varbuilder.addAttribute(new Attribute("long_name", dimensionDefinition.getLong_name()));
+    if (coordinateVariable.getDescription().length() > 0)
+      varbuilder.addAttribute(new Attribute("description", coordinateVariable.getDescription()));
+    if (coordinateVariable.getUnits().length() > 0)
+      varbuilder.addAttribute(new Attribute("units", coordinateVariable.getUnits()));
+    if (coordinateVariable.getLong_name().length() > 0)
+      varbuilder.addAttribute(new Attribute("long_name", coordinateVariable.getLong_name()));
     gb.addVariable(varbuilder);
   }
 
@@ -127,7 +128,7 @@ public class NetcdfBuilder implements AutoCloseable {
    *
    * @param nadef
    */
-  public void prepareArray(NumericalArrayDefinition nadef) {
+  public void prepareArray(DimensionalVariable nadef) {
     List<Dimension> dims = new ArrayList<>();
     Group.Builder gb =
         getGroup(

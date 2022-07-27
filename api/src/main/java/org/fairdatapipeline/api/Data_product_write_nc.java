@@ -1,10 +1,10 @@
 package org.fairdatapipeline.api;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.fairdatapipeline.netcdf.DimensionDefinition;
 import org.fairdatapipeline.netcdf.NetcdfBuilder;
 import org.fairdatapipeline.netcdf.NetcdfWriter;
-import org.fairdatapipeline.objects.NumericalArrayDefinition;
+import org.fairdatapipeline.objects.CoordinateVariable;
+import org.fairdatapipeline.objects.DimensionalVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ucar.nc2.write.Nc4Chunking;
@@ -48,7 +48,7 @@ public class Data_product_write_nc extends Data_product_write {
     super(dataProduct_name, coderun, "nc");
   }
 
-  public Object_component_write_array getComponent(@NonNull NumericalArrayDefinition nadef) {
+  public Object_component_write_array getComponent(@NonNull DimensionalVariable nadef) {
     if (componentMap.containsKey(nadef.getVariableName().getFullPath())) {
       // TODO: check that component in map is an Object_component_write_nc
       return (Object_component_write_array) componentMap.get(nadef.getVariableName().getFullPath());
@@ -59,7 +59,7 @@ public class Data_product_write_nc extends Data_product_write {
     return dc;
   }
 
-  public Object_component_write_dimension getComponent(@NonNull DimensionDefinition dimdef) {
+  public Object_component_write_dimension getComponent(@NonNull CoordinateVariable dimdef) {
     if (componentMap.containsKey(dimdef.getVariableName().getFullPath())) {
       // TODO: check that component in map is an Object_component_write_nc
       return (Object_component_write_dimension)

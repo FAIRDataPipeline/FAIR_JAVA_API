@@ -5,8 +5,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
+import org.fairdatapipeline.objects.CoordinateVariable;
+import org.fairdatapipeline.objects.DimensionalVariable;
 import org.fairdatapipeline.objects.NumericalArray;
-import org.fairdatapipeline.objects.NumericalArrayDefinition;
 import org.fairdatapipeline.objects.NumericalArrayImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,22 +41,22 @@ class NetcdfWriterTest {
     VariableName yName = new VariableName("Y", group);
     VariableName tempName = new VariableName("temperature", group);
 
-    DimensionDefinition xdim =
-        new DimensionDefinition(
+    CoordinateVariable xdim =
+        new CoordinateVariable(
             xName,
             new int[] {2, 4},
             "the x-axis is measured in along the length of my football pitch; (0,0) is the southwest corner.",
             "m",
             "");
-    DimensionDefinition ydim =
-        new DimensionDefinition(
+    CoordinateVariable ydim =
+        new CoordinateVariable(
             yName,
             new int[] {3, 6, 9},
             "the y-axis is measured in along the width of my football pitch; (0,0) is the southwest corner.",
             "m",
             "");
-    NumericalArrayDefinition nadef =
-        new NumericalArrayDefinition(
+    DimensionalVariable nadef =
+        new DimensionalVariable(
             tempName,
             NetcdfDataType.INT,
             new VariableName[] {xName, yName},
@@ -95,22 +96,22 @@ class NetcdfWriterTest {
     VariableName yName = new VariableName("Y", group1);
     VariableName tempName = new VariableName("temp", group1);
 
-    DimensionDefinition xdim =
-        new DimensionDefinition(
+    CoordinateVariable xdim =
+        new CoordinateVariable(
             xName,
             new int[] {2, 4},
             "the x-axis runs east-west with 0 = south-east corner of my garden",
             "cm",
             "");
-    DimensionDefinition ydim =
-        new DimensionDefinition(
+    CoordinateVariable ydim =
+        new CoordinateVariable(
             yName,
             new int[] {3, 6, 9},
             "the y-axis runs south-north with 0 = south-east corner of my garden",
             "cm",
             "");
-    NumericalArrayDefinition temperature =
-        new NumericalArrayDefinition(
+    DimensionalVariable temperature =
+        new DimensionalVariable(
             tempName,
             NetcdfDataType.INT,
             new VariableName[] {xName, yName},
@@ -121,23 +122,23 @@ class NetcdfWriterTest {
     VariableName personName = new VariableName("person", group2);
     VariableName dateName = new VariableName("date", group2);
     VariableName personheightName = new VariableName("personheight", group2);
-    DimensionDefinition persondim =
-        new DimensionDefinition(
+    CoordinateVariable persondim =
+        new CoordinateVariable(
             personName,
             new String[] {"Bram Boskamp", "Rosalie Boskamp"},
             "the person's name is good enough an identifier for me",
             "",
             "named person");
-    DimensionDefinition datedim =
-        new DimensionDefinition(
+    CoordinateVariable datedim =
+        new CoordinateVariable(
             dateName,
             new int[] {1640995200, 1643673600, 1646092800},
             "the date the measurement was taken",
             "seconds since 01-01-1970 00:00:00",
             "");
 
-    NumericalArrayDefinition heights =
-        new NumericalArrayDefinition(
+    DimensionalVariable heights =
+        new DimensionalVariable(
             personheightName,
             NetcdfDataType.DOUBLE,
             new VariableName[] {personName, dateName},
@@ -192,22 +193,22 @@ class NetcdfWriterTest {
     VariableName xName = new VariableName("X", group);
     VariableName yName = new VariableName("Y", group);
 
-    DimensionDefinition timedim =
-        new DimensionDefinition(
+    CoordinateVariable timedim =
+        new CoordinateVariable(
             timeName,
             new int[] {1640995200, 1640995201, 1640995202, 1640995203, 1640995204},
             "",
             "seconds since 01-01-1970",
             "");
-    DimensionDefinition xdim =
-        new DimensionDefinition(xName, new int[] {2, 4}, "my x axis", "cm", "");
-    DimensionDefinition ydim =
-        new DimensionDefinition(yName, new int[] {3, 6, 9}, "my y axis", "cm", "");
+    CoordinateVariable xdim =
+        new CoordinateVariable(xName, new int[] {2, 4}, "my x axis", "cm", "");
+    CoordinateVariable ydim =
+        new CoordinateVariable(yName, new int[] {3, 6, 9}, "my y axis", "cm", "");
 
     VariableName temperatureName = new VariableName("temperature", group);
 
-    NumericalArrayDefinition nadef =
-        new NumericalArrayDefinition(
+    DimensionalVariable nadef =
+        new DimensionalVariable(
             temperatureName,
             NetcdfDataType.INT,
             new VariableName[] {timeName, xName, yName},
@@ -265,19 +266,19 @@ class NetcdfWriterTest {
 
     VariableName tempName = new VariableName("temperature", group);
 
-    DimensionDefinition timedim =
-        new DimensionDefinition(
+    CoordinateVariable timedim =
+        new CoordinateVariable(
             timeName,
             new int[] {1640995200, 1640995201, 1640995202, 1640995203, 1640995204},
             "",
             "seconds since 01-01-1970",
             "");
-    DimensionDefinition xdim =
-        new DimensionDefinition(xName, new int[] {2, 4}, "my x axis", "cm", "");
-    DimensionDefinition ydim =
-        new DimensionDefinition(yName, new int[] {3, 6, 9}, "my y axis", "cm", "");
-    NumericalArrayDefinition nadef =
-        new NumericalArrayDefinition(
+    CoordinateVariable xdim =
+        new CoordinateVariable(xName, new int[] {2, 4}, "my x axis", "cm", "");
+    CoordinateVariable ydim =
+        new CoordinateVariable(yName, new int[] {3, 6, 9}, "my y axis", "cm", "");
+    DimensionalVariable nadef =
+        new DimensionalVariable(
             tempName,
             NetcdfDataType.INT,
             new VariableName[] {timeName, xName, yName},
@@ -333,21 +334,21 @@ class NetcdfWriterTest {
     VariableName yName = new VariableName("Y", group_temp);
     VariableName tempName = new VariableName("temp", group_temp);
 
-    DimensionDefinition time =
-        new DimensionDefinition(
+    CoordinateVariable time =
+        new CoordinateVariable(
             timeName,
             new int[] {12, 13, 14, 15, 16},
             "this is the time dimension that other arrays should link to",
             "seconds (since 01-01-1970)",
             "");
 
-    DimensionDefinition dim_x =
-        new DimensionDefinition(xName, new int[] {2, 4}, "my x axis", "cm", "");
-    DimensionDefinition dim_y =
-        new DimensionDefinition(yName, new int[] {3, 6, 9}, "my y axis", "cm", "");
+    CoordinateVariable dim_x =
+        new CoordinateVariable(xName, new int[] {2, 4}, "my x axis", "cm", "");
+    CoordinateVariable dim_y =
+        new CoordinateVariable(yName, new int[] {3, 6, 9}, "my y axis", "cm", "");
 
-    NumericalArrayDefinition nadef_temp =
-        new NumericalArrayDefinition(
+    DimensionalVariable nadef_temp =
+        new DimensionalVariable(
             tempName,
             NetcdfDataType.INT,
             new VariableName[] {timeName, xName, yName},
@@ -398,16 +399,16 @@ class NetcdfWriterTest {
     VariableName timeName = new VariableName("time", root_group);
     VariableName tempName = new VariableName("temp", root_group);
 
-    DimensionDefinition time =
-        new DimensionDefinition(
+    CoordinateVariable time =
+        new CoordinateVariable(
             timeName,
             new int[] {12, 13, 14, 15, 16},
             "this is the time dimension that other arrays should link to",
             "seconds (since 01-01-1970)",
             "");
 
-    NumericalArrayDefinition nadef_temp =
-        new NumericalArrayDefinition(
+    DimensionalVariable nadef_temp =
+        new DimensionalVariable(
             tempName,
             NetcdfDataType.INT,
             new VariableName[] {timeName},

@@ -6,6 +6,7 @@ import java.lang.ref.Cleaner.Cleanable;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.fairdatapipeline.api.IllegalActionException;
+import org.fairdatapipeline.objects.CoordinateVariable;
 import org.fairdatapipeline.objects.NumericalArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,30 +125,30 @@ public class NetcdfWriter implements AutoCloseable {
     }
   }
 
-  public void writeDimensionVariable(DimensionDefinition dimensionDefinition) {
-    if (dimensionDefinition.getValues() == null) return;
+  public void writeDimensionVariable(CoordinateVariable coordinateVariable) {
+    if (coordinateVariable.getValues() == null) return;
     Group g =
         this.netcdfWriterWrapper.netcdfFile.findGroup(
-            dimensionDefinition.getVariableName().getGroupName());
+            coordinateVariable.getVariableName().getGroupName());
     if (g == null)
       throw (new IllegalActionException(
-          "can't find group " + dimensionDefinition.getVariableName().getGroupName()));
-    Variable v = g.findVariableLocal(dimensionDefinition.getVariableName().getName());
+          "can't find group " + coordinateVariable.getVariableName().getGroupName()));
+    Variable v = g.findVariableLocal(coordinateVariable.getVariableName().getName());
     if (v == null)
       throw (new IllegalActionException(
-          "can't find variable " + dimensionDefinition.getVariableName()));
-    Array data = NetcdfDataType.translateArray(dimensionDefinition.getValues());
+          "can't find variable " + coordinateVariable.getVariableName()));
+    Array data = NetcdfDataType.translateArray(coordinateVariable.getValues());
 
     try {
       this.netcdfWriterWrapper.writer.write(v, data);
     } catch (IOException e) {
       throw (new IllegalActionException(
           "failed to write dimension values to file for variable "
-              + dimensionDefinition.getVariableName()));
+              + coordinateVariable.getVariableName()));
     } catch (InvalidRangeException e) {
       throw (new IllegalActionException(
           "invalid range to write dimension values for variable "
-              + dimensionDefinition.getVariableName()));
+              + coordinateVariable.getVariableName()));
     }
   }
 
