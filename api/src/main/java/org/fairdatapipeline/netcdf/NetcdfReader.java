@@ -1,33 +1,31 @@
 package org.fairdatapipeline.netcdf;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.fairdatapipeline.objects.DimensionalVariableDefinition;
-import org.fairdatapipeline.objects.NumericalArray;
-import org.fairdatapipeline.objects.NumericalArrayImpl;
+
+import org.fairdatapipeline.objects.*;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.*;
 
 public class NetcdfReader {
   NetcdfFile file;
+  private static final String[] attrib_names = new String[] {"description", "units", "long_name", "standard_name"};
 
   public NetcdfReader(String fileName) throws IOException {
     this.file = NetcdfFiles.open(fileName);
   }
 
-  public DimensionalVariableDefinition getArray(String variableName) {
+  public VariableDefinition getArray(String variableName) {
     return getArray(new VariableName(variableName));
   }
 
-  public DimensionalVariableDefinition getArray(VariableName variableName) {
+  public VariableDefinition getArray(VariableName variableName) {
     Variable v = this.getVariable(variableName);
     Map<String, String> argument_attribs = new HashMap<>();
-    argument_attribs.put("long_name", "");
-    argument_attribs.put("standard_name", "");
-    argument_attribs.put("description", "");
-    argument_attribs.put("units", "");
+    Arrays.stream(attrib_names).forEach(s -> {argument_attribs.put(s, "");});
     Map<String, String> optional_attribs = new HashMap<>();
     for (Attribute attribute : v.attributes()) {
       if (attribute.isString()) {
@@ -40,14 +38,26 @@ public class NetcdfReader {
     }
     String[] dims = v.getDimensions().stream().map(Dimension::getName).toArray(String[]::new);
     NetcdfDataType dataType = NetcdfDataType.translate(v.getDataType());
-    return new DimensionalVariableDefinition(
-        variableName,
-        dataType,
-        dims,
-        argument_attribs.get("description"),
-        argument_attribs.get("units"),
-        argument_attribs.get("long_name"),
-        optional_attribs);
+    if(v.isCoordinateVariable()){
+      return (VariableDefinition) new CoordinateVariableDefinition(
+              variableName,
+              dataType,
+              v.getShape(0),
+              argument_attribs.get(attrib_names[0]),
+              argument_attribs.get(attrib_names[1]),
+              argument_attribs.get(attrib_names[2]),
+              optional_attribs
+              );
+    }else {
+      return (VariableDefinition) new DimensionalVariableDefinition(
+              variableName,
+              dataType,
+              dims,
+              argument_attribs.get(attrib_names[0]),
+              argument_attribs.get(attrib_names[1]),
+              argument_attribs.get(attrib_names[2]),
+              optional_attribs);
+    }
   }
 
   public Variable getVariable(VariableName variableName) {

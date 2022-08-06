@@ -9,7 +9,7 @@ import org.fairdatapipeline.netcdf.VariableName;
  * VariableDefinition is the abstract parent class of CoordinateVariableDefinition and
  * DimensionalVariableDefinition
  */
-abstract class VariableDefinition {
+public abstract class VariableDefinition {
   final @Nonnull VariableName variableName;
   final @Nonnull NetcdfDataType dataType;
   final @Nonnull String description;
