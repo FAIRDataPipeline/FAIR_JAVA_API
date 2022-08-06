@@ -3,7 +3,7 @@ package org.fairdatapipeline.netcdf;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.fairdatapipeline.objects.DimensionalVariable;
+import org.fairdatapipeline.objects.DimensionalVariableDefinition;
 import org.fairdatapipeline.objects.NumericalArray;
 import org.fairdatapipeline.objects.NumericalArrayImpl;
 import ucar.ma2.Array;
@@ -17,11 +17,11 @@ public class NetcdfReader {
     this.file = NetcdfFiles.open(fileName);
   }
 
-  public DimensionalVariable getArray(String variableName) {
+  public DimensionalVariableDefinition getArray(String variableName) {
     return getArray(new VariableName(variableName));
   }
 
-  public DimensionalVariable getArray(VariableName variableName) {
+  public DimensionalVariableDefinition getArray(VariableName variableName) {
     Variable v = this.getVariable(variableName);
     Map<String, String> argument_attribs = new HashMap<>();
     argument_attribs.put("long_name", "");
@@ -40,7 +40,7 @@ public class NetcdfReader {
     }
     String[] dims = v.getDimensions().stream().map(Dimension::getName).toArray(String[]::new);
     NetcdfDataType dataType = NetcdfDataType.translate(v.getDataType());
-    return new DimensionalVariable(
+    return new DimensionalVariableDefinition(
         variableName,
         dataType,
         dims,

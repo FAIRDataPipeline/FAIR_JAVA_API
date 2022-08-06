@@ -29,8 +29,8 @@ import org.fairdatapipeline.distribution.MinMax;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
 import org.fairdatapipeline.netcdf.VariableName;
-import org.fairdatapipeline.objects.CoordinateVariable;
-import org.fairdatapipeline.objects.DimensionalVariable;
+import org.fairdatapipeline.objects.CoordinateVariableDefinition;
+import org.fairdatapipeline.objects.DimensionalVariableDefinition;
 import org.fairdatapipeline.objects.NumericalArray;
 import org.fairdatapipeline.objects.NumericalArrayImpl;
 import org.fairdatapipeline.samples.ImmutableSamples;
@@ -878,16 +878,16 @@ class CoderunIntegrationTest {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
 
-      CoordinateVariable latdim =
-          new CoordinateVariable(
+      CoordinateVariableDefinition latdim =
+          new CoordinateVariableDefinition(
               latname,
               new double[] {-75, -60, -45, -30, -15, 0, 15, 30, 45, 60, 75},
               "",
               "degrees north",
               "latitude");
 
-      CoordinateVariable londim =
-          new CoordinateVariable(
+      CoordinateVariableDefinition londim =
+          new CoordinateVariableDefinition(
               lonname,
               new double[] {-180, -150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150},
               "",
@@ -895,8 +895,8 @@ class CoderunIntegrationTest {
               "longitude");
       VariableName[] dims = new VariableName[] {latname, lonname};
 
-      DimensionalVariable nadef =
-          new DimensionalVariable(
+      DimensionalVariableDefinition nadef =
+          new DimensionalVariableDefinition(
               nadefname,
               NetcdfDataType.DOUBLE,
               dims,

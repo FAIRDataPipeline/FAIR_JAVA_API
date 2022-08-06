@@ -5,20 +5,20 @@ import java.io.IOException;
 import java.util.Arrays;
 import org.fairdatapipeline.netcdf.NetcdfBuilder;
 import org.fairdatapipeline.netcdf.NetcdfWriter;
-import org.fairdatapipeline.objects.CoordinateVariable;
+import org.fairdatapipeline.objects.CoordinateVariableDefinition;
 import org.fairdatapipeline.objects.NumericalArray;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 public class Object_component_write_dimension extends Object_component_write {
-  CoordinateVariable dimdef;
+  CoordinateVariableDefinition dimdef;
   Variable variable;
   int[] write_pointer;
   int[] shape;
   boolean eof = false;
 
-  Object_component_write_dimension(Data_product_write_nc dp, CoordinateVariable dimdef) {
+  Object_component_write_dimension(Data_product_write_nc dp, CoordinateVariableDefinition dimdef) {
     // dimdef.getVariableName().toString: /my/path + / + dimensionName = component_name
     super(dp, dimdef.getVariableName().toString());
     this.dimdef = dimdef;

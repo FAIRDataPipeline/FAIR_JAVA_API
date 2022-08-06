@@ -1,7 +1,7 @@
 package org.fairdatapipeline.netcdf;
 
 import java.io.IOException;
-import org.fairdatapipeline.objects.DimensionalVariable;
+import org.fairdatapipeline.objects.DimensionalVariableDefinition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ class NetcdfReaderTest {
     String resourceName = "/netcdf/test_build_prepare_write_INT.nc";
     String filename = getClass().getResource(resourceName).toString();
     NetcdfReader reader = new NetcdfReader(filename);
-    DimensionalVariable ardef = reader.getArray("aap/noot/mies/temperature");
+    DimensionalVariableDefinition ardef = reader.getArray("aap/noot/mies/temperature");
     Assertions.assertEquals(NetcdfDataType.INT, ardef.getDataType());
     Assertions.assertEquals("a test dataset with temperatures in 2d space", ardef.getDescription());
     Assertions.assertEquals("C", ardef.getUnits());
@@ -26,7 +26,7 @@ class NetcdfReaderTest {
     String resourceName = "/netcdf/test_build_prepare_write_INT.nc";
     String filename = getClass().getResource(resourceName).toString();
     NetcdfReader reader = new NetcdfReader(filename);
-    DimensionalVariable ardef = reader.getArray("aap/noot/mies/X");
+    DimensionalVariableDefinition ardef = reader.getArray("aap/noot/mies/X");
     Assertions.assertEquals(NetcdfDataType.INT, ardef.getDataType());
     Assertions.assertEquals(
         "the x-axis is measured in along the length of my football pitch; (0,0) is the southwest corner.",

@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
 import org.fairdatapipeline.netcdf.VariableName;
 
-public class CoordinateVariable extends Variable {
+public class CoordinateVariableDefinition extends VariableDefinition {
   private final int size;
   public static final int UNLIMITED = 0;
   private final @Nullable Object values;
@@ -24,7 +24,7 @@ public class CoordinateVariable extends Variable {
    * @param units
    * @param long_name
    */
-  public CoordinateVariable(
+  public CoordinateVariableDefinition(
       @Nonnull VariableName variableName,
       @Nonnull NetcdfDataType dataType,
       int size,
@@ -48,7 +48,7 @@ public class CoordinateVariable extends Variable {
    * @param long_name
    * @param optional_attribs
    */
-  public CoordinateVariable(
+  public CoordinateVariableDefinition(
       @Nonnull VariableName variableName,
       @Nonnull NetcdfDataType dataType,
       int size,
@@ -71,7 +71,7 @@ public class CoordinateVariable extends Variable {
    * @param units
    * @param long_name
    */
-  public CoordinateVariable(
+  public CoordinateVariableDefinition(
       @Nonnull VariableName variableName,
       @Nonnull Object values,
       @Nonnull String description,
@@ -99,7 +99,7 @@ public class CoordinateVariable extends Variable {
    * @param long_name
    * @param optional_attribs
    */
-  public CoordinateVariable(
+  public CoordinateVariableDefinition(
       @Nonnull VariableName variableName,
       @Nonnull Object values,
       @Nonnull String description,

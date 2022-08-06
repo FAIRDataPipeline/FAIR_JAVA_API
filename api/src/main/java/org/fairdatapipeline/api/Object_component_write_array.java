@@ -5,20 +5,20 @@ import java.io.IOException;
 import java.util.Arrays;
 import org.fairdatapipeline.netcdf.NetcdfBuilder;
 import org.fairdatapipeline.netcdf.NetcdfWriter;
-import org.fairdatapipeline.objects.DimensionalVariable;
+import org.fairdatapipeline.objects.DimensionalVariableDefinition;
 import org.fairdatapipeline.objects.NumericalArray;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 public class Object_component_write_array extends Object_component_write {
-  DimensionalVariable nadef;
+  DimensionalVariableDefinition nadef;
   Variable variable;
   int[] write_pointer;
   int[] shape;
   boolean eof = false;
 
-  Object_component_write_array(Data_product_write_nc dp, DimensionalVariable nadef) {
+  Object_component_write_array(Data_product_write_nc dp, DimensionalVariableDefinition nadef) {
     super(dp, nadef.getVariableName().toString());
     this.nadef = nadef;
     NetcdfBuilder nBuilder = ((Data_product_write_nc) this.dp).getNetCDFBuilder();

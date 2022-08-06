@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import org.fairdatapipeline.api.IllegalActionException;
 import org.fairdatapipeline.netcdf.*;
 
-public class DimensionalVariable extends Variable {
+public class DimensionalVariableDefinition extends VariableDefinition {
   private final @Nonnull VariableName[] dimensions;
 
   /**
@@ -19,7 +19,7 @@ public class DimensionalVariable extends Variable {
    * @param units
    * @param long_name
    */
-  public DimensionalVariable(
+  public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
       @Nonnull String[] dimensions,
@@ -37,7 +37,7 @@ public class DimensionalVariable extends Variable {
         long_name);
   }
 
-  public DimensionalVariable(
+  public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
       @Nonnull String[] dimensions,
@@ -65,7 +65,7 @@ public class DimensionalVariable extends Variable {
    * @param units
    * @param long_name
    */
-  public DimensionalVariable(
+  public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
       @Nonnull VariableName[] dimensions,
@@ -75,7 +75,7 @@ public class DimensionalVariable extends Variable {
     this(name, dataType, dimensions, description, units, long_name, Collections.emptyMap());
   }
 
-  public DimensionalVariable(
+  public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
       @Nonnull VariableName[] dimensions,

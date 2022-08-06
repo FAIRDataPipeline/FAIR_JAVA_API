@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.lang.ref.Cleaner;
 import java.lang.ref.Cleaner.Cleanable;
 import java.util.*;
-import org.fairdatapipeline.objects.CoordinateVariable;
-import org.fairdatapipeline.objects.DimensionalVariable;
+import org.fairdatapipeline.objects.CoordinateVariableDefinition;
+import org.fairdatapipeline.objects.DimensionalVariableDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ucar.nc2.*;
@@ -94,7 +94,7 @@ public class NetcdfBuilder implements AutoCloseable {
    *
    * @param coordinateVariable
    */
-  public void prepareDimension(CoordinateVariable coordinateVariable) {
+  public void prepareDimension(CoordinateVariableDefinition coordinateVariable) {
     Group.Builder gb =
         getGroup(
             netcdfBuilderWrapper.builder.getRootGroup(),
@@ -128,7 +128,7 @@ public class NetcdfBuilder implements AutoCloseable {
    *
    * @param nadef
    */
-  public void prepareArray(DimensionalVariable nadef) {
+  public void prepareArray(DimensionalVariableDefinition nadef) {
     List<Dimension> dims = new ArrayList<>();
     Group.Builder gb =
         getGroup(

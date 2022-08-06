@@ -5,8 +5,11 @@ import javax.annotation.Nonnull;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
 import org.fairdatapipeline.netcdf.VariableName;
 
-/** Variable is the abstract parent class of CoordinateVariable and DimensionalVariable */
-abstract class Variable {
+/**
+ * VariableDefinition is the abstract parent class of CoordinateVariableDefinition and
+ * DimensionalVariableDefinition
+ */
+abstract class VariableDefinition {
   final @Nonnull VariableName variableName;
   final @Nonnull NetcdfDataType dataType;
   final @Nonnull String description;
@@ -14,7 +17,7 @@ abstract class Variable {
   final @Nonnull String long_name;
   final @Nonnull Map<String, String> optional_attribs;
 
-  Variable(
+  VariableDefinition(
       @Nonnull VariableName variableName,
       @Nonnull NetcdfDataType dataType,
       @Nonnull String description,

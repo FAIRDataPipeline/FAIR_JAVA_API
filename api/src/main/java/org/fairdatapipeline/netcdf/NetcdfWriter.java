@@ -6,7 +6,7 @@ import java.lang.ref.Cleaner.Cleanable;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.fairdatapipeline.api.IllegalActionException;
-import org.fairdatapipeline.objects.CoordinateVariable;
+import org.fairdatapipeline.objects.CoordinateVariableDefinition;
 import org.fairdatapipeline.objects.NumericalArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +125,7 @@ public class NetcdfWriter implements AutoCloseable {
     }
   }
 
-  public void writeDimensionVariable(CoordinateVariable coordinateVariable) {
+  public void writeDimensionVariable(CoordinateVariableDefinition coordinateVariable) {
     if (coordinateVariable.getValues() == null) return;
     Group g =
         this.netcdfWriterWrapper.netcdfFile.findGroup(
