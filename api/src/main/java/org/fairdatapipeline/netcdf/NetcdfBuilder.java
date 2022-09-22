@@ -6,8 +6,12 @@ import java.lang.ref.Cleaner.Cleanable;
 import java.util.*;
 import org.fairdatapipeline.objects.CoordinateVariableDefinition;
 import org.fairdatapipeline.objects.DimensionalVariableDefinition;
+import org.fairdatapipeline.objects.TableDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Attr;
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.nc2.*;
 import ucar.nc2.write.Nc4Chunking;
 import ucar.nc2.write.Nc4ChunkingStrategy;
@@ -94,23 +98,21 @@ public class NetcdfBuilder implements AutoCloseable {
    *
    * @param coordinateVariable
    */
-  public void prepareDimension(CoordinateVariableDefinition coordinateVariable) {
+  public void prepare(CoordinateVariableDefinition coordinateVariable) {
     Group.Builder gb =
         getGroup(
             netcdfBuilderWrapper.builder.getRootGroup(),
-            coordinateVariable.getVariableName().getGroupName());
+            coordinateVariable.getVariableName().getGroupName().toString());
     Dimension d;
     if (coordinateVariable.isUnlimited()) {
-      d = new Dimension(coordinateVariable.getVariableName().getName(), 0, true, true, false);
+      d = new Dimension(coordinateVariable.getVariableName().getName().toString(), 0, true, true, false);
     } else {
-      d =
-          new Dimension(
-              coordinateVariable.getVariableName().getName(), coordinateVariable.getSize());
+      d = new Dimension(coordinateVariable.getVariableName().getName().toString(), coordinateVariable.getSize());
     }
     gb.addDimension(d);
     Variable.Builder<?> varbuilder =
         Variable.builder()
-            .setName(coordinateVariable.getVariableName().getName())
+            .setName(coordinateVariable.getVariableName().getName().toString())
             .setDataType(coordinateVariable.getDataType().translate())
             .setDimensions(Collections.singletonList(d));
     if (coordinateVariable.getDescription().length() > 0)
@@ -119,7 +121,41 @@ public class NetcdfBuilder implements AutoCloseable {
       varbuilder.addAttribute(new Attribute("units", coordinateVariable.getUnits()));
     if (coordinateVariable.getLong_name().length() > 0)
       varbuilder.addAttribute(new Attribute("long_name", coordinateVariable.getLong_name()));
+    if(coordinateVariable.getMissingValue() != null) {
+      // coordinateVariables should not have any missing values.
+      if (coordinateVariable.getMissingValue().getClass() == String.class) {
+        varbuilder.addAttribute(new Attribute("_FillValue", (String) coordinateVariable.getMissingValue()));
+      } else {
+        varbuilder.addAttribute(new Attribute("_FillValue", (Number) coordinateVariable.getMissingValue()));
+      }
+    }
     gb.addVariable(varbuilder);
+  }
+
+  public void prepare(TableDefinition tabledef) {
+    String dimensionName = "index";
+    Group.Builder gb =
+            getGroup(
+                    netcdfBuilderWrapper.builder.getRootGroup(),
+                    tabledef.getGroupName().toString(), true);
+    Dimension d;
+    if(tabledef.isUnlimited()) {
+      d = new Dimension(dimensionName, 0, true, true, false);
+    }else{
+      d = new Dimension(dimensionName, tabledef.getSize());
+    }
+    gb.addDimension(d);
+    if(tabledef.getDescription().length() > 0)
+      gb.addAttribute(new Attribute("description", tabledef.getDescription()));
+    if(tabledef.getLong_name().length() > 0)
+      gb.addAttribute(new Attribute("long_name", tabledef.getLong_name()));
+    tabledef.getOptional_attribs().forEach((key, value) -> {gb.addAttribute(new Attribute(key, value));});
+    Arrays.stream(tabledef.getColumns()).forEach(localVarDef -> {
+      this.prepare(new DimensionalVariableDefinition(localVarDef, tabledef.getGroupName(), tabledef.getSize(), dimensionName));
+    });
+    gb.addAttribute(new Attribute("group_type", "table"));
+
+
   }
 
   /**
@@ -128,15 +164,18 @@ public class NetcdfBuilder implements AutoCloseable {
    *
    * @param nadef
    */
-  public void prepareArray(DimensionalVariableDefinition nadef) {
+  public void prepare(DimensionalVariableDefinition nadef) {
     List<Dimension> dims = new ArrayList<>();
+    VariableName vbn = nadef.getVariableName();
+    NetcdfGroupName gn = vbn.getGroupName();
+    String groupName = gn.toString();
     Group.Builder gb =
         getGroup(
-            netcdfBuilderWrapper.builder.getRootGroup(), nadef.getVariableName().getGroupName());
+            netcdfBuilderWrapper.builder.getRootGroup(), groupName);
     for (int i = 0; i < nadef.getDimensions().length; i++) {
       VariableName dimName = nadef.getDimensions()[i];
       if (!nadef.getVariableName().getGroupName().equals(dimName.getGroupName())
-          && !nadef.getVariableName().getGroupName().startsWith(dimName.getGroupName() + "/")) {
+          && !nadef.getVariableName().getGroupName().toString().startsWith(dimName.getGroupName().toString() + "/")) {
         throw (new IllegalArgumentException(
             "you can only link to variables in parent groups; "
                 + dimName.getGroupName()
@@ -145,14 +184,14 @@ public class NetcdfBuilder implements AutoCloseable {
                 + "."));
       }
       Optional<Group.Builder> optGroupBuilder =
-          netcdfBuilderWrapper.builder.getRootGroup().findGroupNested(dimName.getGroupName());
+          netcdfBuilderWrapper.builder.getRootGroup().findGroupNested(dimName.getGroupName().toString());
       if (!optGroupBuilder.isPresent())
         throw (new IllegalArgumentException(
             "Trying to link shared dimension but Group "
                 + dimName.getGroupName()
                 + " does not exist."));
       Optional<Dimension> optionalDimension =
-          optGroupBuilder.get().findDimension(dimName.getName());
+          optGroupBuilder.get().findDimension(dimName.getName().toString());
       if (!optionalDimension.isPresent())
         throw (new IllegalArgumentException("Can't find dimension " + dimName));
       Dimension d = optionalDimension.get();
@@ -160,7 +199,7 @@ public class NetcdfBuilder implements AutoCloseable {
     }
     Variable.Builder<?> varbuilder =
         Variable.builder()
-            .setName(nadef.getVariableName().getName())
+            .setName(nadef.getVariableName().getName().toString())
             .setDataType(nadef.getDataType().translate())
             .setDimensions(dims);
     if (nadef.getDescription().length() > 0)
@@ -169,21 +208,40 @@ public class NetcdfBuilder implements AutoCloseable {
       varbuilder.addAttribute(new Attribute("units", nadef.getUnits()));
     if (nadef.getLong_name().length() > 0)
       varbuilder.addAttribute(new Attribute("long_name", nadef.getLong_name()));
+    if(nadef.getMissingValue() != null) {
+      if (nadef.getMissingValue().getClass() == String.class) {
+        varbuilder.addAttribute(new Attribute("_FillValue", (String) nadef.getMissingValue()));
+      } else {
+        varbuilder.addAttribute(new Attribute("_FillValue", (Number) nadef.getMissingValue()));
+      }
+    }
+
     gb.addVariable(varbuilder);
   }
 
   Group.Builder getGroup(Group.Builder start_group, String group_name) {
-    logger.trace("getGroup({}, {})", start_group, group_name);
+    return getGroup(start_group, group_name, false);
+  }
+  Group.Builder getGroup(Group.Builder start_group, String group_name, boolean mustBeFresh) {
+    logger.trace("getGroup({}, {}, {}})", start_group, group_name, mustBeFresh);
     if (group_name.startsWith("/")) group_name = group_name.substring(1);
     if (start_group == null) start_group = netcdfBuilderWrapper.builder.getRootGroup();
-    if (group_name.equals("")) return start_group;
+    if (group_name.equals("")) {
+      if(mustBeFresh) throw(new IllegalArgumentException("this group already exists"));
+      if(start_group.getAttributeContainer().findAttribute("group_type") != null)
+        throw(new IllegalArgumentException("we can't create anything new in groups marked with group_type attribute."));
+      return start_group;
+    }
     String[] split = group_name.split("/", 2);
     Optional<Group.Builder> optGroupBuilder = start_group.findGroupLocal(split[0]);
     if (optGroupBuilder.isPresent()) {
       Group.Builder found_group = optGroupBuilder.get();
+      if(found_group.getAttributeContainer().findAttribute("group_type") != null)
+        throw(new IllegalArgumentException("we can't create anything new in groups marked with group_type attribute."));
       if (split.length == 2) {
-        return getGroup(found_group, split[1]);
+        return getGroup(found_group, split[1], mustBeFresh);
       } else {
+        if(mustBeFresh) throw(new IllegalArgumentException("this group already exists"));
         return found_group;
       }
     } else {

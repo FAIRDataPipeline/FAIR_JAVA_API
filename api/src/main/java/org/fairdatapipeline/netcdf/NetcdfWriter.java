@@ -65,7 +65,7 @@ public class NetcdfWriter implements AutoCloseable {
     if (g == null)
       throw (new IllegalActionException(
           "group /" + variableName.getGroupName() + " not found for writing."));
-    Variable v = g.findVariableLocal(variableName.getName());
+    Variable v = g.findVariableLocal(variableName.getName().toString());
     if (v == null)
       throw (new IllegalActionException(
           "variable "
@@ -129,11 +129,11 @@ public class NetcdfWriter implements AutoCloseable {
     if (coordinateVariable.getValues() == null) return;
     Group g =
         this.netcdfWriterWrapper.netcdfFile.findGroup(
-            coordinateVariable.getVariableName().getGroupName());
+            coordinateVariable.getVariableName().getGroupName().toString());
     if (g == null)
       throw (new IllegalActionException(
           "can't find group " + coordinateVariable.getVariableName().getGroupName()));
-    Variable v = g.findVariableLocal(coordinateVariable.getVariableName().getName());
+    Variable v = g.findVariableLocal(coordinateVariable.getVariableName().getName().toString());
     if (v == null)
       throw (new IllegalActionException(
           "can't find variable " + coordinateVariable.getVariableName()));

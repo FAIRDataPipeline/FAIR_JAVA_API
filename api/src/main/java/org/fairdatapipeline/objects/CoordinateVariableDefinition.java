@@ -6,12 +6,18 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
+import org.fairdatapipeline.netcdf.NetcdfGroupName;
 import org.fairdatapipeline.netcdf.VariableName;
 
+/**
+ *  this class
+ */
 public class CoordinateVariableDefinition extends VariableDefinition {
   private final int size;
   public static final int UNLIMITED = 0;
   private final @Nullable Object values;
+
+  @Nonnull VariableName variableName;
 
   /**
    * if we don't supply values, we need to set size and type. size can be
@@ -31,7 +37,8 @@ public class CoordinateVariableDefinition extends VariableDefinition {
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name) {
-    super(variableName, dataType, description, units, long_name, Collections.emptyMap());
+    super(dataType, description, units, long_name, Collections.emptyMap());
+    this.variableName = variableName;
     this.size = size;
     this.values = null;
   }
@@ -56,7 +63,8 @@ public class CoordinateVariableDefinition extends VariableDefinition {
       @Nonnull String units,
       @Nonnull String long_name,
       @Nonnull Map<String, String> optional_attribs) {
-    super(variableName, dataType, description, units, long_name, optional_attribs);
+    super(dataType, description, units, long_name, optional_attribs);
+    this.variableName = variableName;
     this.size = size;
     this.values = null;
   }
@@ -78,12 +86,12 @@ public class CoordinateVariableDefinition extends VariableDefinition {
       @Nonnull String units,
       @Nonnull String long_name) {
     super(
-        variableName,
         NetcdfDataType.translateDatatype(values),
         description,
         units,
         long_name,
         Collections.emptyMap());
+    this.variableName = variableName;
     this.size = Array.getLength(values);
     this.values = values;
   }
@@ -107,12 +115,12 @@ public class CoordinateVariableDefinition extends VariableDefinition {
       @Nonnull String long_name,
       @Nonnull Map<String, String> optional_attribs) {
     super(
-        variableName,
         NetcdfDataType.translateDatatype(values),
         description,
         units,
         long_name,
         optional_attribs);
+    this.variableName = variableName;
     this.size = Array.getLength(values);
     this.values = values;
   }
@@ -123,6 +131,10 @@ public class CoordinateVariableDefinition extends VariableDefinition {
 
   public int getSize() {
     return size;
+  }
+
+  public @Nonnull VariableName getVariableName() {
+    return this.variableName;
   }
 
   public @Nullable Object getValues() {

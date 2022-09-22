@@ -36,7 +36,7 @@ public class NetcdfReader {
         }
       }
     }
-    String[] dims = v.getDimensions().stream().map(Dimension::getName).toArray(String[]::new);
+    NetcdfName[] dims = v.getDimensions().stream().map(Dimension::getName).toArray(NetcdfName[]::new);
     NetcdfDataType dataType = NetcdfDataType.translate(v.getDataType());
     if(v.isCoordinateVariable()){
       return (VariableDefinition) new CoordinateVariableDefinition(
@@ -81,7 +81,7 @@ public class NetcdfReader {
     } catch (IOException e) {
       throw (new IllegalArgumentException("problem"));
     }
-    return new NumericalArrayImpl(a);
+    return new NumericalArrayImpl(a.copyToNDJavaArray());
   }
 
   public NumericalArray read(Variable v, int[] origin, int[] shape) {
@@ -93,7 +93,7 @@ public class NetcdfReader {
     } catch (InvalidRangeException e) {
       throw (new IllegalArgumentException("other problem"));
     }
-    return new NumericalArrayImpl(a);
+    return new NumericalArrayImpl(a.copyToNDJavaArray());
   }
 
   public void close() {

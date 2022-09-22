@@ -5,6 +5,7 @@ import org.fairdatapipeline.netcdf.NetcdfBuilder;
 import org.fairdatapipeline.netcdf.NetcdfWriter;
 import org.fairdatapipeline.objects.CoordinateVariableDefinition;
 import org.fairdatapipeline.objects.DimensionalVariableDefinition;
+import org.fairdatapipeline.objects.TableDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ucar.nc2.write.Nc4Chunking;
@@ -50,13 +51,25 @@ public class Data_product_write_nc extends Data_product_write {
 
   public Object_component_write_array getComponent(@NonNull DimensionalVariableDefinition nadef) {
     if (componentMap.containsKey(nadef.getVariableName().getFullPath())) {
-      // TODO: check that component in map is an Object_component_write_nc
+      // TODO: check that component in map is an Object_component_write_array
       return (Object_component_write_array) componentMap.get(nadef.getVariableName().getFullPath());
     }
     Object_component_write_array dc;
     dc = new Object_component_write_array(this, nadef);
     componentMap.put(nadef.getVariableName().getFullPath(), dc);
     return dc;
+  }
+
+  public Object_component_write_table getComponent(@NonNull TableDefinition tabledef) {
+    if (componentMap.containsKey(tabledef.getGroupName().toString())) {
+      // TODO: check that component in map is an Object_component_write_table
+      return (Object_component_write_table)
+              componentMap.get(tabledef.getGroupName().toString());
+    }
+    Object_component_write_table tc;
+    tc = new Object_component_write_table(this, tabledef);
+    componentMap.put(tabledef.getGroupName().toString(), tc);
+    return tc;
   }
 
   public Object_component_write_dimension getComponent(

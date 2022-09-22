@@ -23,7 +23,7 @@ public class Object_component_write_dimension extends Object_component_write {
     super(dp, dimdef.getVariableName().toString());
     this.dimdef = dimdef;
     NetcdfBuilder nBuilder = ((Data_product_write_nc) this.dp).getNetCDFBuilder();
-    nBuilder.prepareDimension(dimdef);
+    nBuilder.prepare(dimdef);
   }
 
   private void getVariable() {

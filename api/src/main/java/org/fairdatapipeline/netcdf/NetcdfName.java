@@ -1,0 +1,35 @@
+package org.fairdatapipeline.netcdf;
+
+import javax.annotation.Nonnull;
+import java.util.regex.Pattern;
+
+public class NetcdfName implements DimensionName {
+    @Nonnull
+    String name;
+    // public static Pattern  THIS PATTERN IS SIMPLIFIED TO MATCH THE VERY RESTRICTED
+    // FORMAT OF Datapipeline object_component
+    // this was based on the definition of 'bare key' from TOML.
+    public static Pattern nameP = Pattern.compile("^\\p{Alnum}[\\p{Alnum}_-]*+$");
+
+
+    public NetcdfName(@Nonnull String name) {
+        if (!nameP.matcher(name).find())
+            throw (new IllegalArgumentException("not a valid netCDF name: " + name));
+        this.name = name;
+    }
+
+    public @Nonnull String getName() {
+        return name;
+    }
+
+    public @Nonnull String toString() {
+        return getName();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return (other != null
+                && other.getClass() == getClass()
+                && ((NetcdfName) other).getName().equals(this.name));
+    }
+}

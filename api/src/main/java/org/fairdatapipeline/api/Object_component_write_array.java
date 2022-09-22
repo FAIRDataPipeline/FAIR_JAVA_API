@@ -22,7 +22,7 @@ public class Object_component_write_array extends Object_component_write {
     super(dp, nadef.getVariableName().toString());
     this.nadef = nadef;
     NetcdfBuilder nBuilder = ((Data_product_write_nc) this.dp).getNetCDFBuilder();
-    nBuilder.prepareArray(nadef);
+    nBuilder.prepare(nadef);
   }
 
   private void getVariable() {

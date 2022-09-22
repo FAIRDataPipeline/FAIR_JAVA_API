@@ -1,10 +1,13 @@
 package org.fairdatapipeline.netcdf;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
+import org.fairdatapipeline.objects.CoordinateVariableDefinition;
+import org.fairdatapipeline.objects.DimensionalVariableDefinition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -69,6 +72,87 @@ class NetcdfBuilderTest {
     FileUtils.delete(filePath.toFile());
   }
 
+  @Test
+  void test_create_2table_groups() throws IOException, URISyntaxException {
+    String filename = "test_create_table_group";
+    String resourceName = "/netcdf/test_create_table_group.nc";
+    Path filePath = Files.createTempFile(filename, ".nc");
+    try (NetcdfBuilder b =
+                 new NetcdfBuilder(
+                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+      Group.Builder g1 = b.getGroup(null, "/my/little/table", true);
+      g1.addAttribute(new Attribute("_group_type", "table"));
+      Group.Builder g2 = b.getGroup(null, "/my/little/othertable", true);
+      g2.addAttribute(new Attribute("_group_type", "table"));
+    }
+    Assertions.assertTrue(
+            FileUtils.contentEquals(
+                    filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+    FileUtils.delete(filePath.toFile());
+  }
+
+  /**
+   *   show that it is not possible to create a table within another table.
+   */
+  @Test
+  void test_create_table_in_table() throws IOException, URISyntaxException {
+    String filename = "test_create_table_in_table";
+    Path filePath = Files.createTempFile(filename, ".nc");
+    try (NetcdfBuilder b =
+                 new NetcdfBuilder(
+                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+      Group.Builder g1 = b.getGroup(null, "/my/little/table", true);
+      g1.addAttribute(new Attribute("_group_type", "table"));
+      Assertions.assertThrows(
+              IllegalArgumentException.class,
+              () -> {b.getGroup(null, "/my/little/table/subtable", true);}
+      );
+
+    }
+  }
+
+
+  /**
+   *   show that it is not possible to 'get' a group within another table.
+   */
+  @Test
+  void test_create_something_in_table() throws IOException, URISyntaxException {
+    String filename = "test_create_something_in_table";
+    Path filePath = Files.createTempFile(filename, ".nc");
+    try (NetcdfBuilder b =
+                 new NetcdfBuilder(
+                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+      Group.Builder g1 = b.getGroup(null, "/my/little/table", true);
+      g1.addAttribute(new Attribute("_group_type", "table"));
+      Assertions.assertThrows(
+              IllegalArgumentException.class,
+              () -> {b.getGroup(null, "/my/little/table/subgroup");}
+      );
+
+    }
+  }
+
+  /**
+   *   this shows that the 'mustBeFresh' argument prevents 'get'ting a group that already exists.
+   *   this is in order to make sure a table always creates its own unique group to exist in.
+   */
+  @Test
+  void test_create_table_in_existing_group() throws IOException, URISyntaxException {
+    String filename = "test_create_table_in_existing_group";
+    Path filePath = Files.createTempFile(filename, ".nc");
+    try (NetcdfBuilder b =
+                 new NetcdfBuilder(
+                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+      b.getGroup(null, "/my/little/group");
+      Assertions.assertThrows(
+              IllegalArgumentException.class,
+              () -> {b.getGroup(null, "/my/little/group", true);}
+      );
+
+    }
+  }
+
+
   /** can't use Array.makeFromJavaArray() on a non-primitives array, such as String[] */
   @Test
   void makeFromJavaNonPrimitive() {
@@ -86,4 +170,89 @@ class NetcdfBuilderTest {
     ucar.ma2.Array a = ucar.ma2.Array.makeFromJavaArray(new int[][] {{1, 2, 3}, {11, 12, 13}});
     Assertions.assertEquals(13, a.getInt(Index.factory(a.getShape()).set0(1).set1(2)));
   }
+
+  @Test
+  void test_prepare_coordinatevar() throws IOException, URISyntaxException {
+    String filename = "test_prepare_coordinatevar";
+    String extension = ".nc";
+    String resourceName = "/netcdf/" + filename + extension;
+    Path filePath = Files.createTempFile(filename, extension);
+    CoordinateVariableDefinition cvdef = new CoordinateVariableDefinition(
+      new VariableName("coordinatevariable", ""),
+            new int[] {1, 2, 3},
+            "my first coordinate",
+            "cm",
+            "very long name of my coordinate variable"
+    );
+    try (NetcdfBuilder b =
+                 new NetcdfBuilder(
+                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+
+      b.prepare(cvdef);
+    }
+    Assertions.assertTrue(
+            FileUtils.contentEquals(
+                    filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+    FileUtils.delete(filePath.toFile());
+  }
+
+  /**
+   * using a dimensionalvar with zero length dimensions; results in a scalar variable.
+   * not sure if i had meant this to be so, and if it should be so.
+   *
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  @Test
+  void test_prepare_scalar_dimensionalvar() throws IOException, URISyntaxException {
+    String filename = "test_prepare_scalar_dimensionalvar";
+    String extension = ".nc";
+    String resourceName = "/netcdf/" + filename + extension;
+    Path filePath = Files.createTempFile(filename, extension);
+    DimensionalVariableDefinition dimdef = new DimensionalVariableDefinition(
+            new VariableName("dimensionalvariable", ""),
+            NetcdfDataType.INT,
+            new NetcdfName[] {},
+            "my first dimensional variable",
+            "cm",
+            "very long name of my coordinate variable"
+    );
+    try (NetcdfBuilder b =
+                 new NetcdfBuilder(
+                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+
+      b.prepare(dimdef);
+    }
+    Assertions.assertTrue(
+            FileUtils.contentEquals(
+                    filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+    FileUtils.delete(filePath.toFile());
+  }
+
+  @Test
+  void test_prepare_dimensionalvar() throws IOException, URISyntaxException {
+    String filename = "test_prepare_dimensionalvar";
+    String extension = ".nc";
+    String resourceName = "/netcdf/" + filename + extension;
+    Path filePath = Files.createTempFile(filename, extension);
+    DimensionalVariableDefinition dimdef = new DimensionalVariableDefinition(
+            new VariableName("dimensionalvariable", ""),
+            NetcdfDataType.INT,
+            new NetcdfName[] {new NetcdfName("dimension1")},
+            "my first dimensional variable",
+            "cm",
+            "very long name of my coordinate variable"
+    );
+    try (NetcdfBuilder b =
+                 new NetcdfBuilder(
+                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+
+      b.prepare(dimdef);
+    }
+    Assertions.assertTrue(
+            FileUtils.contentEquals(
+                    filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+    FileUtils.delete(filePath.toFile());
+  }
+
 }

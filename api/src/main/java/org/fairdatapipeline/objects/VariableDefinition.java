@@ -6,53 +6,50 @@ import org.fairdatapipeline.netcdf.NetcdfDataType;
 import org.fairdatapipeline.netcdf.VariableName;
 
 /**
- * VariableDefinition is the abstract parent class of CoordinateVariableDefinition and
- * DimensionalVariableDefinition
+ * VariableDefinition is the parent class of CoordinateVariableDefinition and
+ * DimensionalVariableDefinition. It has the full definition of a variable, only lacking 'dimensions' or 'size'.
+ * It is used in TableDefinition to define the columns of the table.
  */
-public abstract class VariableDefinition {
-  final @Nonnull VariableName variableName;
+public abstract class VariableDefinition extends NetcdfDataComponentDefinition {
   final @Nonnull NetcdfDataType dataType;
-  final @Nonnull String description;
   final @Nonnull String units;
-  final @Nonnull String long_name;
-  final @Nonnull Map<String, String> optional_attribs;
+
+  final Object missingValue;
 
   VariableDefinition(
-      @Nonnull VariableName variableName,
       @Nonnull NetcdfDataType dataType,
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name,
       @Nonnull Map<String, String> optional_attribs) {
-    this.variableName = variableName;
+    super(description, long_name, optional_attribs);
     this.dataType = dataType;
-    this.description = description;
     this.units = units;
-    this.long_name = long_name;
-    this.optional_attribs = optional_attribs;
+    this.missingValue = null;
+  }
+  VariableDefinition(
+          @Nonnull NetcdfDataType dataType,
+          @Nonnull String description,
+          @Nonnull String units,
+          @Nonnull String long_name,
+          @Nonnull Map<String, String> optional_attribs,
+          Object missingValue) {
+    super(description, long_name, optional_attribs);
+    this.dataType = dataType;
+    this.units = units;
+    this.missingValue = missingValue;
   }
 
-  public @Nonnull VariableName getVariableName() {
-    return variableName;
-  }
-
-  public @Nonnull NetcdfDataType getDataType() {
+    public @Nonnull NetcdfDataType getDataType() {
     return dataType;
   }
 
-  public @Nonnull String getDescription() {
-    return description;
+  public Object getMissingValue() {
+    return missingValue;
   }
 
   public @Nonnull String getUnits() {
     return units;
   }
 
-  public @Nonnull String getLong_name() {
-    return long_name;
-  }
-
-  public @Nonnull Map<String, String> getOptional_attribs() {
-    return optional_attribs;
-  }
 }

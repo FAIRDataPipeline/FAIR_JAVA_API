@@ -7,17 +7,11 @@ import javax.annotation.Nonnull;
  * VariableName stores the object_component (e.g. 'human/mortality_data') as a name
  * ('mortality_data') and a group ('human')
  */
-public class VariableName {
-  @Nonnull String name;
-  @Nonnull String groupName;
-  // public static Pattern netcdfname_pre_netCDF363 =
-  // Pattern.compile("^\\p{Alnum}[\\p{Alnum}_@.+-]*$");
-  // TODO: prevent trailing spaces in these regex?
-  private static Pattern netcdfname = Pattern.compile("^\\p{Alnum}[^/\n]*$");
-  // public static Pattern netcdffullpath_pre_netCDF363 =
-  // Pattern.compile("^\\p{Alnum}[\\p{Alnum}_@.+-]*(/\\p{Alnum}[\\p{Alnum}_@.+-])*$");
+public class VariableName implements DimensionName {
+  @Nonnull NetcdfName name;
+  @Nonnull NetcdfGroupName groupName;
   private static Pattern netcdffullpath =
-      Pattern.compile("^\\p{Alnum}[^/\n]*+(?:/\\p{Alnum}[^/\n]*+)*+$");
+      Pattern.compile("^\\p{Alnum}[\\p{Alnum}_-]*+(?:/\\p{Alnum}[\\p{Alnum}_-]*+)*+$");
 
   /**
    * create the VariableName from a full path with variable name (e.g. 'human/mortality_data') will
@@ -32,37 +26,35 @@ public class VariableName {
       throw (new IllegalArgumentException("not a valid netCDF full path: " + fullPath));
     int last_slash = fullPath.lastIndexOf("/");
     if (last_slash == -1) {
-      this.name = fullPath;
-      this.groupName = "";
+      this.name = new NetcdfName(fullPath);
+      this.groupName = new NetcdfGroupName("");
     } else {
-      this.name = fullPath.substring(last_slash + 1);
-      this.groupName = fullPath.substring(0, last_slash);
+      this.name = new NetcdfName(fullPath.substring(last_slash + 1));
+      this.groupName = new NetcdfGroupName(fullPath.substring(0, last_slash));
     }
   }
 
   public VariableName(@Nonnull String name, @Nonnull String groupName) {
-    if (groupName.startsWith("/")) groupName = groupName.substring(1);
-    if (groupName.length() > 0 && !netcdffullpath.matcher(groupName).find())
-      throw (new IllegalArgumentException("not a valid netCDF path name: " + groupName));
-    if (name.length() == 0)
-      throw (new IllegalArgumentException("variable name can not be empty: " + name));
-    if (!netcdfname.matcher(name).find())
-      throw (new IllegalArgumentException("not a valid variable name: " + name));
+    this(new NetcdfName(name), new NetcdfGroupName(groupName));
+  }
+
+  public VariableName(@Nonnull NetcdfName name, @Nonnull NetcdfGroupName groupName) {
     this.name = name;
     this.groupName = groupName;
   }
 
-  public @Nonnull String getGroupName() {
+
+  public @Nonnull NetcdfGroupName getGroupName() {
     return groupName;
   }
 
-  public String getName() {
+  public @Nonnull NetcdfName getName() {
     return name;
   }
 
   public @Nonnull String getFullPath() {
-    if (groupName.length() == 0) return name;
-    return groupName + '/' + name;
+    if (groupName.toString().length() == 0) return name.toString();
+    return groupName.toString() + '/' + name.toString();
   }
 
   public @Nonnull String toString() {

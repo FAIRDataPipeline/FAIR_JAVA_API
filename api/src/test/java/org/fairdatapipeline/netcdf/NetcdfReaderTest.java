@@ -1,17 +1,21 @@
 package org.fairdatapipeline.netcdf;
 
 import java.io.IOException;
+import java.util.Arrays;
+
 import org.fairdatapipeline.objects.DimensionalVariableDefinition;
+import org.fairdatapipeline.objects.NumericalArray;
 import org.fairdatapipeline.objects.VariableDefinition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ucar.nc2.Variable;
 
 class NetcdfReaderTest {
+  private static final String read_int_resource = "/netcdf/test_build_prepare_write_INT.nc";
 
   @Test
   void test_read_int_ardef() throws IOException {
-    String resourceName = "/netcdf/test_build_prepare_write_INT.nc";
-    String filename = getClass().getResource(resourceName).toString();
+    String filename = getClass().getResource(read_int_resource).toString();
     NetcdfReader reader = new NetcdfReader(filename);
     VariableDefinition ardef = reader.getArray("aap/noot/mies/temperature");
     Assertions.assertEquals(NetcdfDataType.INT, ardef.getDataType());
@@ -26,8 +30,7 @@ class NetcdfReaderTest {
 
   @Test
   void test_read_int_Xdimdef() throws IOException {
-    String resourceName = "/netcdf/test_build_prepare_write_INT.nc";
-    String filename = getClass().getResource(resourceName).toString();
+    String filename = getClass().getResource(read_int_resource).toString();
     NetcdfReader reader = new NetcdfReader(filename);
     VariableDefinition ardef = reader.getArray("aap/noot/mies/X");
     Assertions.assertEquals(NetcdfDataType.INT, ardef.getDataType());
@@ -37,5 +40,17 @@ class NetcdfReaderTest {
         ardef.getDescription());
     Assertions.assertEquals("m", ardef.getUnits());
     Assertions.assertEquals("", ardef.getLong_name());
+  }
+
+  @Test
+  void test_read_int_data() throws IOException {
+    String filename = getClass().getResource(read_int_resource).toString();
+    NetcdfReader reader = new NetcdfReader(filename);
+    Variable v = reader.getVariable("aap/noot/mies/temperature");
+    NumericalArray na = reader.read(v);
+    Assertions.assertEquals(1, na.as2DArray()[0][0]);
+    Assertions.assertTrue(Arrays.equals(new Number[] {1,2,3}, na.as2DArray()[0]));
+    Assertions.assertTrue(Arrays.equals(new Number[] {11,12,13}, na.as2DArray()[1]));
+
   }
 }
