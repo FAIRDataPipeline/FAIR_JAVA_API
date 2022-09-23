@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.fairdatapipeline.objects.*;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.*;
 
@@ -26,13 +27,14 @@ public class NetcdfReader {
     Variable v = this.getVariable(variableName);
     Map<String, String> argument_attribs = new HashMap<>();
     Arrays.stream(attrib_names).forEach(s -> {argument_attribs.put(s, "");});
-    Map<String, String> optional_attribs = new HashMap<>();
+    Map<String, String[]> optional_attribs = new HashMap<>();
     for (Attribute attribute : v.attributes()) {
       if (attribute.isString()) {
         if (argument_attribs.containsKey(attribute.getName())) {
           argument_attribs.put(attribute.getName(), attribute.getStringValue());
         } else {
-          optional_attribs.put(attribute.getName(), attribute.getStringValue());
+
+          optional_attribs.put(attribute.getName(), (String[]) attribute.getValues().get1DJavaArray(DataType.STRING));
         }
       }
     }

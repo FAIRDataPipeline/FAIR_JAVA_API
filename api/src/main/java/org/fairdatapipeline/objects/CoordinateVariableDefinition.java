@@ -62,7 +62,7 @@ public class CoordinateVariableDefinition extends VariableDefinition {
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name,
-      @Nonnull Map<String, String> optional_attribs) {
+      @Nonnull Map<String, String[]> optional_attribs) {
     super(dataType, description, units, long_name, optional_attribs);
     this.variableName = variableName;
     this.size = size;
@@ -113,7 +113,7 @@ public class CoordinateVariableDefinition extends VariableDefinition {
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name,
-      @Nonnull Map<String, String> optional_attribs) {
+      @Nonnull Map<String, String[]> optional_attribs) {
     super(
         NetcdfDataType.translateDatatype(values),
         description,

@@ -21,7 +21,7 @@ public abstract class VariableDefinition extends NetcdfDataComponentDefinition {
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name,
-      @Nonnull Map<String, String> optional_attribs) {
+      @Nonnull Map<String, String[]> optional_attribs) {
     super(description, long_name, optional_attribs);
     this.dataType = dataType;
     this.units = units;
@@ -32,7 +32,7 @@ public abstract class VariableDefinition extends NetcdfDataComponentDefinition {
           @Nonnull String description,
           @Nonnull String units,
           @Nonnull String long_name,
-          @Nonnull Map<String, String> optional_attribs,
+          @Nonnull Map<String, String[]> optional_attribs,
           Object missingValue) {
     super(description, long_name, optional_attribs);
     this.dataType = dataType;

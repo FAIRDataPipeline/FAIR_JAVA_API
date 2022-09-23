@@ -43,7 +43,7 @@ public class DimensionalVariableDefinition extends VariableDefinition {
           @Nonnull String description,
           @Nonnull String units,
           @Nonnull String long_name,
-          @Nonnull Map<String, String> optional_attribs) {
+          @Nonnull Map<String, String[]> optional_attribs) {
     this(name, dataType, dimensions, description, units, long_name, optional_attribs, null);
   }
 
@@ -60,7 +60,7 @@ public class DimensionalVariableDefinition extends VariableDefinition {
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name,
-      @Nonnull Map<String, String> optional_attribs,
+      @Nonnull Map<String, String[]> optional_attribs,
       Object missingValue) {
     super(dataType, description, units, long_name, optional_attribs, missingValue);
     this.variableName = name;
@@ -70,7 +70,13 @@ public class DimensionalVariableDefinition extends VariableDefinition {
     this.dimensions = new VariableName[dimensions.length];
 
     for (int i = 0; i < num_dims; i++) {
-      if(dimensions[i].getClass() == VariableName.class) this.dimensions[i] = (VariableName) dimensions[i];
+      if(dimensions[i].getClass() == VariableName.class) {
+        this.dimensions[i] = (VariableName) dimensions[i];
+        if (!this.dimensions[i].getGroupName().equals(name.getGroupName())
+                && !this.dimensions[i].getGroupName().toString().startsWith(name.getGroupName().toString() + "/")) {
+          throw (new IllegalActionException("dimensions must be in own group or a parent group"));
+        }
+      }
       else this.dimensions[i] = new VariableName((NetcdfName) dimensions[i], name.getGroupName());
       if (dimension_names.contains(this.dimensions[i].getFullPath()))
         throw (new IllegalActionException(

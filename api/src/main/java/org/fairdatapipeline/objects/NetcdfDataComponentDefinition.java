@@ -6,12 +6,12 @@ import java.util.Map;
 public abstract class NetcdfDataComponentDefinition {
     final @Nonnull String description;
     final @Nonnull String long_name;
-    final @Nonnull Map<String, String> optional_attribs;
+    final @Nonnull Map<String, String[]> optional_attribs;
 
     NetcdfDataComponentDefinition(
             @Nonnull String description,
             @Nonnull String long_name,
-            @Nonnull Map<String, String> optional_attribs) {
+            @Nonnull Map<String, String[]> optional_attribs) {
         this.description = description;
         this.long_name = long_name;
         this.optional_attribs = optional_attribs;
@@ -25,7 +25,7 @@ public abstract class NetcdfDataComponentDefinition {
         return long_name;
     }
 
-    public @Nonnull Map<String, String> getOptional_attribs() {
+    public @Nonnull Map<String, String[]> getOptional_attribs() {
         return optional_attribs;
     }
 

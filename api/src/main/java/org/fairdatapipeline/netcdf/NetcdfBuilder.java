@@ -149,7 +149,9 @@ public class NetcdfBuilder implements AutoCloseable {
       gb.addAttribute(new Attribute("description", tabledef.getDescription()));
     if(tabledef.getLong_name().length() > 0)
       gb.addAttribute(new Attribute("long_name", tabledef.getLong_name()));
-    tabledef.getOptional_attribs().forEach((key, value) -> {gb.addAttribute(new Attribute(key, value));});
+    tabledef.getOptional_attribs().forEach((key, value) -> {
+      gb.addAttribute(Attribute.builder().setName(key).setDataType(DataType.STRING).setValues(NetcdfDataType.translateArray(value)).build());});
+//      gb.addAttribute(new Attribute(key, value));});
     Arrays.stream(tabledef.getColumns()).forEach(localVarDef -> {
       this.prepare(new DimensionalVariableDefinition(localVarDef, tabledef.getGroupName(), tabledef.getSize(), dimensionName));
     });

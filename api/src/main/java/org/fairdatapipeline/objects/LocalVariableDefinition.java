@@ -16,7 +16,7 @@ public class LocalVariableDefinition extends VariableDefinition{
             @Nonnull String description,
             @Nonnull String units,
             @Nonnull String long_name,
-            @Nonnull Map<String, String> optional_attribs,
+            @Nonnull Map<String, String[]> optional_attribs,
             Object missingValue) {
         super(dataType, description, units, long_name, optional_attribs, missingValue);
         this.localName = localName;
@@ -27,7 +27,7 @@ public class LocalVariableDefinition extends VariableDefinition{
             @Nonnull String description,
             @Nonnull String units,
             @Nonnull String long_name,
-            @Nonnull Map<String, String> optional_attribs) {
+            @Nonnull Map<String, String[]> optional_attribs) {
         super(dataType, description, units, long_name, optional_attribs);
         this.localName = localName;
     }

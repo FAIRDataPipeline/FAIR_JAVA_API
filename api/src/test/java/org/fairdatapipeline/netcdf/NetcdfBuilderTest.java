@@ -5,9 +5,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+
 import org.apache.commons.io.FileUtils;
+import org.fairdatapipeline.api.IllegalActionException;
 import org.fairdatapipeline.objects.CoordinateVariableDefinition;
 import org.fairdatapipeline.objects.DimensionalVariableDefinition;
+import org.fairdatapipeline.objects.LocalVariableDefinition;
+import org.fairdatapipeline.objects.TableDefinition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -229,24 +235,62 @@ class NetcdfBuilderTest {
     FileUtils.delete(filePath.toFile());
   }
 
+  /** when trying to create a dimensionalvariable the referenced dimensions in the dimensions[] must exist.
+   *
+   * @throws IOException
+   */
+  @Test
+  void test_prepare_dimensionalvar_missing_dim() throws IOException {
+    String filename = "test_prepare_dimensionalvar";
+    String extension = ".nc";
+    Path filePath = Files.createTempFile(filename, extension);
+    DimensionalVariableDefinition dimdef = new DimensionalVariableDefinition(
+            new VariableName("dimensionalvariable", ""),
+            NetcdfDataType.INT,
+            new DimensionName[] {new NetcdfName("dimension1")},
+            "my first dimensional variable",
+            "cm",
+            "very long name of my coordinate variable"
+    );
+
+    try (NetcdfBuilder b = new NetcdfBuilder(filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+      Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        b.prepare(dimdef);
+      });
+    }
+  }
+
+  /** creating a coordinatevariable and a 1-d dimensional variable referencing the coordinate variable.
+   *
+   * @throws IOException
+   * @throws URISyntaxException
+   */
   @Test
   void test_prepare_dimensionalvar() throws IOException, URISyntaxException {
     String filename = "test_prepare_dimensionalvar";
     String extension = ".nc";
     String resourceName = "/netcdf/" + filename + extension;
     Path filePath = Files.createTempFile(filename, extension);
+
     DimensionalVariableDefinition dimdef = new DimensionalVariableDefinition(
             new VariableName("dimensionalvariable", ""),
             NetcdfDataType.INT,
-            new NetcdfName[] {new NetcdfName("dimension1")},
+            new DimensionName[] {new NetcdfName("dimension1")},
             "my first dimensional variable",
+            "cm",
+            "very long name of my coordinate variable"
+    );
+    CoordinateVariableDefinition cvdef = new CoordinateVariableDefinition(
+            new VariableName("dimension1", ""),
+            new int[] {1, 2, 3},
+            "my first coordinate",
             "cm",
             "very long name of my coordinate variable"
     );
     try (NetcdfBuilder b =
                  new NetcdfBuilder(
                          filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
-
+      b.prepare(cvdef);
       b.prepare(dimdef);
     }
     Assertions.assertTrue(
@@ -254,5 +298,46 @@ class NetcdfBuilderTest {
                     filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
     FileUtils.delete(filePath.toFile());
   }
+
+
+  /**
+   *
+   */
+  @Test
+  void test_linked_from_multi_attribute() throws IOException, URISyntaxException  {
+    String filename = "test_linked_from_multi_attribute";
+    String extension = ".nc";
+    String resourceName = "/netcdf/" + filename + extension;
+    Path filePath = Files.createTempFile(filename, extension);
+
+    TableDefinition td = new TableDefinition(
+            new NetcdfGroupName("table"),
+            1,
+            "",
+            "",
+            Collections.singletonMap("linked_from", new String[] {"apples", "pears"}),
+            new LocalVariableDefinition[] {
+                    new LocalVariableDefinition(
+                            new NetcdfName("column1"),
+                            NetcdfDataType.INT,
+                            "",
+                            "",
+                            "")
+            }
+    );
+    try (NetcdfBuilder b =
+                 new NetcdfBuilder(
+                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+      b.prepare(td);
+    }
+    Assertions.assertTrue(
+            FileUtils.contentEquals(
+                    filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+    FileUtils.delete(filePath.toFile());
+
+
+  }
+
+
 
 }

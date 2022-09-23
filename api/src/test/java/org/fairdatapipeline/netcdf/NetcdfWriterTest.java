@@ -222,7 +222,7 @@ class NetcdfWriterTest {
                     "", "", "value of the item", Collections.emptyMap(), Double.NaN)
     };
 
-    TableDefinition table = new TableDefinition(tableName, 0, "This is a simple test table to see what it will look like in a netCDF file.", "My little simple test table with some missing values", Collections.singletonMap("random_attribute", "just testing a random attribute"), columns);
+    TableDefinition table = new TableDefinition(tableName, 0, "This is a simple test table to see what it will look like in a netCDF file.", "My little simple test table with some missing values", Collections.singletonMap("random_attribute", new String[] {"just testing a random attribute"}), columns);
     Path filePath = Files.createTempFile(filename, ".nc");
     try (NetcdfBuilder b =
                  new NetcdfBuilder(
@@ -289,7 +289,7 @@ class NetcdfWriterTest {
             Stream.of(new String[][]{
                     {"source", "https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/9c6e6c56-2697-4184-92c6-60d69c2b6792"},
                     {"linked_from", new VariableName(new NetcdfName("Country"), healthboardGroupName).toString()}
-            }).collect(Collectors.toMap(data -> data[0], data -> data[1])),
+            }).collect(Collectors.toMap(data -> data[0], data -> new String[] {data[1]})),
             columns);
 
     // HEALTH BOARDS VARIABLES:
@@ -319,7 +319,7 @@ class NetcdfWriterTest {
                     new NetcdfName("Country"),
                     NetcdfDataType.STRING,
                     "", "", "Country Code for Scotland",
-                    Collections.singletonMap("linked_to", countriesGroupName.toString()))
+                    Collections.singletonMap("linked_to", new String[] {countriesGroupName.toString()}))
     };
 
     TableDefinition healthboards = new TableDefinition(
@@ -336,7 +336,7 @@ class NetcdfWriterTest {
             Stream.of(new String[][]{
                     {"source", "https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/652ff726-e676-4a20-abda-435b98dd7bdc"},
                     {"linked_from", new VariableName(new NetcdfName("HBT"), prescribingGroupName).toString()}
-            }).collect(Collectors.toMap(data -> data[0], data -> data[1])),
+            }).collect(Collectors.toMap(data -> data[0], data -> new String[] {data[1]})),
             columns);
 
 
@@ -357,14 +357,14 @@ class NetcdfWriterTest {
                     "",
                     "",
                     "Each NHS health board has a unique nine digit code identifying the NHS board where prescribing of an item took place, based on boundaries as at 1st April 2014",
-                    Collections.singletonMap("linked_to", healthboardGroupName.toString())),
+                    Collections.singletonMap("linked_to", new String[] {healthboardGroupName.toString()})),
             new LocalVariableDefinition(
                     new NetcdfName("GPPractice"),
                     NetcdfDataType.INT,
                     "",
                     "",
                     "Unique five digit numeric GP practice code identifying where the prescribing of an item took place. If it is not possible to determine the exact location from which a prescription originates it is assigned to an unallocated practice code. __Unallocated__ practice codes have been assigned the 99997. Prescriptions that originated from a __dentist surgery__ have been assigned the code 99999. Prescriptions that originated from a community __pharmacy__ have been assigned the code 99996. Prescriptions that originated from a __hospital__ have been assigned the code 99998.",
-                    Collections.singletonMap("linked_to", "https://www.opendata.nhs.scot/dataset/gp-practice-contact-details-and-list-sizes")),
+                    Collections.singletonMap("linked_to", new String[] {"https://www.opendata.nhs.scot/dataset/gp-practice-contact-details-and-list-sizes"})),
             new LocalVariableDefinition(
                     new NetcdfName("BNFItemCode"),
                     NetcdfDataType.STRING,
@@ -408,7 +408,7 @@ class NetcdfWriterTest {
             0,
             "Information on community pharmacy activity and direct pharmaceutical care services, covering June 2016 for all NHS health boards. Publication Date 13 September 2016",
             "Prescribing Data June 2016",
-            Collections.singletonMap("source","https://www.opendata.nhs.scot/dataset/prescriptions-in-the-community/resource/a636862a-77e0-4c97-ba97-268578534a8e"),
+            Collections.singletonMap("source",new String[] {"https://www.opendata.nhs.scot/dataset/prescriptions-in-the-community/resource/a636862a-77e0-4c97-ba97-268578534a8e"}),
             columns);
 
 

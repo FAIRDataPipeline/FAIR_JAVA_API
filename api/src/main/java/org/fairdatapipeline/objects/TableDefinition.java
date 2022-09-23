@@ -24,7 +24,7 @@ public class TableDefinition extends NetcdfDataComponentDefinition {
             int size,
             @Nonnull String description,
             @Nonnull String long_name,
-            @Nonnull Map<String, String> optional_attribs,
+            @Nonnull Map<String, String[]> optional_attribs,
             @Nonnull LocalVariableDefinition[] columns) {
         super(description, long_name, optional_attribs);
         this.groupName = groupName;
