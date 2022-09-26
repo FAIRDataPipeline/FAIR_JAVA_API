@@ -62,10 +62,10 @@ public enum NetcdfDataType {
 
   public static NetcdfDataType translateDatatype(@NotNull Object o) {
     if (Array.newInstance(Integer.class, 0).getClass().equals(o.getClass())
-            || Array.newInstance(int.class, 0).getClass().equals(o.getClass())) {
+        || Array.newInstance(int.class, 0).getClass().equals(o.getClass())) {
       return NetcdfDataType.INT;
     } else if (Array.newInstance(Long.class, 0).getClass().equals(o.getClass())
-            || Array.newInstance(long.class, 0).getClass().equals(o.getClass())) {
+        || Array.newInstance(long.class, 0).getClass().equals(o.getClass())) {
       return NetcdfDataType.LONG;
     } else if (Array.newInstance(Double.class, 0).getClass().equals(o.getClass())
         || Array.newInstance(double.class, 0).getClass().equals(o.getClass())) {
@@ -73,7 +73,7 @@ public enum NetcdfDataType {
     } else if (Array.newInstance(String.class, 0).getClass().equals(o.getClass())) {
       return NetcdfDataType.STRING;
     } else if (Array.newInstance(Float.class, 0).getClass().equals(o.getClass())
-      || Array.newInstance(float.class, 0).getClass().equals(o.getClass())) {
+        || Array.newInstance(float.class, 0).getClass().equals(o.getClass())) {
       return NetcdfDataType.FLOAT;
     }
     throw (new UnsupportedOperationException(

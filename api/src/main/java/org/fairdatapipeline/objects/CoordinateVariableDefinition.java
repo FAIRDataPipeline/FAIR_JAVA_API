@@ -6,12 +6,9 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
-import org.fairdatapipeline.netcdf.NetcdfGroupName;
 import org.fairdatapipeline.netcdf.VariableName;
 
-/**
- *  this class
- */
+/** this class */
 public class CoordinateVariableDefinition extends VariableDefinition {
   private final int size;
   public static final int UNLIMITED = 0;
@@ -115,11 +112,7 @@ public class CoordinateVariableDefinition extends VariableDefinition {
       @Nonnull String long_name,
       @Nonnull Map<String, String[]> optional_attribs) {
     super(
-        NetcdfDataType.translateDatatype(values),
-        description,
-        units,
-        long_name,
-        optional_attribs);
+        NetcdfDataType.translateDatatype(values), description, units, long_name, optional_attribs);
     this.variableName = variableName;
     this.size = Array.getLength(values);
     this.values = values;

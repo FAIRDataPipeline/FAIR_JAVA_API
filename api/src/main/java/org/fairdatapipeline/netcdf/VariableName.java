@@ -7,10 +7,10 @@ import javax.annotation.Nonnull;
  * VariableName stores the object_component (e.g. 'human/mortality_data') as a name
  * ('mortality_data') and a group ('human')
  */
-public class VariableName implements DimensionName {
+public class VariableName {
   @Nonnull NetcdfName name;
   @Nonnull NetcdfGroupName groupName;
-  private static Pattern netcdffullpath =
+  private static final Pattern netcdffullpath =
       Pattern.compile("^\\p{Alnum}[\\p{Alnum}_-]*+(?:/\\p{Alnum}[\\p{Alnum}_-]*+)*+$");
 
   /**
@@ -18,7 +18,7 @@ public class VariableName implements DimensionName {
    * be stored as a name ('mortality_data') and a group ('human') if the full path starts with a '/'
    * we remove the slash.
    *
-   * @param fullPath
+   * @param fullPath the full path to this variable
    */
   public VariableName(@Nonnull String fullPath) {
     if (fullPath.startsWith("/")) fullPath = fullPath.substring(1);
@@ -43,7 +43,6 @@ public class VariableName implements DimensionName {
     this.groupName = groupName;
   }
 
-
   public @Nonnull NetcdfGroupName getGroupName() {
     return groupName;
   }
@@ -54,7 +53,7 @@ public class VariableName implements DimensionName {
 
   public @Nonnull String getFullPath() {
     if (groupName.toString().length() == 0) return name.toString();
-    return groupName.toString() + '/' + name.toString();
+    return groupName.toString() + '/' + name;
   }
 
   public @Nonnull String toString() {

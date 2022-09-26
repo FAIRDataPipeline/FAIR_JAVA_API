@@ -1,22 +1,17 @@
 package org.fairdatapipeline.objects;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.fairdatapipeline.api.IllegalActionException;
 import org.fairdatapipeline.netcdf.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * DimensionVariableDefinition, aka 'Array'.. multidimensional array.
- */
+/** DimensionVariableDefinition, aka 'Array'.. multidimensional array. */
 public class DimensionalVariableDefinition extends VariableDefinition {
-  private final @Nonnull VariableName[] dimensions;
+  private static final Logger logger = LoggerFactory.getLogger(DimensionalVariableDefinition.class);
+  private final @Nonnull NetcdfName[] dimensions;
   @Nonnull VariableName variableName;
-
-
-
-
 
   /**
    * @param name
@@ -29,7 +24,7 @@ public class DimensionalVariableDefinition extends VariableDefinition {
   public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
-      @Nonnull DimensionName[] dimensions,
+      @Nonnull NetcdfName[] dimensions,
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name) {
@@ -37,58 +32,63 @@ public class DimensionalVariableDefinition extends VariableDefinition {
   }
 
   public DimensionalVariableDefinition(
-          @Nonnull VariableName name,
-          @Nonnull NetcdfDataType dataType,
-          @Nonnull DimensionName[] dimensions,
-          @Nonnull String description,
-          @Nonnull String units,
-          @Nonnull String long_name,
-          @Nonnull Map<String, String[]> optional_attribs) {
+      @Nonnull VariableName name,
+      @Nonnull NetcdfDataType dataType,
+      @Nonnull NetcdfName[] dimensions,
+      @Nonnull String description,
+      @Nonnull String units,
+      @Nonnull String long_name,
+      @Nonnull Map<String, String[]> optional_attribs) {
     this(name, dataType, dimensions, description, units, long_name, optional_attribs, null);
   }
 
-  public DimensionalVariableDefinition(@Nonnull LocalVariableDefinition localVarDef, NetcdfGroupName groupName, int size, String dimensionName) {
-    super(localVarDef.dataType, localVarDef.description, localVarDef.units, localVarDef.long_name, localVarDef.optional_attribs, localVarDef.missingValue);
+  public DimensionalVariableDefinition(
+      @Nonnull LocalVariableDefinition localVarDef,
+      NetcdfGroupName groupName,
+      String dimensionName) {
+    super(
+        localVarDef.dataType,
+        localVarDef.description,
+        localVarDef.units,
+        localVarDef.long_name,
+        localVarDef.optional_attribs,
+        localVarDef.missingValue);
+    logger.trace(
+        "Creating DimensionalVariableDefinition({}, {}) from LocalVariableDefinition({})",
+        localVarDef.getLocalName(),
+        groupName,
+        localVarDef.getLocalName());
     this.variableName = new VariableName(localVarDef.getLocalName(), groupName);
-    this.dimensions = new VariableName[] {new VariableName(new NetcdfName(dimensionName), groupName) };
+    this.dimensions = new NetcdfName[] {new NetcdfName(dimensionName)};
   }
 
   public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
-      @Nonnull DimensionName[] dimensions,
+      @Nonnull NetcdfName[] dimensions,
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name,
       @Nonnull Map<String, String[]> optional_attribs,
       Object missingValue) {
     super(dataType, description, units, long_name, optional_attribs, missingValue);
+    logger.trace(
+        "Creating DimensionalVariableDefinition({},{},{},{},{},{})",
+        name,
+        dataType,
+        description,
+        units,
+        long_name,
+        missingValue);
     this.variableName = name;
-    int num_dims = dimensions.length;
-
-    ArrayList<String> dimension_names = new ArrayList<>();
-    this.dimensions = new VariableName[dimensions.length];
-
-    for (int i = 0; i < num_dims; i++) {
-      if(dimensions[i].getClass() == VariableName.class) {
-        this.dimensions[i] = (VariableName) dimensions[i];
-        if (!this.dimensions[i].getGroupName().equals(name.getGroupName())
-                && !this.dimensions[i].getGroupName().toString().startsWith(name.getGroupName().toString() + "/")) {
-          throw (new IllegalActionException("dimensions must be in own group or a parent group"));
-        }
-      }
-      else this.dimensions[i] = new VariableName((NetcdfName) dimensions[i], name.getGroupName());
-      if (dimension_names.contains(this.dimensions[i].getFullPath()))
-        throw (new IllegalActionException(
-            "dimension names must be unique; duplicate: " + this.dimensions[i].getFullPath()));
-      dimension_names.add(this.dimensions[i].getFullPath());
-    }
+    this.dimensions = dimensions.clone();
   }
 
   public @Nonnull VariableName getVariableName() {
     return this.variableName;
   }
-  public VariableName[] getDimensions() {
+
+  public NetcdfName[] getDimensions() {
     return this.dimensions.clone();
   }
 }

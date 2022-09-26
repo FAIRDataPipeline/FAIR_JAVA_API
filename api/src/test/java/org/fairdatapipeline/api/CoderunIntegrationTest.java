@@ -28,6 +28,7 @@ import org.fairdatapipeline.distribution.ImmutableMinMax;
 import org.fairdatapipeline.distribution.MinMax;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
+import org.fairdatapipeline.netcdf.NetcdfName;
 import org.fairdatapipeline.netcdf.VariableName;
 import org.fairdatapipeline.objects.CoordinateVariableDefinition;
 import org.fairdatapipeline.objects.DimensionalVariableDefinition;
@@ -893,7 +894,7 @@ class CoderunIntegrationTest {
               "",
               "degrees east",
               "longitude");
-      VariableName[] dims = new VariableName[] {latname, lonname};
+      NetcdfName[] dims = new NetcdfName[] {latname.getName(), lonname.getName()};
 
       DimensionalVariableDefinition nadef =
           new DimensionalVariableDefinition(

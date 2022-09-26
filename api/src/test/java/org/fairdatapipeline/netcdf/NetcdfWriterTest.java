@@ -8,12 +8,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.google.errorprone.annotations.Var;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.apache.commons.io.FileUtils;
@@ -69,7 +66,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new VariableName[] {xName, yName},
+            new NetcdfName[] {xName.getName(), yName.getName()},
             "a test dataset with temperatures in 2d space",
             "C",
             "surface temperature");
@@ -91,10 +88,11 @@ class NetcdfWriterTest {
     }
     Assertions.assertTrue(
         FileUtils.contentEquals(
-            filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
   }
-
 
   @Test
   void test_build_prepare_write_with_fillvalue() throws IOException, URISyntaxException {
@@ -103,35 +101,25 @@ class NetcdfWriterTest {
     String group = "mytestgroup";
     VariableName dimName = new VariableName("dim", group);
     VariableName dataName = new VariableName("data", group);
-    NetcdfGroupName gn = dataName.getGroupName();
-    System.out.println(gn.toString());
-
-    System.out.println(dataName);
 
     CoordinateVariableDefinition dim =
-            new CoordinateVariableDefinition(
-                    dimName,
-                    new int[] {1, 2, 3, 4, 5, 6, 7, 8},
-                    "as simple as ABC",
-                    "",
-                    "");
+        new CoordinateVariableDefinition(
+            dimName, new int[] {1, 2, 3, 4, 5, 6, 7, 8}, "as simple as ABC", "", "");
     DimensionalVariableDefinition nadef =
-            new DimensionalVariableDefinition(
-                    dataName,
-                    NetcdfDataType.INT,
-                    new VariableName[] {dimName},
-                    "a test dataset with missing values",
-                    "",
-                    "", Collections.emptyMap(), -1);
-    System.out.println("nadef1");
-    System.out.println(nadef);
-    System.out.println("nadef1.name");
-    System.out.println(nadef.getVariableName());
+        new DimensionalVariableDefinition(
+            dataName,
+            NetcdfDataType.INT,
+            new NetcdfName[] {dimName.getName()},
+            "a test dataset with missing values",
+            "",
+            "",
+            Collections.emptyMap(),
+            -1);
     NumericalArray nadat = new NumericalArrayImpl(new int[] {1, 2, 3, -1, 5, 6});
     Path filePath = Files.createTempFile(filename, ".nc");
     try (NetcdfBuilder b =
-                 new NetcdfBuilder(
-                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+        new NetcdfBuilder(
+            filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
       b.prepare(dim);
       b.prepare(nadef);
       try (NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
@@ -142,8 +130,10 @@ class NetcdfWriterTest {
       }
     }
     Assertions.assertTrue(
-            FileUtils.contentEquals(
-                    filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+        FileUtils.contentEquals(
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
   }
 
@@ -156,45 +146,50 @@ class NetcdfWriterTest {
 
     NetcdfGroupName tableName = new NetcdfGroupName("myTestTable");
 
-    columns = new LocalVariableDefinition[] {
-            new LocalVariableDefinition(
-                    new NetcdfName("id"),
-                    NetcdfDataType.INT,
-                    "", "", ""),
-            new LocalVariableDefinition(
-                    new NetcdfName("itemName"),
-                    NetcdfDataType.STRING,
-                    "", "", "item name"),
-            new LocalVariableDefinition(
-                    new NetcdfName("value"),
-                    NetcdfDataType.DOUBLE,
-                    "", "", "value of the item")
-    };
+    columns =
+        new LocalVariableDefinition[] {
+          new LocalVariableDefinition(new NetcdfName("id"), NetcdfDataType.INT, "", "", ""),
+          new LocalVariableDefinition(
+              new NetcdfName("itemName"), NetcdfDataType.STRING, "", "", "item name"),
+          new LocalVariableDefinition(
+              new NetcdfName("value"), NetcdfDataType.DOUBLE, "", "", "value of the item")
+        };
 
-    TableDefinition table = new TableDefinition(tableName, 0, "This is a simple test table to see what it will look like in a netCDF file.", "My little simple initial test table", Collections.emptyMap(), columns);
+    TableDefinition table =
+        new TableDefinition(
+            tableName,
+            0,
+            "This is a simple test table to see what it will look like in a netCDF file.",
+            "My little simple initial test table",
+            Collections.emptyMap(),
+            columns);
     Path filePath = Files.createTempFile(filename, ".nc");
     try (NetcdfBuilder b =
-                 new NetcdfBuilder(
-                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+        new NetcdfBuilder(
+            filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
       // prescription variables:
       b.prepare(table);
 
-
       try (NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
-        int[] ids = new int[]{1, 2, 3};
-        String[] names = new String[]{"apples", "bananas", "pears"};
-        double[] doubles = new double[]{1.1, 2.2, 3.3};
+        int[] ids = new int[] {1, 2, 3};
+        String[] names = new String[] {"apples", "bananas", "pears"};
+        double[] doubles = new double[] {1.1, 2.2, 3.3};
 
-        w.writeArrayData(w.getVariable(table.getVariableName(0)), NetcdfDataType.translateArray(ids));
-        w.writeArrayData(w.getVariable(table.getVariableName(1)), NetcdfDataType.translateArray(names));
-        w.writeArrayData(w.getVariable(table.getVariableName(2)), NetcdfDataType.translateArray(doubles));
-      }catch (InvalidRangeException e) {
+        w.writeArrayData(
+            w.getVariable(table.getVariableName(0)), NetcdfDataType.translateArray(ids));
+        w.writeArrayData(
+            w.getVariable(table.getVariableName(1)), NetcdfDataType.translateArray(names));
+        w.writeArrayData(
+            w.getVariable(table.getVariableName(2)), NetcdfDataType.translateArray(doubles));
+      } catch (InvalidRangeException e) {
 
       }
     }
     Assertions.assertTrue(
-            FileUtils.contentEquals(
-                    filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+        FileUtils.contentEquals(
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
   }
 
@@ -207,45 +202,64 @@ class NetcdfWriterTest {
 
     NetcdfGroupName tableName = new NetcdfGroupName("myTestTable");
 
-    columns = new LocalVariableDefinition[] {
-            new LocalVariableDefinition(
-                    new NetcdfName("id"),
-                    NetcdfDataType.INT,
-                    "", "", "", Collections.emptyMap(), -1),
-            new LocalVariableDefinition(
-                    new NetcdfName("itemName"),
-                    NetcdfDataType.STRING,
-                    "", "", "item name", Collections.emptyMap(), ""),
-            new LocalVariableDefinition(
-                    new NetcdfName("value"),
-                    NetcdfDataType.DOUBLE,
-                    "", "", "value of the item", Collections.emptyMap(), Double.NaN)
-    };
+    columns =
+        new LocalVariableDefinition[] {
+          new LocalVariableDefinition(
+              new NetcdfName("id"), NetcdfDataType.INT, "", "", "", Collections.emptyMap(), -1),
+          new LocalVariableDefinition(
+              new NetcdfName("itemName"),
+              NetcdfDataType.STRING,
+              "",
+              "",
+              "item name",
+              Collections.emptyMap(),
+              ""),
+          new LocalVariableDefinition(
+              new NetcdfName("value"),
+              NetcdfDataType.DOUBLE,
+              "",
+              "",
+              "value of the item",
+              Collections.emptyMap(),
+              Double.NaN)
+        };
 
-    TableDefinition table = new TableDefinition(tableName, 0, "This is a simple test table to see what it will look like in a netCDF file.", "My little simple test table with some missing values", Collections.singletonMap("random_attribute", new String[] {"just testing a random attribute"}), columns);
+    TableDefinition table =
+        new TableDefinition(
+            tableName,
+            0,
+            "This is a simple test table to see what it will look like in a netCDF file.",
+            "My little simple test table with some missing values",
+            Collections.singletonMap(
+                "random_attribute", new String[] {"just testing a random attribute"}),
+            columns);
     Path filePath = Files.createTempFile(filename, ".nc");
     try (NetcdfBuilder b =
-                 new NetcdfBuilder(
-                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+        new NetcdfBuilder(
+            filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
       // prescription variables:
       b.prepare(table);
 
-
       try (NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
-        int[] ids = new int[]{1, -1, 3, 4, 5, 6};
-        String[] names = new String[]{"apples", "bananas", "pears", "", "kiwis", "mangos"};
-        double[] doubles = new double[]{1.1, 2.2, 3.3, 4.4, Double.NaN, 6.6};
+        int[] ids = new int[] {1, -1, 3, 4, 5, 6};
+        String[] names = new String[] {"apples", "bananas", "pears", "", "kiwis", "mangos"};
+        double[] doubles = new double[] {1.1, 2.2, 3.3, 4.4, Double.NaN, 6.6};
 
-        w.writeArrayData(w.getVariable(table.getVariableName(0)), NetcdfDataType.translateArray(ids));
-        w.writeArrayData(w.getVariable(table.getVariableName(1)), NetcdfDataType.translateArray(names));
-        w.writeArrayData(w.getVariable(table.getVariableName(2)), NetcdfDataType.translateArray(doubles));
-      }catch (InvalidRangeException e) {
+        w.writeArrayData(
+            w.getVariable(table.getVariableName(0)), NetcdfDataType.translateArray(ids));
+        w.writeArrayData(
+            w.getVariable(table.getVariableName(1)), NetcdfDataType.translateArray(names));
+        w.writeArrayData(
+            w.getVariable(table.getVariableName(2)), NetcdfDataType.translateArray(doubles));
+      } catch (InvalidRangeException e) {
 
       }
     }
     Assertions.assertTrue(
-            FileUtils.contentEquals(
-                    filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+        FileUtils.contentEquals(
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
   }
 
@@ -259,176 +273,206 @@ class NetcdfWriterTest {
 
     LocalVariableDefinition[] columns;
 
-    NetcdfGroupName prescribingGroupName = new NetcdfGroupName("themes/health_and_care/prescriptions_in_the_community/prescribing_data_june_2016");
-    NetcdfGroupName healthboardGroupName = new NetcdfGroupName("themes/health_and_care/geography_codes_and_labels/health_board_2014_-_health_board_2019");
-    NetcdfGroupName countriesGroupName = new NetcdfGroupName("themes/health_and_care/geography_codes_and_labels/country");
+    NetcdfGroupName prescribingGroupName =
+        new NetcdfGroupName(
+            "themes/health_and_care/prescriptions_in_the_community/prescribing_data_june_2016");
+    NetcdfGroupName healthboardGroupName =
+        new NetcdfGroupName(
+            "themes/health_and_care/geography_codes_and_labels/health_board_2014_-_health_board_2019");
+    NetcdfGroupName countriesGroupName =
+        new NetcdfGroupName("themes/health_and_care/geography_codes_and_labels/country");
     int num_healthboards = 18;
     int num_countries = 1;
 
     //     COUNTRY VARIABLES:
 
-    columns = new LocalVariableDefinition[] {
-            new LocalVariableDefinition(
-                    new NetcdfName("id"),
-                    NetcdfDataType.INT,
-                    "", "", ""),
-            new LocalVariableDefinition(
-                    new NetcdfName("Country"),
-                    NetcdfDataType.STRING,
-                    "", "", "Country Code"),
-            new LocalVariableDefinition(
-                    new NetcdfName("CountryName"),
-                    NetcdfDataType.STRING,
-                    "", "", "Name of the Country")
-    };
-    TableDefinition countries = new TableDefinition(
+    columns =
+        new LocalVariableDefinition[] {
+          new LocalVariableDefinition(new NetcdfName("id"), NetcdfDataType.INT, "", "", ""),
+          new LocalVariableDefinition(
+              new NetcdfName("Country"), NetcdfDataType.STRING, "", "", "Country Code"),
+          new LocalVariableDefinition(
+              new NetcdfName("CountryName"), NetcdfDataType.STRING, "", "", "Name of the Country")
+        };
+    TableDefinition countries =
+        new TableDefinition(
             countriesGroupName,
             0,
             "9 digit standard geography codes (S92) and matching labels for Country",
             "",
-            Stream.of(new String[][]{
-                    {"source", "https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/9c6e6c56-2697-4184-92c6-60d69c2b6792"},
-                    {"linked_from", new VariableName(new NetcdfName("Country"), healthboardGroupName).toString()}
-            }).collect(Collectors.toMap(data -> data[0], data -> new String[] {data[1]})),
+            Stream.of(
+                    new String[][] {
+                      {
+                        "source",
+                        "https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/9c6e6c56-2697-4184-92c6-60d69c2b6792"
+                      },
+                      {
+                        "linked_from",
+                        new VariableName(new NetcdfName("Country"), healthboardGroupName).toString()
+                      }
+                    })
+                .collect(Collectors.toMap(data -> data[0], data -> new String[] {data[1]})),
             columns);
 
     // HEALTH BOARDS VARIABLES:
 
-    columns = new LocalVariableDefinition[] {
-            new LocalVariableDefinition(
-                    new NetcdfName("id"),
-                    NetcdfDataType.INT,
-                    "", "", ""),
-            new LocalVariableDefinition(
-                    new NetcdfName("HB"),
-                    NetcdfDataType.STRING,
-                    "", "", "Health Board 2014 Code (revised in 2018 & 2019)"),
-            new LocalVariableDefinition(
-                    new NetcdfName("HBName"),
-                    NetcdfDataType.STRING,
-                    "", "", "Name of the Health Board 2014 (revised in 2018 & 2019)"),
-            new LocalVariableDefinition(
-                    new NetcdfName("HBDateEnacted"),
-                    NetcdfDataType.INT,
-                    "", "", "Date Health Board Code was enacted."),
-            new LocalVariableDefinition(
-                    new NetcdfName("HBDateArchived"),
-                    NetcdfDataType.INT,
-                    "", "", "Date Health Board Code was archived.", Collections.emptyMap(), 0),
-            new LocalVariableDefinition(
-                    new NetcdfName("Country"),
-                    NetcdfDataType.STRING,
-                    "", "", "Country Code for Scotland",
-                    Collections.singletonMap("linked_to", new String[] {countriesGroupName.toString()}))
-    };
+    columns =
+        new LocalVariableDefinition[] {
+          new LocalVariableDefinition(new NetcdfName("id"), NetcdfDataType.INT, "", "", ""),
+          new LocalVariableDefinition(
+              new NetcdfName("HB"),
+              NetcdfDataType.STRING,
+              "",
+              "",
+              "Health Board 2014 Code (revised in 2018 & 2019)"),
+          new LocalVariableDefinition(
+              new NetcdfName("HBName"),
+              NetcdfDataType.STRING,
+              "",
+              "",
+              "Name of the Health Board 2014 (revised in 2018 & 2019)"),
+          new LocalVariableDefinition(
+              new NetcdfName("HBDateEnacted"),
+              NetcdfDataType.INT,
+              "",
+              "",
+              "Date Health Board Code was enacted."),
+          new LocalVariableDefinition(
+              new NetcdfName("HBDateArchived"),
+              NetcdfDataType.INT,
+              "",
+              "",
+              "Date Health Board Code was archived.",
+              Collections.emptyMap(),
+              0),
+          new LocalVariableDefinition(
+              new NetcdfName("Country"),
+              NetcdfDataType.STRING,
+              "",
+              "",
+              "Country Code for Scotland",
+              Collections.singletonMap("linked_to", new String[] {countriesGroupName.toString()}))
+        };
 
-    TableDefinition healthboards = new TableDefinition(
+    TableDefinition healthboards =
+        new TableDefinition(
             healthboardGroupName,
             0,
-            "9 digit standard geography codes (S08) and matching labels Health Board 2014 (revised in 2018 & 2019) in the health sector.\n" +
-            "\n" +
-            "All 14 Health Boards are listed with their corresponding name and the country code for Scotland.\n" +
-            "\n" +
-            "From 02-Feb 2018 there has been a minor boundary change to Keltybridge and Fife Environmental Energy Park at Westfield. From 01-Apr 2019 " +
-            "there has been a boundary change to Cardowan by Stepps. On both occasions, the affected Council Area, Health and Social Care Partnership " +
-            "and Health Board codes have been archived, and new codes introduced reflecting the new boundaries.",
+            "9 digit standard geography codes (S08) and matching labels Health Board 2014 (revised in 2018 & 2019) in the health sector.\n"
+                + "\n"
+                + "All 14 Health Boards are listed with their corresponding name and the country code for Scotland.\n"
+                + "\n"
+                + "From 02-Feb 2018 there has been a minor boundary change to Keltybridge and Fife Environmental Energy Park at Westfield. From 01-Apr 2019 "
+                + "there has been a boundary change to Cardowan by Stepps. On both occasions, the affected Council Area, Health and Social Care Partnership "
+                + "and Health Board codes have been archived, and new codes introduced reflecting the new boundaries.",
             "Health Board 2014 - Health Board 2019",
-            Stream.of(new String[][]{
-                    {"source", "https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/652ff726-e676-4a20-abda-435b98dd7bdc"},
-                    {"linked_from", new VariableName(new NetcdfName("HBT"), prescribingGroupName).toString()}
-            }).collect(Collectors.toMap(data -> data[0], data -> new String[] {data[1]})),
+            Stream.of(
+                    new String[][] {
+                      {
+                        "source",
+                        "https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/652ff726-e676-4a20-abda-435b98dd7bdc"
+                      },
+                      {
+                        "linked_from",
+                        new VariableName(new NetcdfName("HBT"), prescribingGroupName).toString()
+                      }
+                    })
+                .collect(Collectors.toMap(data -> data[0], data -> new String[] {data[1]})),
             columns);
-
-
-
 
     // ACTUAL PRESCRIPTION VARIABLES:
 
-    columns = new LocalVariableDefinition[]{
-            new LocalVariableDefinition(
-                    new NetcdfName("id"),
-                    NetcdfDataType.INT,
-                    "",
-                    "",
-                    ""),
-            new LocalVariableDefinition(
-                    new NetcdfName("HBT"),
-                    NetcdfDataType.STRING,
-                    "",
-                    "",
-                    "Each NHS health board has a unique nine digit code identifying the NHS board where prescribing of an item took place, based on boundaries as at 1st April 2014",
-                    Collections.singletonMap("linked_to", new String[] {healthboardGroupName.toString()})),
-            new LocalVariableDefinition(
-                    new NetcdfName("GPPractice"),
-                    NetcdfDataType.INT,
-                    "",
-                    "",
-                    "Unique five digit numeric GP practice code identifying where the prescribing of an item took place. If it is not possible to determine the exact location from which a prescription originates it is assigned to an unallocated practice code. __Unallocated__ practice codes have been assigned the 99997. Prescriptions that originated from a __dentist surgery__ have been assigned the code 99999. Prescriptions that originated from a community __pharmacy__ have been assigned the code 99996. Prescriptions that originated from a __hospital__ have been assigned the code 99998.",
-                    Collections.singletonMap("linked_to", new String[] {"https://www.opendata.nhs.scot/dataset/gp-practice-contact-details-and-list-sizes"})),
-            new LocalVariableDefinition(
-                    new NetcdfName("BNFItemCode"),
-                    NetcdfDataType.STRING,
-                    "",
-                    "",
-                    "A 15 digit British National Formulary (BNF) Item code in which the first seven digits are allocated according to the categories in the BNF and the last 8 digits represent the medicinal product, form, strength and the link to the generic equivalent product. The BNF Item Code takes the following form: *Characters 1 & 2 show BNF chapter; *3 & 4 show the BNF section; *5 & 6 show the BNF paragraph; *7 shows the BNF sub-paragraph; *8 & 9 show the chemical substance; *10 & 11 show the product; *12 & 13 show the strength and formulation; *14 & 15 show the link to the generic equivalent product: Where the product is a generic, the 14th and 15th characters will be the same as the 12th and 13th character; Where the product is a brand, the 14th and 15th characters will be the same as the generic equivalent (if this exists); Where the product is a brand and a generic equivalent does not exist, the 14th and 15th characters will be \"A0\". There are items within the prescribing dataset (mainly from the additional chapters that are included as appendices within the BNF or not listed in the BNF) that have a shorter BNF item code which has been manually input to allow users of the data to identify the BNF chapter, BNF section, BNF paragraph, and BNF sub-paragraph an item aligns to. These items follow the numbering convention above for the initial six digits."),
-            new LocalVariableDefinition(
-                    new NetcdfName("BNFItemDescription"),
-                    NetcdfDataType.STRING,
-                    "",
-                    "",
-                    "The drug item description as it appears in the latest edition of the British National Formulary (BNF), detailing the product name, formulation and strength."),
-            new LocalVariableDefinition(
-                    new NetcdfName("NumberOfPaidItems"),
-                    NetcdfDataType.INT,
-                    "",
-                    "",
-                    "The number of paid items relates to the number of prescription items dispensed and for which the dispenser has been reimbursed. An item is an individual product dispensed, e.g. 100 aspirin tablets of 300mg. There should be a maximum of three line items on a prescription; this should be three individual products defined by active ingredient, formulation type and strength for medicines, with appropriate parallel measures for appliances. A compounded product with a known formula will count as one item despite the number of ingredients."),
-            new LocalVariableDefinition(
-                    new NetcdfName("PaidQuantity"),
-                    NetcdfDataType.FLOAT,
-                    "",
-                    "",
-                    "Paid quantity of an individual item for which the dispenser has been reimbursed, e.g. 100 tablets."),
-            new LocalVariableDefinition(
-                    new NetcdfName("GrossIngredientCost"),
-                    NetcdfDataType.FLOAT,
-                    "",
-                    "",
-                    "Paid Gross Ingredient Cost (excluding Broken Bulk) is the cost of drugs and appliances reimbursed before deduction of any dispenser discount, i.e. the basic price of a drug as listed in the Scottish Drug Tariff or price lists. Note that this definition differs from other parts of the UK. The figures are in £s and pence. The Gross Ingredient Cost measure excludes broken bulk, that allows a contractor to claim a complete pack where a prescription is received for a product which comes in a larger pack and there is a risk of no further prescriptions for the product before the stock expires."),
-            new LocalVariableDefinition(
-                    new NetcdfName("PaidDateMonth"),
-                    NetcdfDataType.INT,
-                    "",
-                    "",
-                    "The date (YYYYMM) in which the prescription item was processed for payment.")
-    };
+    columns =
+        new LocalVariableDefinition[] {
+          new LocalVariableDefinition(new NetcdfName("id"), NetcdfDataType.INT, "", "", ""),
+          new LocalVariableDefinition(
+              new NetcdfName("HBT"),
+              NetcdfDataType.STRING,
+              "",
+              "",
+              "Each NHS health board has a unique nine digit code identifying the NHS board where prescribing of an item took place, based on boundaries as at 1st April 2014",
+              Collections.singletonMap(
+                  "linked_to", new String[] {healthboardGroupName.toString()})),
+          new LocalVariableDefinition(
+              new NetcdfName("GPPractice"),
+              NetcdfDataType.INT,
+              "",
+              "",
+              "Unique five digit numeric GP practice code identifying where the prescribing of an item took place. If it is not possible to determine the exact location from which a prescription originates it is assigned to an unallocated practice code. __Unallocated__ practice codes have been assigned the 99997. Prescriptions that originated from a __dentist surgery__ have been assigned the code 99999. Prescriptions that originated from a community __pharmacy__ have been assigned the code 99996. Prescriptions that originated from a __hospital__ have been assigned the code 99998.",
+              Collections.singletonMap(
+                  "linked_to",
+                  new String[] {
+                    "https://www.opendata.nhs.scot/dataset/gp-practice-contact-details-and-list-sizes"
+                  })),
+          new LocalVariableDefinition(
+              new NetcdfName("BNFItemCode"),
+              NetcdfDataType.STRING,
+              "",
+              "",
+              "A 15 digit British National Formulary (BNF) Item code in which the first seven digits are allocated according to the categories in the BNF and the last 8 digits represent the medicinal product, form, strength and the link to the generic equivalent product. The BNF Item Code takes the following form: *Characters 1 & 2 show BNF chapter; *3 & 4 show the BNF section; *5 & 6 show the BNF paragraph; *7 shows the BNF sub-paragraph; *8 & 9 show the chemical substance; *10 & 11 show the product; *12 & 13 show the strength and formulation; *14 & 15 show the link to the generic equivalent product: Where the product is a generic, the 14th and 15th characters will be the same as the 12th and 13th character; Where the product is a brand, the 14th and 15th characters will be the same as the generic equivalent (if this exists); Where the product is a brand and a generic equivalent does not exist, the 14th and 15th characters will be \"A0\". There are items within the prescribing dataset (mainly from the additional chapters that are included as appendices within the BNF or not listed in the BNF) that have a shorter BNF item code which has been manually input to allow users of the data to identify the BNF chapter, BNF section, BNF paragraph, and BNF sub-paragraph an item aligns to. These items follow the numbering convention above for the initial six digits."),
+          new LocalVariableDefinition(
+              new NetcdfName("BNFItemDescription"),
+              NetcdfDataType.STRING,
+              "",
+              "",
+              "The drug item description as it appears in the latest edition of the British National Formulary (BNF), detailing the product name, formulation and strength."),
+          new LocalVariableDefinition(
+              new NetcdfName("NumberOfPaidItems"),
+              NetcdfDataType.INT,
+              "",
+              "",
+              "The number of paid items relates to the number of prescription items dispensed and for which the dispenser has been reimbursed. An item is an individual product dispensed, e.g. 100 aspirin tablets of 300mg. There should be a maximum of three line items on a prescription; this should be three individual products defined by active ingredient, formulation type and strength for medicines, with appropriate parallel measures for appliances. A compounded product with a known formula will count as one item despite the number of ingredients."),
+          new LocalVariableDefinition(
+              new NetcdfName("PaidQuantity"),
+              NetcdfDataType.FLOAT,
+              "",
+              "",
+              "Paid quantity of an individual item for which the dispenser has been reimbursed, e.g. 100 tablets."),
+          new LocalVariableDefinition(
+              new NetcdfName("GrossIngredientCost"),
+              NetcdfDataType.FLOAT,
+              "",
+              "",
+              "Paid Gross Ingredient Cost (excluding Broken Bulk) is the cost of drugs and appliances reimbursed before deduction of any dispenser discount, i.e. the basic price of a drug as listed in the Scottish Drug Tariff or price lists. Note that this definition differs from other parts of the UK. The figures are in £s and pence. The Gross Ingredient Cost measure excludes broken bulk, that allows a contractor to claim a complete pack where a prescription is received for a product which comes in a larger pack and there is a risk of no further prescriptions for the product before the stock expires."),
+          new LocalVariableDefinition(
+              new NetcdfName("PaidDateMonth"),
+              NetcdfDataType.INT,
+              "",
+              "",
+              "The date (YYYYMM) in which the prescription item was processed for payment.")
+        };
 
-    TableDefinition prescribing = new TableDefinition(
+    TableDefinition prescribing =
+        new TableDefinition(
             prescribingGroupName,
             0,
             "Information on community pharmacy activity and direct pharmaceutical care services, covering June 2016 for all NHS health boards. Publication Date 13 September 2016",
             "Prescribing Data June 2016",
-            Collections.singletonMap("source",new String[] {"https://www.opendata.nhs.scot/dataset/prescriptions-in-the-community/resource/a636862a-77e0-4c97-ba97-268578534a8e"}),
+            Collections.singletonMap(
+                "source",
+                new String[] {
+                  "https://www.opendata.nhs.scot/dataset/prescriptions-in-the-community/resource/a636862a-77e0-4c97-ba97-268578534a8e"
+                }),
             columns);
-
 
     Path filePath = Files.createTempFile(filename, ".nc");
     Instant start = Instant.now();
     try (NetcdfBuilder b =
-                 new NetcdfBuilder(
-                         filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+        new NetcdfBuilder(
+            filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
       // prescription variables:
       b.prepare(countries);
       b.prepare(healthboards);
       b.prepare(prescribing);
 
-
-      try (NetcdfWriter w = new NetcdfWriter(b, this.onClose)){
-        try(BufferedReader csvFile = new BufferedReader(
+      try (NetcdfWriter w = new NetcdfWriter(b, this.onClose)) {
+        try (BufferedReader csvFile =
+            new BufferedReader(
                 new FileReader(
-                        Path.of(getClass().getResource(hbtResourceName).toURI()).toFile()))){
+                    Path.of(Objects.requireNonNull(getClass().getResource(hbtResourceName)).toURI())
+                        .toFile()))) {
           // read the health board CSV file
-          String line = csvFile.readLine(); // skip the header line
+          String line;
           int[] idbuffer = new int[num_healthboards];
           String[] hbbuffer = new String[num_healthboards];
           String[] hbnamebuffer = new String[num_healthboards];
@@ -436,6 +480,7 @@ class NetcdfWriterTest {
           int[] hbarchivedbuffer = new int[num_healthboards];
           String[] countrybuffer = new String[num_healthboards];
           int i = 0;
+          csvFile.readLine(); // skip the header line
           while ((line = csvFile.readLine()) != null) {
             String[] values = line.split(COMMA_DELIMITER);
             idbuffer[i] = Integer.parseInt(values[0]);
@@ -445,28 +490,43 @@ class NetcdfWriterTest {
             try {
               if (values[4].length() > 0) hbarchivedbuffer[i] = Integer.parseInt(values[4]);
               else hbarchivedbuffer[i] = (int) healthboards.getColumns()[4].getMissingValue();
-            }catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
               System.out.println("numberformatexception: '" + values[4] + "'");
               hbarchivedbuffer[i] = (int) healthboards.getColumns()[4].getMissingValue();
             }
             countrybuffer[i] = values[5];
             i += 1;
           }
-          w.writeArrayData(w.getVariable(healthboards.getVariableName(0)), NetcdfDataType.translateArray(idbuffer));
-          w.writeArrayData(w.getVariable(healthboards.getVariableName(1)), NetcdfDataType.translateArray(hbbuffer));
-          w.writeArrayData(w.getVariable(healthboards.getVariableName(2)), NetcdfDataType.translateArray(hbnamebuffer));
-          w.writeArrayData(w.getVariable(healthboards.getVariableName(3)), NetcdfDataType.translateArray(hbenactedbuffer));
-          w.writeArrayData(w.getVariable(healthboards.getVariableName(4)), NetcdfDataType.translateArray(hbarchivedbuffer));
-          w.writeArrayData(w.getVariable(healthboards.getVariableName(5)), NetcdfDataType.translateArray(countrybuffer));
+          w.writeArrayData(
+              w.getVariable(healthboards.getVariableName(0)),
+              NetcdfDataType.translateArray(idbuffer));
+          w.writeArrayData(
+              w.getVariable(healthboards.getVariableName(1)),
+              NetcdfDataType.translateArray(hbbuffer));
+          w.writeArrayData(
+              w.getVariable(healthboards.getVariableName(2)),
+              NetcdfDataType.translateArray(hbnamebuffer));
+          w.writeArrayData(
+              w.getVariable(healthboards.getVariableName(3)),
+              NetcdfDataType.translateArray(hbenactedbuffer));
+          w.writeArrayData(
+              w.getVariable(healthboards.getVariableName(4)),
+              NetcdfDataType.translateArray(hbarchivedbuffer));
+          w.writeArrayData(
+              w.getVariable(healthboards.getVariableName(5)),
+              NetcdfDataType.translateArray(countrybuffer));
         }
-        try(BufferedReader csvFile = new BufferedReader(
+        try (BufferedReader csvFile =
+            new BufferedReader(
                 new FileReader(
-                        Path.of(getClass().getResource(countrycodeName).toURI()).toFile()))) {
+                    Path.of(Objects.requireNonNull(getClass().getResource(countrycodeName)).toURI())
+                        .toFile()))) {
           // read the country code CSV file; treat it as if it has more than 1 line.
-          String line = csvFile.readLine(); // skip the header line
+          String line;
           int[] idbuffer = new int[num_countries];
           String[] countrybuffer = new String[num_countries];
           String[] countrynamebuffer = new String[num_countries];
+          csvFile.readLine(); // skip the header line
           int i = 0;
           while ((line = csvFile.readLine()) != null) {
             String[] values = line.split(COMMA_DELIMITER);
@@ -475,19 +535,28 @@ class NetcdfWriterTest {
             countrynamebuffer[i] = values[2];
             i += 1;
           }
-          w.writeArrayData(w.getVariable(countries.getVariableName(0)), NetcdfDataType.translateArray(idbuffer));
-          w.writeArrayData(w.getVariable(countries.getVariableName(1)), NetcdfDataType.translateArray(countrybuffer));
-          w.writeArrayData(w.getVariable(countries.getVariableName(2)), NetcdfDataType.translateArray(countrynamebuffer));
+          w.writeArrayData(
+              w.getVariable(countries.getVariableName(0)), NetcdfDataType.translateArray(idbuffer));
+          w.writeArrayData(
+              w.getVariable(countries.getVariableName(1)),
+              NetcdfDataType.translateArray(countrybuffer));
+          w.writeArrayData(
+              w.getVariable(countries.getVariableName(2)),
+              NetcdfDataType.translateArray(countrynamebuffer));
         }
-        try(BufferedReader csvFile = new BufferedReader(
+        try (BufferedReader csvFile =
+            new BufferedReader(
                 new InputStreamReader(
-                new BZip2CompressorInputStream(
-                    new FileInputStream(
-                      Path.of(
-                          getClass().getResource(prescribingCsvResourceName).toURI()
-                      ).toFile()), true)))) {
+                    new BZip2CompressorInputStream(
+                        new FileInputStream(
+                            Path.of(
+                                    Objects.requireNonNull(
+                                            getClass().getResource(prescribingCsvResourceName))
+                                        .toURI())
+                                .toFile()),
+                        true)))) {
 
-          String line = csvFile.readLine(); // skip the header line..
+          String line;
 
           Variable idVar = w.getVariable(prescribing.getVariableName(0));
           Variable hbtVar = w.getVariable(prescribing.getVariableName(1));
@@ -499,7 +568,7 @@ class NetcdfWriterTest {
           Variable grossVar = w.getVariable(prescribing.getVariableName(7));
           Variable paiddatemonthVar = w.getVariable(prescribing.getVariableName(8));
 
-          int[] origin = new int[]{0};
+          int[] origin = new int[] {0};
           int linenum = 0;
           int bufindex = 0;
           final int bufsize = 50000;
@@ -512,6 +581,8 @@ class NetcdfWriterTest {
           float[] paidquantitybuffer = new float[bufsize];
           float[] grossingredientcostbuffer = new float[bufsize];
           int[] paiddatemonthbuffer = new int[bufsize];
+
+          csvFile.readLine(); // skip the header line..
 
           while ((line = csvFile.readLine()) != null) {
             String[] values = line.split(COMMA_DELIMITER);
@@ -533,27 +604,53 @@ class NetcdfWriterTest {
               w.writeArrayData(bnfdescVar, NetcdfDataType.translateArray(bnfdescbuffer), origin);
               w.writeArrayData(numitemsVar, NetcdfDataType.translateArray(numitemsbuffer), origin);
               w.writeArrayData(paidqVar, NetcdfDataType.translateArray(paidquantitybuffer), origin);
-              w.writeArrayData(grossVar, NetcdfDataType.translateArray(grossingredientcostbuffer), origin);
-              w.writeArrayData(paiddatemonthVar, NetcdfDataType.translateArray(paiddatemonthbuffer), origin);
+              w.writeArrayData(
+                  grossVar, NetcdfDataType.translateArray(grossingredientcostbuffer), origin);
+              w.writeArrayData(
+                  paiddatemonthVar, NetcdfDataType.translateArray(paiddatemonthbuffer), origin);
               origin[0] = origin[0] + bufsize;
               bufindex = 0;
             }
             linenum += 1;
-            if (linenum == 100000 * Math.floor(linenum / 100000)) {
+            if (linenum == 100000 * Math.floor((float) linenum / 100000)) {
               System.out.println(linenum);
             }
           }
-          w.writeArrayData(idVar, NetcdfDataType.translateArray(Arrays.copyOf(idbuffer, bufindex)), origin);
-          w.writeArrayData(hbtVar, NetcdfDataType.translateArray(Arrays.copyOf(hbtwritebuffer, bufindex)), origin);
-          w.writeArrayData(gpVar, NetcdfDataType.translateArray(Arrays.copyOf(gppracticebuffer, bufindex)), origin);
-          w.writeArrayData(bnfcodeVar, NetcdfDataType.translateArray(Arrays.copyOf(bnfcodebuffer, bufindex)), origin);
-          w.writeArrayData(bnfdescVar, NetcdfDataType.translateArray(Arrays.copyOf(bnfdescbuffer, bufindex)), origin);
-          w.writeArrayData(numitemsVar, NetcdfDataType.translateArray(Arrays.copyOf(numitemsbuffer, bufindex)), origin);
-          w.writeArrayData(paidqVar, NetcdfDataType.translateArray(Arrays.copyOf(paidquantitybuffer, bufindex)), origin);
-          w.writeArrayData(grossVar, NetcdfDataType.translateArray(Arrays.copyOf(grossingredientcostbuffer, bufindex)), origin);
-          w.writeArrayData(paiddatemonthVar, NetcdfDataType.translateArray(Arrays.copyOf(paiddatemonthbuffer, bufindex)), origin);
+          w.writeArrayData(
+              idVar, NetcdfDataType.translateArray(Arrays.copyOf(idbuffer, bufindex)), origin);
+          w.writeArrayData(
+              hbtVar,
+              NetcdfDataType.translateArray(Arrays.copyOf(hbtwritebuffer, bufindex)),
+              origin);
+          w.writeArrayData(
+              gpVar,
+              NetcdfDataType.translateArray(Arrays.copyOf(gppracticebuffer, bufindex)),
+              origin);
+          w.writeArrayData(
+              bnfcodeVar,
+              NetcdfDataType.translateArray(Arrays.copyOf(bnfcodebuffer, bufindex)),
+              origin);
+          w.writeArrayData(
+              bnfdescVar,
+              NetcdfDataType.translateArray(Arrays.copyOf(bnfdescbuffer, bufindex)),
+              origin);
+          w.writeArrayData(
+              numitemsVar,
+              NetcdfDataType.translateArray(Arrays.copyOf(numitemsbuffer, bufindex)),
+              origin);
+          w.writeArrayData(
+              paidqVar,
+              NetcdfDataType.translateArray(Arrays.copyOf(paidquantitybuffer, bufindex)),
+              origin);
+          w.writeArrayData(
+              grossVar,
+              NetcdfDataType.translateArray(Arrays.copyOf(grossingredientcostbuffer, bufindex)),
+              origin);
+          w.writeArrayData(
+              paiddatemonthVar,
+              NetcdfDataType.translateArray(Arrays.copyOf(paiddatemonthbuffer, bufindex)),
+              origin);
         }
-
 
       } catch (InvalidRangeException e) {
         //
@@ -580,8 +677,10 @@ class NetcdfWriterTest {
     System.out.println(Duration.between(start, end));
 
     Assertions.assertTrue(
-            FileUtils.contentEquals(
-                    bz2file.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+        FileUtils.contentEquals(
+            bz2file.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
     FileUtils.delete(bz2file.toFile());
   }
@@ -615,7 +714,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new VariableName[] {xName, yName},
+            new NetcdfName[] {xName.getName(), yName.getName()},
             "a test dataset with int temperatures in 2d space, measure in a 2cm grid",
             "C",
             "surface temperature");
@@ -642,7 +741,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             personheightName,
             NetcdfDataType.DOUBLE,
-            new VariableName[] {personName, dateName},
+            new NetcdfName[] {personName.getName(), dateName.getName()},
             "a test dataset with real height in 2d space, with measurements for each person on a number of dates",
             "m",
             "");
@@ -673,7 +772,9 @@ class NetcdfWriterTest {
     }
     Assertions.assertTrue(
         FileUtils.contentEquals(
-            filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
   }
 
@@ -712,7 +813,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             temperatureName,
             NetcdfDataType.INT,
-            new VariableName[] {timeName, xName, yName},
+            new NetcdfName[] {timeName.getName(), xName.getName(), yName.getName()},
             "a test dataset with temperatures in time and space",
             "C",
             "");
@@ -745,7 +846,9 @@ class NetcdfWriterTest {
     }
     Assertions.assertTrue(
         FileUtils.contentEquals(
-            filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
   }
 
@@ -782,7 +885,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new VariableName[] {timeName, xName, yName},
+            new NetcdfName[] {timeName.getName(), xName.getName(), yName.getName()},
             "a test dataset with temperatures in time and space",
             "C",
             "");
@@ -818,7 +921,9 @@ class NetcdfWriterTest {
     }
     Assertions.assertTrue(
         FileUtils.contentEquals(
-            filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
   }
 
@@ -852,7 +957,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new VariableName[] {timeName, xName, yName},
+            new NetcdfName[] {timeName.getName(), xName.getName(), yName.getName()},
             "a test dataset with temperatures in time and space",
             "C",
             "surface temperature");
@@ -886,7 +991,9 @@ class NetcdfWriterTest {
     }
     Assertions.assertTrue(
         FileUtils.contentEquals(
-            filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
   }
 
@@ -912,7 +1019,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new VariableName[] {timeName},
+            new NetcdfName[] {timeName.getName()},
             "a test dataset with temperatures in time",
             "C",
             "");
@@ -935,7 +1042,9 @@ class NetcdfWriterTest {
     }
     Assertions.assertTrue(
         FileUtils.contentEquals(
-            filePath.toFile(), Path.of(getClass().getResource(resourceName).toURI()).toFile()));
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
     FileUtils.delete(filePath.toFile());
   }
 }

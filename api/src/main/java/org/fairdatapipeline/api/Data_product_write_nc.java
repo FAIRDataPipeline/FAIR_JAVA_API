@@ -63,8 +63,7 @@ public class Data_product_write_nc extends Data_product_write {
   public Object_component_write_table getComponent(@NonNull TableDefinition tabledef) {
     if (componentMap.containsKey(tabledef.getGroupName().toString())) {
       // TODO: check that component in map is an Object_component_write_table
-      return (Object_component_write_table)
-              componentMap.get(tabledef.getGroupName().toString());
+      return (Object_component_write_table) componentMap.get(tabledef.getGroupName().toString());
     }
     Object_component_write_table tc;
     tc = new Object_component_write_table(this, tabledef);

@@ -1,13 +1,11 @@
 package org.fairdatapipeline.objects;
 
-import org.fairdatapipeline.api.IllegalActionException;
-import org.junit.jupiter.api.*;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.apache.commons.lang3.ArrayUtils;
+import org.fairdatapipeline.api.IllegalActionException;
+import org.junit.jupiter.api.*;
 
 public class NumericalArrayTest {
 
@@ -34,7 +32,7 @@ public class NumericalArrayTest {
 
   @Test
   void test_unprimitivize1() {
-    Object o = new int[] {1,2,3,4,5};
+    Object o = new int[] {1, 2, 3, 4, 5};
     System.out.println(o.getClass());
     Object[] oo = ArrayUtils.toObject((int[]) o);
     System.out.println(oo.getClass());
@@ -44,7 +42,7 @@ public class NumericalArrayTest {
 
   @Test
   void test_unprimitivize2() {
-    Object o = new double[] {1.1,2.2,3.3,4.4,5.5};
+    Object o = new double[] {1.1, 2.2, 3.3, 4.4, 5.5};
     System.out.println(o.getClass());
     Object[] oo = ArrayUtils.toObject((double[]) o);
     System.out.println(oo.getClass());
@@ -54,9 +52,12 @@ public class NumericalArrayTest {
 
   @Test
   void test_unprimitivize3() {
-    Object o = new int[][] {{1,2,3},{3,4,5}};
+    Object o = new int[][] {{1, 2, 3}, {3, 4, 5}};
     System.out.println(o.getClass());
-    Integer[][] oo = Arrays.stream((int[][])o).map(ia -> ArrayUtils.toObject((int[]) ia)).toArray(Integer[][]::new);
+    Integer[][] oo =
+        Arrays.stream((int[][]) o)
+            .map(ia -> ArrayUtils.toObject((int[]) ia))
+            .toArray(Integer[][]::new);
     System.out.println(oo.getClass());
     Number[][] n = (Number[][]) oo;
     System.out.println(n.getClass());
@@ -82,19 +83,22 @@ public class NumericalArrayTest {
     return dims;
   }
 
-
   void setNumbers(Object old_with_primitives, Object new_with_numbers, int[] dimensions) {
-    for(int i = 0; i<dimensions[0]; i++ ){
-      if(dimensions.length == 1) {
-        ((Number[])new_with_numbers)[i] = (Number) Array.get(old_with_primitives, i);
-      }else{
-        setNumbers(Array.get(old_with_primitives, i), Array.get(new_with_numbers, i), Arrays.stream(dimensions).skip(1).toArray());
+    for (int i = 0; i < dimensions[0]; i++) {
+      if (dimensions.length == 1) {
+        ((Number[]) new_with_numbers)[i] = (Number) Array.get(old_with_primitives, i);
+      } else {
+        setNumbers(
+            Array.get(old_with_primitives, i),
+            Array.get(new_with_numbers, i),
+            Arrays.stream(dimensions).skip(1).toArray());
       }
     }
   }
 
   Object unprim(Object o) {
-    if(!o.getClass().isArray()) throw(new IllegalArgumentException("unprim must work on an array"));
+    if (!o.getClass().isArray())
+      throw (new IllegalArgumentException("unprim must work on an array"));
     int[] dimensions = checkShape(o, false).stream().mapToInt(i -> i).toArray();
     Object new_array = Array.newInstance(Number.class, dimensions);
     setNumbers(o, new_array, dimensions);
@@ -103,10 +107,10 @@ public class NumericalArrayTest {
 
   @Test
   void test_unprimitivize5() {
-    Object o = new int[][][] {{{1,2},{3,4}},{{4,5},{6,7}}};
-    System.out.println(Arrays.deepToString((int[][][])o));
+    Object o = new int[][][] {{{1, 2}, {3, 4}}, {{4, 5}, {6, 7}}};
+    System.out.println(Arrays.deepToString((int[][][]) o));
     Object oo = unprim(o);
-    System.out.println(Arrays.deepToString((Number[][][])oo));
+    System.out.println(Arrays.deepToString((Number[][][]) oo));
   }
 
   @Test
@@ -116,7 +120,7 @@ public class NumericalArrayTest {
     System.out.println(oo.getClass());
     Object o = new int[][] {{1, 2, 3}, {4, 5, 6}};
 
-    NumericalArray na = new  NumericalArrayImpl(o);
+    NumericalArray na = new NumericalArrayImpl(o);
     na.as2DArray();
 
     o = new int[] {1, 2, 3, 4, 5};
@@ -150,6 +154,4 @@ public class NumericalArrayTest {
     // check_type2(o2);
 
   }
-
-
 }

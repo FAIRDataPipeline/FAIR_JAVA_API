@@ -3,7 +3,6 @@ package org.fairdatapipeline.objects;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.fairdatapipeline.api.IllegalActionException;
 
 public class NumericalArrayImpl implements NumericalArray {
@@ -74,18 +73,22 @@ public class NumericalArrayImpl implements NumericalArray {
   }
 
   private void setNumbers(Object old_with_primitives, Object new_with_numbers, int[] dimensions) {
-    for(int i = 0; i<dimensions[0]; i++ ){
-      if(dimensions.length == 1) {
-        ((Number[])new_with_numbers)[i] = (Number) Array.get(old_with_primitives, i);
-      }else{
-        setNumbers(Array.get(old_with_primitives, i), Array.get(new_with_numbers, i), Arrays.stream(dimensions).skip(1).toArray());
+    for (int i = 0; i < dimensions[0]; i++) {
+      if (dimensions.length == 1) {
+        ((Number[]) new_with_numbers)[i] = (Number) Array.get(old_with_primitives, i);
+      } else {
+        setNumbers(
+            Array.get(old_with_primitives, i),
+            Array.get(new_with_numbers, i),
+            Arrays.stream(dimensions).skip(1).toArray());
       }
     }
   }
 
   private Object unPrimitive(Object o) {
-    if(!o.getClass().isArray()) throw(new IllegalArgumentException("unPrimitive must work on an array"));
-    //int[] dimensions = checkShape(o, false).stream().flatMapToInt(IntStream::of).toArray();
+    if (!o.getClass().isArray())
+      throw (new IllegalArgumentException("unPrimitive must work on an array"));
+    // int[] dimensions = checkShape(o, false).stream().flatMapToInt(IntStream::of).toArray();
     Object new_array = Array.newInstance(Number.class, this.shape);
     setNumbers(o, new_array, this.shape);
     return new_array;
@@ -98,7 +101,7 @@ public class NumericalArrayImpl implements NumericalArray {
 
   @Override
   public Number[] as1DArray() {
-    if(Number.class.isAssignableFrom(nDArray.getClass().getComponentType())) {
+    if (Number.class.isAssignableFrom(nDArray.getClass().getComponentType())) {
       return (Number[]) nDArray;
     }
     return (Number[]) unPrimitive(nDArray);
@@ -106,7 +109,7 @@ public class NumericalArrayImpl implements NumericalArray {
 
   @Override
   public Number[][] as2DArray() {
-    if(Number.class.isAssignableFrom(nDArray.getClass().getComponentType().getComponentType())) {
+    if (Number.class.isAssignableFrom(nDArray.getClass().getComponentType().getComponentType())) {
       return (Number[][]) nDArray;
     }
     return (Number[][]) unPrimitive(nDArray);
@@ -114,7 +117,8 @@ public class NumericalArrayImpl implements NumericalArray {
 
   @Override
   public Number[][][] as3DArray() {
-    if(Number.class.isAssignableFrom(nDArray.getClass().getComponentType().getComponentType().getComponentType())) {
+    if (Number.class.isAssignableFrom(
+        nDArray.getClass().getComponentType().getComponentType().getComponentType())) {
       return (Number[][][]) nDArray;
     }
     return (Number[][][]) unPrimitive(nDArray);
@@ -122,7 +126,13 @@ public class NumericalArrayImpl implements NumericalArray {
 
   @Override
   public Number[][][][] as4DArray() {
-    if(Number.class.isAssignableFrom(nDArray.getClass().getComponentType().getComponentType().getComponentType().getComponentType())) {
+    if (Number.class.isAssignableFrom(
+        nDArray
+            .getClass()
+            .getComponentType()
+            .getComponentType()
+            .getComponentType()
+            .getComponentType())) {
       return (Number[][][][]) nDArray;
     }
     return (Number[][][][]) unPrimitive(nDArray);
@@ -130,10 +140,16 @@ public class NumericalArrayImpl implements NumericalArray {
 
   @Override
   public Number[][][][][] as5DArray() {
-    if(Number.class.isAssignableFrom(nDArray.getClass().getComponentType().getComponentType().getComponentType().getComponentType().getComponentType())) {
+    if (Number.class.isAssignableFrom(
+        nDArray
+            .getClass()
+            .getComponentType()
+            .getComponentType()
+            .getComponentType()
+            .getComponentType()
+            .getComponentType())) {
       return (Number[][][][][]) nDArray;
     }
     return (Number[][][][][]) unPrimitive(nDArray);
   }
-
 }

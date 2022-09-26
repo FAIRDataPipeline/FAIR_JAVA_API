@@ -9,8 +9,6 @@ import org.fairdatapipeline.objects.DimensionalVariableDefinition;
 import org.fairdatapipeline.objects.TableDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Attr;
-import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.*;
 import ucar.nc2.write.Nc4Chunking;
@@ -20,6 +18,12 @@ import ucar.nc2.write.NetcdfFormatWriter;
 
 /** */
 public class NetcdfBuilder implements AutoCloseable {
+  private static final String ATTRIB_DESC = "description";
+  private static final String ATTRIB_LNAME = "long_name";
+  private static final String ATTRIB_FILLVALUE = "_FillValue";
+  private static final String ATTRIB_UNITS = "units";
+  private static final String ATTRIB_GROUP_TYPE = "group_type";
+
   private static final Logger logger = LoggerFactory.getLogger(NetcdfBuilder.class);
   private static final Cleaner cleaner = Cleaner.create();
   // todo: we should not create more cleaners than necessary
@@ -92,7 +96,7 @@ public class NetcdfBuilder implements AutoCloseable {
   /**
    * prepare a separate dimension in its own group, which other arrays can later refer to. this
    * allows different arrays to share dimensions. these shared dimensions MUST reside in parent
-   * groups of the array group that is trying to use it. ie. /time_group/time_dim can be used as a
+   * groups of the array group that is trying to use it. i.e. /time_group/time_dim can be used as a
    * dimension of the array in /time_group/personal_data/ but cannot be used as a dimension of the
    * array in /other_group/somedata
    *
@@ -105,9 +109,14 @@ public class NetcdfBuilder implements AutoCloseable {
             coordinateVariable.getVariableName().getGroupName().toString());
     Dimension d;
     if (coordinateVariable.isUnlimited()) {
-      d = new Dimension(coordinateVariable.getVariableName().getName().toString(), 0, true, true, false);
+      d =
+          new Dimension(
+              coordinateVariable.getVariableName().getName().toString(), 0, true, true, false);
     } else {
-      d = new Dimension(coordinateVariable.getVariableName().getName().toString(), coordinateVariable.getSize());
+      d =
+          new Dimension(
+              coordinateVariable.getVariableName().getName().toString(),
+              coordinateVariable.getSize());
     }
     gb.addDimension(d);
     Variable.Builder<?> varbuilder =
@@ -116,17 +125,19 @@ public class NetcdfBuilder implements AutoCloseable {
             .setDataType(coordinateVariable.getDataType().translate())
             .setDimensions(Collections.singletonList(d));
     if (coordinateVariable.getDescription().length() > 0)
-      varbuilder.addAttribute(new Attribute("description", coordinateVariable.getDescription()));
+      varbuilder.addAttribute(new Attribute(ATTRIB_DESC, coordinateVariable.getDescription()));
     if (coordinateVariable.getUnits().length() > 0)
-      varbuilder.addAttribute(new Attribute("units", coordinateVariable.getUnits()));
+      varbuilder.addAttribute(new Attribute(ATTRIB_UNITS, coordinateVariable.getUnits()));
     if (coordinateVariable.getLong_name().length() > 0)
-      varbuilder.addAttribute(new Attribute("long_name", coordinateVariable.getLong_name()));
-    if(coordinateVariable.getMissingValue() != null) {
+      varbuilder.addAttribute(new Attribute(ATTRIB_LNAME, coordinateVariable.getLong_name()));
+    if (coordinateVariable.getMissingValue() != null) {
       // coordinateVariables should not have any missing values.
       if (coordinateVariable.getMissingValue().getClass() == String.class) {
-        varbuilder.addAttribute(new Attribute("_FillValue", (String) coordinateVariable.getMissingValue()));
+        varbuilder.addAttribute(
+            new Attribute(ATTRIB_FILLVALUE, (String) coordinateVariable.getMissingValue()));
       } else {
-        varbuilder.addAttribute(new Attribute("_FillValue", (Number) coordinateVariable.getMissingValue()));
+        varbuilder.addAttribute(
+            new Attribute(ATTRIB_FILLVALUE, (Number) coordinateVariable.getMissingValue()));
       }
     }
     gb.addVariable(varbuilder);
@@ -135,29 +146,36 @@ public class NetcdfBuilder implements AutoCloseable {
   public void prepare(TableDefinition tabledef) {
     String dimensionName = "index";
     Group.Builder gb =
-            getGroup(
-                    netcdfBuilderWrapper.builder.getRootGroup(),
-                    tabledef.getGroupName().toString(), true);
+        getGroup(
+            netcdfBuilderWrapper.builder.getRootGroup(), tabledef.getGroupName().toString(), true);
     Dimension d;
-    if(tabledef.isUnlimited()) {
+    if (tabledef.isUnlimited()) {
       d = new Dimension(dimensionName, 0, true, true, false);
-    }else{
+    } else {
       d = new Dimension(dimensionName, tabledef.getSize());
     }
     gb.addDimension(d);
-    if(tabledef.getDescription().length() > 0)
-      gb.addAttribute(new Attribute("description", tabledef.getDescription()));
-    if(tabledef.getLong_name().length() > 0)
-      gb.addAttribute(new Attribute("long_name", tabledef.getLong_name()));
-    tabledef.getOptional_attribs().forEach((key, value) -> {
-      gb.addAttribute(Attribute.builder().setName(key).setDataType(DataType.STRING).setValues(NetcdfDataType.translateArray(value)).build());});
-//      gb.addAttribute(new Attribute(key, value));});
-    Arrays.stream(tabledef.getColumns()).forEach(localVarDef -> {
-      this.prepare(new DimensionalVariableDefinition(localVarDef, tabledef.getGroupName(), tabledef.getSize(), dimensionName));
-    });
-    gb.addAttribute(new Attribute("group_type", "table"));
-
-
+    if (tabledef.getDescription().length() > 0)
+      gb.addAttribute(new Attribute(ATTRIB_DESC, tabledef.getDescription()));
+    if (tabledef.getLong_name().length() > 0)
+      gb.addAttribute(new Attribute(ATTRIB_LNAME, tabledef.getLong_name()));
+    tabledef
+        .getOptional_attribs()
+        .forEach(
+            (key, value) ->
+                gb.addAttribute(
+                    Attribute.builder()
+                        .setName(key)
+                        .setDataType(DataType.STRING)
+                        .setValues(NetcdfDataType.translateArray(value))
+                        .build()));
+    Arrays.stream(tabledef.getColumns())
+        .forEach(
+            localVarDef ->
+                this.prepare(
+                    new DimensionalVariableDefinition(
+                        localVarDef, tabledef.getGroupName(), dimensionName)));
+    gb.addAttribute(new Attribute(ATTRIB_GROUP_TYPE, "table"));
   }
 
   /**
@@ -171,31 +189,12 @@ public class NetcdfBuilder implements AutoCloseable {
     VariableName vbn = nadef.getVariableName();
     NetcdfGroupName gn = vbn.getGroupName();
     String groupName = gn.toString();
-    Group.Builder gb =
-        getGroup(
-            netcdfBuilderWrapper.builder.getRootGroup(), groupName);
+    Group.Builder gb = getGroup(netcdfBuilderWrapper.builder.getRootGroup(), groupName);
     for (int i = 0; i < nadef.getDimensions().length; i++) {
-      VariableName dimName = nadef.getDimensions()[i];
-      if (!nadef.getVariableName().getGroupName().equals(dimName.getGroupName())
-          && !nadef.getVariableName().getGroupName().toString().startsWith(dimName.getGroupName().toString() + "/")) {
+      Optional<Dimension> optionalDimension = gb.findDimension(nadef.getDimensions()[i].getName());
+      if (optionalDimension.isEmpty())
         throw (new IllegalArgumentException(
-            "you can only link to variables in parent groups; "
-                + dimName.getGroupName()
-                + " is not a parent group of "
-                + nadef.getVariableName().getGroupName()
-                + "."));
-      }
-      Optional<Group.Builder> optGroupBuilder =
-          netcdfBuilderWrapper.builder.getRootGroup().findGroupNested(dimName.getGroupName().toString());
-      if (!optGroupBuilder.isPresent())
-        throw (new IllegalArgumentException(
-            "Trying to link shared dimension but Group "
-                + dimName.getGroupName()
-                + " does not exist."));
-      Optional<Dimension> optionalDimension =
-          optGroupBuilder.get().findDimension(dimName.getName().toString());
-      if (!optionalDimension.isPresent())
-        throw (new IllegalArgumentException("Can't find dimension " + dimName));
+            "Can't find dimension " + nadef.getDimensions()[i].getName()));
       Dimension d = optionalDimension.get();
       dims.add(d);
     }
@@ -205,16 +204,16 @@ public class NetcdfBuilder implements AutoCloseable {
             .setDataType(nadef.getDataType().translate())
             .setDimensions(dims);
     if (nadef.getDescription().length() > 0)
-      varbuilder.addAttribute(new Attribute("description", nadef.getDescription()));
+      varbuilder.addAttribute(new Attribute(ATTRIB_DESC, nadef.getDescription()));
     if (nadef.getUnits().length() > 0)
-      varbuilder.addAttribute(new Attribute("units", nadef.getUnits()));
+      varbuilder.addAttribute(new Attribute(ATTRIB_UNITS, nadef.getUnits()));
     if (nadef.getLong_name().length() > 0)
-      varbuilder.addAttribute(new Attribute("long_name", nadef.getLong_name()));
-    if(nadef.getMissingValue() != null) {
+      varbuilder.addAttribute(new Attribute(ATTRIB_LNAME, nadef.getLong_name()));
+    if (nadef.getMissingValue() != null) {
       if (nadef.getMissingValue().getClass() == String.class) {
-        varbuilder.addAttribute(new Attribute("_FillValue", (String) nadef.getMissingValue()));
+        varbuilder.addAttribute(new Attribute(ATTRIB_FILLVALUE, (String) nadef.getMissingValue()));
       } else {
-        varbuilder.addAttribute(new Attribute("_FillValue", (Number) nadef.getMissingValue()));
+        varbuilder.addAttribute(new Attribute(ATTRIB_FILLVALUE, (Number) nadef.getMissingValue()));
       }
     }
 
@@ -224,26 +223,29 @@ public class NetcdfBuilder implements AutoCloseable {
   Group.Builder getGroup(Group.Builder start_group, String group_name) {
     return getGroup(start_group, group_name, false);
   }
+
   Group.Builder getGroup(Group.Builder start_group, String group_name, boolean mustBeFresh) {
     logger.trace("getGroup({}, {}, {}})", start_group, group_name, mustBeFresh);
     if (group_name.startsWith("/")) group_name = group_name.substring(1);
     if (start_group == null) start_group = netcdfBuilderWrapper.builder.getRootGroup();
     if (group_name.equals("")) {
-      if(mustBeFresh) throw(new IllegalArgumentException("this group already exists"));
-      if(start_group.getAttributeContainer().findAttribute("group_type") != null)
-        throw(new IllegalArgumentException("we can't create anything new in groups marked with group_type attribute."));
+      if (mustBeFresh) throw (new IllegalArgumentException("this group already exists"));
+      if (start_group.getAttributeContainer().findAttribute(ATTRIB_GROUP_TYPE) != null)
+        throw (new IllegalArgumentException(
+            "we can't create anything new in groups marked with group_type attribute."));
       return start_group;
     }
     String[] split = group_name.split("/", 2);
     Optional<Group.Builder> optGroupBuilder = start_group.findGroupLocal(split[0]);
     if (optGroupBuilder.isPresent()) {
       Group.Builder found_group = optGroupBuilder.get();
-      if(found_group.getAttributeContainer().findAttribute("group_type") != null)
-        throw(new IllegalArgumentException("we can't create anything new in groups marked with group_type attribute."));
+      if (found_group.getAttributeContainer().findAttribute(ATTRIB_GROUP_TYPE) != null)
+        throw (new IllegalArgumentException(
+            "we can't create anything new in groups marked with group_type attribute."));
       if (split.length == 2) {
         return getGroup(found_group, split[1], mustBeFresh);
       } else {
-        if(mustBeFresh) throw(new IllegalArgumentException("this group already exists"));
+        if (mustBeFresh) throw (new IllegalArgumentException("this group already exists"));
         return found_group;
       }
     } else {
