@@ -3,7 +3,11 @@ package org.fairdatapipeline.objects;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
-public abstract class NetcdfDataComponentDefinition {
+/**
+ * basic DataComponentDef - the only fields shared between all types of variables/dimensions/tables
+ * are the attributes: description, long_name, and optional_attribs.
+ */
+abstract class NetcdfDataComponentDefinition {
   final @Nonnull String description;
   final @Nonnull String long_name;
   final @Nonnull Map<String, String[]> optional_attribs;

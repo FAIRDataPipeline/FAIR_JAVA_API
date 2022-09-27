@@ -7,7 +7,7 @@ import org.fairdatapipeline.netcdf.VariableName;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class DimensionalVariableTest {
+class DimensionalVariableDefinitionTest {
 
   /**
    * we can only reference a coordinatevariable/dimension existing in our current group or one of

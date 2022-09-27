@@ -412,4 +412,44 @@ class NetcdfBuilderTest {
                 .toFile()));
     FileUtils.delete(filePath.toFile());
   }
+
+  @Test
+  void test_add_dimension_after_dimensionalvariable() throws IOException, URISyntaxException {
+    String filename = "test_add_dimension_after_dimensionalvariable";
+    String extension = ".nc";
+    String resourceName = "/netcdf/" + filename + extension;
+    Path filePath = Files.createTempFile(filename, extension);
+
+    CoordinateVariableDefinition cvar_in_group =
+        new CoordinateVariableDefinition(
+            new VariableName("dim", "group"), NetcdfDataType.INT, 6, "", "", "");
+
+    CoordinateVariableDefinition cvar_in_root =
+        new CoordinateVariableDefinition(
+            new VariableName("dim", ""), NetcdfDataType.INT, 3, "", "", "");
+
+    DimensionalVariableDefinition td =
+        new DimensionalVariableDefinition(
+            new VariableName("array", "group"),
+            NetcdfDataType.INT,
+            new NetcdfName[] {new NetcdfName("dim")},
+            "",
+            "",
+            "");
+    try (NetcdfBuilder b =
+        new NetcdfBuilder(
+            filePath.toString(), Nc4Chunking.Strategy.standard, 3, true, this.onClose)) {
+      b.prepare(cvar_in_root);
+      b.prepare(td);
+      // array is now 3 long - it gets its length from /dim
+      b.prepare(cvar_in_group);
+      // and now the array is 6 long - it gets its length from /group/dim
+    }
+    Assertions.assertTrue(
+        FileUtils.contentEquals(
+            filePath.toFile(),
+            Path.of(Objects.requireNonNull(getClass().getResource(resourceName)).toURI())
+                .toFile()));
+    FileUtils.delete(filePath.toFile());
+  }
 }

@@ -8,9 +8,9 @@ import org.fairdatapipeline.netcdf.VariableName;
 /**
  * table is a bit of an odd one: it behaves like any other data component: it has a name (group &
  * name), description and other attributes. but instead of directly containing a variable (array
- * with dimensions) or a 'CoordinateVariable', it contains an array of VariableDefinitions. These
- * VariableDefinitions must all only have local names (no group). they will share a single dimension
- * for its length.
+ * with dimensions) or a 'CoordinateVariable', it contains an array of LocalVariableDefinitions.
+ * These LocalVariableDefinitions must all only have local names (no group). they will share a
+ * single dimension for its length.
  */
 public class TableDefinition extends NetcdfDataComponentDefinition {
   @Nonnull LocalVariableDefinition[] columns;

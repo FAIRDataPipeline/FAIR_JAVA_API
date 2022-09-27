@@ -7,7 +7,13 @@ import org.fairdatapipeline.netcdf.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** DimensionVariableDefinition, aka 'Array'.. multidimensional array. */
+/**
+ * DimensionVariableDefinition, aka 'Array'.. multidimensional array.
+ *
+ * <p>The dimensions are defined by linking to CoordinateVariables, with a link only to the 'local'
+ * NetcdfName part of the variable name; this means the name COULD be ambiguous, as there could be
+ * different variables with the same name, located in the current group and its parent groups.
+ */
 public class DimensionalVariableDefinition extends VariableDefinition {
   private static final Logger logger = LoggerFactory.getLogger(DimensionalVariableDefinition.class);
   private final @Nonnull NetcdfName[] dimensions;

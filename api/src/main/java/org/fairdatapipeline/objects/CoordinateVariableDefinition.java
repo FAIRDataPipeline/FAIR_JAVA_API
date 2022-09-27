@@ -8,7 +8,13 @@ import javax.annotation.Nullable;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
 import org.fairdatapipeline.netcdf.VariableName;
 
-/** this class */
+/**
+ * CoordinateVariableDefinition is used to create a variable that describes one of the dimensions of
+ * a DimensionalVariableDefinition.
+ *
+ * <p>A CoordinateVariable is represented in the netCDF file by a variable and a dimension with the
+ * same name, in the same group.
+ */
 public class CoordinateVariableDefinition extends VariableDefinition {
   private final int size;
   public static final int UNLIMITED = 0;
