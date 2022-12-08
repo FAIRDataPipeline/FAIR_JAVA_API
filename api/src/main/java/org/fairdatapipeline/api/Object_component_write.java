@@ -2,6 +2,8 @@ package org.fairdatapipeline.api;
 
 import java.util.Map;
 import org.fairdatapipeline.dataregistry.content.RegistryObject_component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This represents an object_component to write to (or raise issues with) An object_component
@@ -11,6 +13,8 @@ import org.fairdatapipeline.dataregistry.content.RegistryObject_component;
  * named components, not both. This also is not enforced at the moment.
  */
 abstract class Object_component_write extends Object_component {
+  private static final Logger LOGGER = LoggerFactory.getLogger(Object_component_write.class);
+
   Object_component_write(Data_product dp, String component_name) {
     super(dp, component_name);
   }
@@ -28,8 +32,12 @@ abstract class Object_component_write extends Object_component {
   }
 
   void register_me_in_registry() {
-    if (!been_used) return; // don't register a component unless it has been written to
+    if (!been_used) {
+      LOGGER.trace("unused Object_component_write not being stored in registry.");
+      return; // don't register a component unless it has been written to
+    }
     if (this.whole_object) {
+      LOGGER.trace("storing Object_component_write (whole_object)");
       Map<String, String> find_whole_object =
           Map.of("object", dp.registryObject.get_id().toString(), "whole_object", "true");
       RegistryObject_component objComponent =
@@ -44,6 +52,7 @@ abstract class Object_component_write extends Object_component {
       // the referenced Object_component_write so that this can later be stored as a
       // code_run output.
     } else {
+      LOGGER.trace("storing Object_component_write (not whole)");
       // component != whole_object
       this.registryObject_component.setObject(dp.registryObject.getUrl());
       RegistryObject_component objComponent =
@@ -61,4 +70,6 @@ abstract class Object_component_write extends Object_component {
       // output
     }
   }
+
+  abstract void write_preset_data();
 }

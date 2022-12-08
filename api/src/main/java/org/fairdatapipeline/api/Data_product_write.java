@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * then register its components in the coderun.
  */
 abstract class Data_product_write extends Data_product {
-  private static final Logger logger = LoggerFactory.getLogger(Data_product_write.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Data_product_write.class);
   boolean is_hashed;
 
   Data_product_write(String dataProduct_name, Coderun coderun) {
@@ -114,6 +114,7 @@ abstract class Data_product_write extends Data_product {
   }
 
   void stolo_obj_and_dp_to_registry() {
+    LOGGER.trace("data_product_write.stolo_obj_and_dp_to_registry()");
     if (this.registryStorage_location.getUrl() == null) {
       Map<String, String> find_identical =
           Map.of(
@@ -129,10 +130,11 @@ abstract class Data_product_write extends Data_product {
               this.coderun.restClient.getFirst(RegistryStorage_location.class, find_identical);
       if (identical_sl != null) {
         // we've found an existing stolo with matching hash. delete this one.
+        LOGGER.trace("found an existing stolo with matching hash.. delete.");
         try {
           Files.delete(this.getFilePath());
         } catch (IOException e) {
-          logger.warn(
+          LOGGER.warn(
               "Failed to delete current data file which is identical to a file already in the local registry.",
               e);
         }
@@ -148,6 +150,7 @@ abstract class Data_product_write extends Data_product {
                   + this.registryStorage_location.getPath()));
         } else {
           this.registryStorage_location = sl;
+          LOGGER.trace("registered the stolo.");
         }
       }
     }
@@ -157,6 +160,7 @@ abstract class Data_product_write extends Data_product {
       throw (new RegistryException(
           "Failed to create in registry: Object " + this.registryObject.getDescription()));
     }
+    LOGGER.trace("registered the RegistryObject.");
     this.registryObject = o;
     this.registryData_product.setObject(o.getUrl());
     RegistryData_product dp =
@@ -165,6 +169,7 @@ abstract class Data_product_write extends Data_product {
       throw (new RegistryException(
           "Failed to create in registry: Data_product " + this.registryData_product.getName()));
     }
+    LOGGER.trace("registered the Data_product");
     this.registryData_product = dp;
   }
 }

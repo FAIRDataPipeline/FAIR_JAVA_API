@@ -27,6 +27,7 @@ public class Object_component_write_array extends Object_component_write {
 
   private void getVariable() {
     if (this.variable != null) return;
+    this.been_used = true;
     NetcdfWriter nWriter = ((Data_product_write_nc) this.dp).getNetCDFWriter();
     this.variable = nWriter.getVariable(this.nadef.getVariableName());
     this.shape = this.variable.getShape();
@@ -37,8 +38,8 @@ public class Object_component_write_array extends Object_component_write {
    * writes the whole data (if nadat.getShape equals variable.getShape) or write a slice and update
    * a write-pointer.
    *
-   * @param nadat
-   * @throws EOFException
+   * @param nadat the data to be written
+   * @throws EOFException if we are trying to write beyong the end of the file.
    */
   public void writeArrayData(NumericalArray nadat) throws IOException {
     if (eof) throw (new EOFException("trying to write beyond end of data"));
@@ -77,5 +78,9 @@ public class Object_component_write_array extends Object_component_write {
         // TODO: error handling
       }
     }
+  }
+
+  void write_preset_data() {
+    // do nothing. nadef doesn't have preset data.
   }
 }

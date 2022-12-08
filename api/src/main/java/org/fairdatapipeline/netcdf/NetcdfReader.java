@@ -15,6 +15,10 @@ public class NetcdfReader {
   private static final String[] attrib_names =
       new String[] {"description", "units", "long_name", "standard_name"};
 
+  /**
+   * @param fileName the fileName of the file to open.
+   * @throws IOException if the file cannot be opened for reading.
+   */
   public NetcdfReader(String fileName) throws IOException {
     this.file = NetcdfFiles.open(fileName);
   }
@@ -56,6 +60,7 @@ public class NetcdfReader {
           argument_attribs.get(attrib_names[2]),
           optional_attribs);
     } else {
+
       return new DimensionalVariableDefinition(
           variableName,
           dataType,

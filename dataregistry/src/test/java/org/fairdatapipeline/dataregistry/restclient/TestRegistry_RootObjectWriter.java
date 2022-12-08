@@ -7,7 +7,7 @@ import org.fairdatapipeline.dataregistry.content.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class test_Registry_RootObjectWriter {
+class TestRegistry_RootObjectWriter {
 
   public String write_json(Registry_RootObject o, Class<?> type) {
     ByteArrayOutputStream ba = new ByteArrayOutputStream();

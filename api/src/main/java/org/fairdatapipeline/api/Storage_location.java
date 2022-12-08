@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /** This is used to store a file or a remote repo to the registry as a RegistryStorage_location. */
 class Storage_location {
-  private static final Logger logger = LoggerFactory.getLogger(Storage_location.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Storage_location.class);
   RegistryStorage_location registryStorage_location;
 
   /**
@@ -73,15 +73,15 @@ class Storage_location {
     if (this.registryStorage_location != null) {
       // there is an already existing StorageLocation for this hash; we may need to delete the file
       if (filePath_to_delete_if_hash_exists == null) {
-        logger.trace(
+        LOGGER.trace(
             "Not deleting file after finding existing storage location with identical hash.");
       } else {
         try {
           Files.delete(filePath_to_delete_if_hash_exists);
-          logger.trace(
+          LOGGER.trace(
               "Deleting file after finding existing storage location with identical hash.");
         } catch (IOException e) {
-          logger.error(
+          LOGGER.error(
               "Failed to delete file after finding existing storage location with identical hash: {}",
               filePath_to_delete_if_hash_exists);
         }

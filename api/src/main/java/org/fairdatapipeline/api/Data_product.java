@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * registry, and then register itself in the coderun.
  */
 abstract class Data_product implements AutoCloseable {
-  private static final Logger logger = LoggerFactory.getLogger(Data_product.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Data_product.class);
   /** coderun is the Coderun that created me */
   final Coderun coderun;
   /**
@@ -93,6 +93,7 @@ abstract class Data_product implements AutoCloseable {
     this(dataProduct_name, coderun, null);
   }
 
+  @SuppressWarnings("squid:S3655")
   Data_product(String dataProduct_name, Coderun coderun, String extension) {
     this.extension = extension;
     this.coderun = coderun;
@@ -106,7 +107,7 @@ abstract class Data_product implements AutoCloseable {
       this.actualDataProduct_name = configItem.use().data_product().get();
     if (configItem.file_type().isPresent()) {
       if (extension != null && !configItem.file_type().get().equals(extension))
-        logger.warn(
+        LOGGER.warn(
             "file type conflict: code says {}, config says {}",
             extension,
             configItem.file_type().get());
@@ -141,7 +142,7 @@ abstract class Data_product implements AutoCloseable {
    * getRegistryNamespace retrieves the registryNamespace from the registry. This should always
    * exist as it has been created by the CLI.
    *
-   * @param namespace_name
+   * @param namespace_name the namespace name to look for in the registry
    * @return the RegistryNamespace for the namespace with given name.
    * @throws RegistryObjectNotFoundException if the namespace is not found in the registry.
    */
@@ -196,7 +197,6 @@ abstract class Data_product implements AutoCloseable {
    *
    * @return the Path for this data product file, by appending registryStorage_location path to the
    *     registryStorage_root path.
-   * @throws IOException if we fail to create the directory for this file.
    */
   Path getFilePath() {
     this.been_used = true;
@@ -208,7 +208,7 @@ abstract class Data_product implements AutoCloseable {
       try {
         Files.createDirectories(filePath.getParent());
       } catch (IOException e) {
-        logger.error("failed to create directory {}", filePath.getParent());
+        LOGGER.error("failed to create directory {}", filePath.getParent());
         // throw, or continue?
         return null;
       }
@@ -234,16 +234,17 @@ abstract class Data_product implements AutoCloseable {
     this.componentMap.forEach((key, value) -> value.register_me_in_registry());
   }
 
-  void InputsOutputsToCoderun() {
+  void inputsOutputsToCoderun() {
     if (this.whole_obj_oc != null) this.whole_obj_oc.register_me_in_code_run();
     this.componentMap.forEach((key, value) -> value.register_me_in_code_run());
   }
 
   @Override
   public void close() {
+    LOGGER.trace("Data_product.close()");
     this.do_hash();
     this.stolo_obj_and_dp_to_registry();
     this.components_to_registry();
-    this.InputsOutputsToCoderun();
+    this.inputsOutputsToCoderun();
   }
 }

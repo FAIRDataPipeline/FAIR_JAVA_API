@@ -10,10 +10,11 @@ public class Object_component_read_nc extends Object_component_read {
   int[] origin_read_pointer;
   Variable variable;
 
-  // Object_component_read_nc(Data_product dp, String component_name) {
-  //    this(dp, new VariableName(component_name));
-  // }
-
+  /**
+   * @param dp the data product that we belong to
+   * @param variableName the variable name (groupname and local name) of the variable to read.
+   * @throws IOException if the file cannot be opened for reading.
+   */
   Object_component_read_nc(Data_product dp, VariableName variableName) throws IOException {
     super(dp, variableName.getFullPath());
     Data_product_read_nc dpr = (Data_product_read_nc) this.dp;

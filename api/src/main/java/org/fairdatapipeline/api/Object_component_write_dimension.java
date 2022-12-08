@@ -7,11 +7,16 @@ import org.fairdatapipeline.netcdf.NetcdfBuilder;
 import org.fairdatapipeline.netcdf.NetcdfWriter;
 import org.fairdatapipeline.objects.CoordinateVariableDefinition;
 import org.fairdatapipeline.objects.NumericalArray;
+import org.fairdatapipeline.objects.NumericalArrayImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
 
 public class Object_component_write_dimension extends Object_component_write {
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(Object_component_write_dimension.class);
   CoordinateVariableDefinition dimdef;
   Variable variable;
   int[] write_pointer;
@@ -28,18 +33,25 @@ public class Object_component_write_dimension extends Object_component_write {
 
   private void getVariable() {
     if (this.variable != null) return;
+    this.been_used = true;
     NetcdfWriter nWriter = ((Data_product_write_nc) this.dp).getNetCDFWriter();
     this.variable = nWriter.getVariable(this.dimdef.getVariableName());
     this.shape = this.variable.getShape();
     this.write_pointer = new int[] {0};
   }
 
+  public void writeData() throws IOException {
+    if (this.dimdef.getValues() != null) {
+      this.writeData(new NumericalArrayImpl(this.dimdef.getValues()));
+    }
+  }
+
   /**
    * writes the whole data (if nadat.getShape equals variable.getShape) or write a slice and update
    * a write-pointer.
    *
-   * @param nadat
-   * @throws EOFException
+   * @param nadat the data we want to write.
+   * @throws IOException if the write fails.
    */
   public void writeData(NumericalArray nadat) throws /*EOFException, */ IOException {
     if (eof) throw (new EOFException("trying to write beyond end of data"));
@@ -65,6 +77,14 @@ public class Object_component_write_dimension extends Object_component_write {
       } catch (InvalidRangeException e) {
         // TODO: error handling
       }
+    }
+  }
+
+  void write_preset_data() {
+    try {
+      writeData();
+    } catch (IOException e) {
+      LOGGER.error("failed to write preset data", e);
     }
   }
 }

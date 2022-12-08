@@ -18,13 +18,14 @@ import ucar.nc2.Variable;
 import ucar.nc2.write.NetcdfFormatWriter;
 
 public class NetcdfWriter implements AutoCloseable {
-  private static final Logger logger = LoggerFactory.getLogger(NetcdfWriter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NetcdfWriter.class);
   private static final Cleaner cleaner = Cleaner.create();
   // todo: we should not create more cleaners than necessary
   private final Cleanable cleanable;
   private final NetcdfWriterWrapper netcdfWriterWrapper;
 
   public NetcdfWriter(NetcdfBuilder b, Runnable onClose) {
+    LOGGER.trace("NetcdfWriter.NetcdfWriter()");
     this.netcdfWriterWrapper = new NetcdfWriterWrapper(b, onClose);
     this.cleanable = cleaner.register(this, this.netcdfWriterWrapper);
   }
@@ -50,12 +51,12 @@ public class NetcdfWriter implements AutoCloseable {
     // Invoked by close method or cleaner
     @Override
     public void run() {
-      logger.trace("run() invoked by cleaner");
+      LOGGER.trace("run() invoked by cleaner");
       runOnClose.run();
       try {
         this.writer.close();
       } catch (IOException e) {
-        logger.error("can't close the netCDF writer.", e);
+        LOGGER.error("can't close the netCDF writer.", e);
       }
     }
   }
@@ -108,20 +109,20 @@ public class NetcdfWriter implements AutoCloseable {
     // NetcdfDataType.translate_array instead.
 
     if (origin == null) {
-      logger.debug("origin == null");
+      LOGGER.debug("origin == null");
       this.netcdfWriterWrapper.writer.write(v, data);
     } else {
-      if (logger.isDebugEnabled()) {
+      if (LOGGER.isDebugEnabled()) {
         String originstring = Arrays.toString(origin);
-        logger.debug("origin: {}", originstring);
+        LOGGER.debug("origin: {}", originstring);
       }
       this.netcdfWriterWrapper.writer.write(v, origin, data);
     }
-    if (logger.isDebugEnabled()) {
+    if (LOGGER.isDebugEnabled()) {
       String datashape = Arrays.toString(data.getShape());
       String vshape = Arrays.toString(v.getShape());
-      logger.trace("data.shape: {}", datashape);
-      logger.trace("v.shape: {}", vshape);
+      LOGGER.trace("data.shape: {}", datashape);
+      LOGGER.trace("v.shape: {}", vshape);
     }
   }
 
@@ -154,7 +155,7 @@ public class NetcdfWriter implements AutoCloseable {
 
   @Override
   public void close() {
-    logger.trace("close()");
+    LOGGER.trace("close()");
     cleanable.clean();
   }
 }

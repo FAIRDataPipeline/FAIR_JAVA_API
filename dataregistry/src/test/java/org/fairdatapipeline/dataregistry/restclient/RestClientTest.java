@@ -24,7 +24,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class restClientTest {
+class RestClientTest {
   String localReg = "http://localhost:8000/api/";
   String badReg = "http://localhost:1234/nothere/";
   RestClient lc;

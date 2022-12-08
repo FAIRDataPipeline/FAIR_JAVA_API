@@ -52,4 +52,8 @@ public class Object_component_write_filechannel_toml extends Object_component_wr
       throw (new RuntimeException("writeSamples() -- IOException trying to write to file.", e));
     }
   }
+
+  void write_preset_data() {
+    // no preset data to write.
+  }
 }

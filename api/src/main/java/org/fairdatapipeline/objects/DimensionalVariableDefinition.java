@@ -15,17 +15,19 @@ import org.slf4j.LoggerFactory;
  * different variables with the same name, located in the current group and its parent groups.
  */
 public class DimensionalVariableDefinition extends VariableDefinition {
-  private static final Logger logger = LoggerFactory.getLogger(DimensionalVariableDefinition.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DimensionalVariableDefinition.class);
   private final @Nonnull NetcdfName[] dimensions;
   @Nonnull VariableName variableName;
 
   /**
-   * @param name
-   * @param dataType
-   * @param dimensions
-   * @param description
-   * @param units
-   * @param long_name
+   * @param name Name and Group of this Variable
+   * @param dataType dataType of the Variable
+   * @param dimensions names of the dimensions. (no group names given; the dimensions used will be
+   *     the nearest dimension with the given name)
+   * @param description a short description of the variable. (ie. "temperature at ground level")
+   * @param units the units used for this variable. (ie. "C" or "K" for temperature)
+   * @param long_name a more descriptive name than can be fitted in the VariableName (could be used
+   *     on a plot axis)
    */
   public DimensionalVariableDefinition(
       @Nonnull VariableName name,
@@ -37,6 +39,18 @@ public class DimensionalVariableDefinition extends VariableDefinition {
     this(name, dataType, dimensions, description, units, long_name, Collections.emptyMap());
   }
 
+  /**
+   * @param name Name and Group of this Variable
+   * @param dataType dataType of the Variable
+   * @param dimensions names of the dimensions. (no group names given; the dimensions used will be
+   *     the nearest dimension with the given name)
+   * @param description a short description of the variable. (ie. "temperature at ground level")
+   * @param units the units used for this variable. (ie. "C" or "K" for temperature)
+   * @param long_name a more descriptive name than can be fitted in the VariableName (could be used
+   *     on a plot axis)
+   * @param optional_attribs extra metadata attributes to be added to this variable. the values are
+   *     String[] as we mostly want to add a single String but sometimes more than one String.
+   */
   public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
@@ -48,6 +62,13 @@ public class DimensionalVariableDefinition extends VariableDefinition {
     this(name, dataType, dimensions, description, units, long_name, optional_attribs, null);
   }
 
+  /**
+   * To turn a localVarDef (local variable
+   *
+   * @param localVarDef
+   * @param groupName
+   * @param dimensionName
+   */
   public DimensionalVariableDefinition(
       @Nonnull LocalVariableDefinition localVarDef,
       NetcdfGroupName groupName,
@@ -59,7 +80,7 @@ public class DimensionalVariableDefinition extends VariableDefinition {
         localVarDef.long_name,
         localVarDef.optional_attribs,
         localVarDef.missingValue);
-    logger.trace(
+    LOGGER.trace(
         "Creating DimensionalVariableDefinition({}, {}) from LocalVariableDefinition({})",
         localVarDef.getLocalName(),
         groupName,
@@ -78,7 +99,7 @@ public class DimensionalVariableDefinition extends VariableDefinition {
       @Nonnull Map<String, String[]> optional_attribs,
       Object missingValue) {
     super(dataType, description, units, long_name, optional_attribs, missingValue);
-    logger.trace(
+    LOGGER.trace(
         "Creating DimensionalVariableDefinition({},{},{},{},{},{})",
         name,
         dataType,

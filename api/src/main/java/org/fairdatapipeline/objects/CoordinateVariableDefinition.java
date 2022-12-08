@@ -26,12 +26,13 @@ public class CoordinateVariableDefinition extends VariableDefinition {
    * if we don't supply values, we need to set size and type. size can be
    * CoordinateVariable.UNLIMITED
    *
-   * @param variableName
-   * @param dataType
-   * @param size
-   * @param description
-   * @param units
-   * @param long_name
+   * @param variableName Name and Group of this Coordinate Variable
+   * @param dataType dataType of the Variable
+   * @param size length of the Dimension. (or UNLIMITED)
+   * @param description a short description of the variable. (ie. "temperature at ground level")
+   * @param units the units used for this variable. (ie. "C" or "K" for temperature)
+   * @param long_name a more descriptive name than can be fitted in the VariableName (could be used
+   *     on a plot axis)
    */
   public CoordinateVariableDefinition(
       @Nonnull VariableName variableName,
@@ -50,13 +51,15 @@ public class CoordinateVariableDefinition extends VariableDefinition {
    * if we don't supply values, we need to set size and type. size can be
    * CoordinateVariable.UNLIMITED
    *
-   * @param variableName
-   * @param dataType
-   * @param size
-   * @param description
-   * @param units
-   * @param long_name
-   * @param optional_attribs
+   * @param variableName Name and Group of this Coordinate Variable
+   * @param dataType dataType of the Variable
+   * @param size length of the Dimension. (or UNLIMITED)
+   * @param description a short description of the variable. (ie. "temperature at ground level")
+   * @param units the units used for this variable. (ie. "C" or "K" for temperature)
+   * @param long_name a more descriptive name than can be fitted in the VariableName (could be used
+   *     on a plot axis)
+   * @param optional_attribs extra metadata attributes to be added to this variable. the values are
+   *     String[] as we mostly want to add a single String but sometimes more than one String.
    */
   public CoordinateVariableDefinition(
       @Nonnull VariableName variableName,
@@ -76,11 +79,13 @@ public class CoordinateVariableDefinition extends VariableDefinition {
    * if we give 'values', we don't need to give type and length as these can be taken from the
    * 'values' array.
    *
-   * @param variableName
-   * @param values
-   * @param description
-   * @param units
-   * @param long_name
+   * @param variableName Name and Group of this Coordinate Variable
+   * @param values an Array of values for this Variable. (ie. [1, 2, 3] will make an Int variable of
+   *     length 3.)
+   * @param description a short description of the variable. (ie. "temperature at ground level")
+   * @param units the units used for this variable. (ie. "C" or "K" for temperature)
+   * @param long_name a more descriptive name than can be fitted in the VariableName (could be used
+   *     on a plot axis)
    */
   public CoordinateVariableDefinition(
       @Nonnull VariableName variableName,
@@ -103,12 +108,15 @@ public class CoordinateVariableDefinition extends VariableDefinition {
    * if we give 'values', we don't need to give type and length as these can be taken from the
    * 'values' array.
    *
-   * @param variableName
-   * @param values
-   * @param description
-   * @param units
-   * @param long_name
-   * @param optional_attribs
+   * @param variableName Name and Group of this Coordinate Variable
+   * @param values an Array of values for this Variable. (ie. [1, 2, 3] will make an Int variable of
+   *     length 3.)
+   * @param description a short description of the variable. (ie. "temperature at ground level")
+   * @param units the units used for this variable. (ie. "C" or "K" for temperature)
+   * @param long_name a more descriptive name than can be fitted in the VariableName (could be used
+   *     on a plot axis)
+   * @param optional_attribs extra metadata attributes to be added to this variable. the values are
+   *     String[] as we mostly want to add a single String but sometimes more than one String.
    */
   public CoordinateVariableDefinition(
       @Nonnull VariableName variableName,

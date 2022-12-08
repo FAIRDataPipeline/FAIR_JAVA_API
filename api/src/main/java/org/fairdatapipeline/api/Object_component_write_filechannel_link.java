@@ -16,4 +16,8 @@ public class Object_component_write_filechannel_link extends Object_component_wr
     this.been_used = true;
     return this.dp.getFilePath();
   }
+
+  void write_preset_data() {
+    // no preset data to write.
+  }
 }

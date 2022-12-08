@@ -24,7 +24,7 @@ public class NetcdfBuilder implements AutoCloseable {
   private static final String ATTRIB_UNITS = "units";
   private static final String ATTRIB_GROUP_TYPE = "group_type";
 
-  private static final Logger logger = LoggerFactory.getLogger(NetcdfBuilder.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NetcdfBuilder.class);
   private static final Cleaner cleaner = Cleaner.create();
   // todo: we should not create more cleaners than necessary
   private final Cleanable cleanable;
@@ -36,7 +36,7 @@ public class NetcdfBuilder implements AutoCloseable {
       int nc4deflateLevel,
       boolean nc4shuffle,
       Runnable onClose) {
-    logger.trace("NetcdfBuilder({}) ", filePath);
+    LOGGER.trace("NetcdfBuilder({}) ", filePath);
     this.netcdfBuilderWrapper =
         new NetcdfBuilderWrapper(
             filePath, nc4chunkingStrategy, nc4deflateLevel, nc4shuffle, onClose);
@@ -74,14 +74,14 @@ public class NetcdfBuilder implements AutoCloseable {
     // Invoked by close method or cleaner
     @Override
     public void run() {
-      logger.trace("run() invoked by cleaner");
+      LOGGER.trace("run() invoked by cleaner");
       runOnClose.run();
       if (!has_been_built) {
         // write the file:
         try (NetcdfFormatWriter w = builder.build()) {
           // do nothing
         } catch (IOException e) {
-          logger.error("failed to write netcdf file", e);
+          LOGGER.error("failed to write netcdf file", e);
         }
       } else {
         // it has already been built. do nothing.
@@ -225,7 +225,7 @@ public class NetcdfBuilder implements AutoCloseable {
   }
 
   Group.Builder getGroup(Group.Builder start_group, String group_name, boolean mustBeFresh) {
-    logger.trace("getGroup({}, {}, {}})", start_group, group_name, mustBeFresh);
+    LOGGER.trace("getGroup({}, {}, {}})", start_group, group_name, mustBeFresh);
     if (group_name.startsWith("/")) group_name = group_name.substring(1);
     if (start_group == null) start_group = netcdfBuilderWrapper.builder.getRootGroup();
     if (group_name.equals("")) {
@@ -258,7 +258,7 @@ public class NetcdfBuilder implements AutoCloseable {
   }
 
   Group.Builder createGroup(Group.Builder start_group, String groupName, String subgroups) {
-    logger.trace("createGroup({}, {}, {})", start_group, groupName, subgroups);
+    LOGGER.trace("createGroup({}, {}, {})", start_group, groupName, subgroups);
     Group.Builder newGroup = Group.builder().setParentGroup(start_group).setName(groupName);
     start_group.addGroup(newGroup);
     if (subgroups == null) {
@@ -271,7 +271,7 @@ public class NetcdfBuilder implements AutoCloseable {
 
   @Override
   public void close() {
-    logger.trace("close()");
+    LOGGER.trace("close()");
     cleanable.clean();
   }
 }

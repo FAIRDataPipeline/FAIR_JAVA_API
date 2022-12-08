@@ -39,11 +39,15 @@ import org.fairdatapipeline.samples.Samples;
 import org.javatuples.Triplet;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CoderunIntegrationTest {
+  private static final Logger logger = LoggerFactory.getLogger(CoderunIntegrationTest.class);
+
   private final Table<Integer, String, Number> mockTable =
       ImmutableTable.<Integer, String, Number>builder()
           .put(0, "colA", 5)
@@ -262,6 +266,10 @@ class CoderunIntegrationTest {
             });
   }
 
+  /**
+   * @param inputs
+   * @param outputs
+   */
   void check_last_coderun(
       List<Triplet<String, String, String>> inputs, List<Triplet<String, String, String>> outputs) {
     // quite a random set of checks to see if a coderun did what I expect it to do.
@@ -273,6 +281,8 @@ class CoderunIntegrationTest {
       return;
     }
     String last_coderun = coderuns.get(coderuns.size() - 1);
+    logger.trace("coderun: {}", last_coderun);
+
     RegistryCode_run cr =
         (RegistryCode_run)
             restClient.getFirst(
@@ -280,12 +290,15 @@ class CoderunIntegrationTest {
     RegistryObject script =
         (RegistryObject) restClient.get(RegistryObject.class, cr.getSubmission_script());
     assertNotNull(script);
+    logger.trace("script: {}", script.getDescription());
     RegistryObject config =
         (RegistryObject) restClient.get(RegistryObject.class, cr.getModel_config());
     assertNotNull(config);
+    logger.trace("config: {}", config.getData_products());
     RegistryObject code_repo =
         (RegistryObject) restClient.get(RegistryObject.class, cr.getCode_repo());
     assertNotNull(code_repo);
+    logger.trace("code_repo: {}", code_repo.getDescription());
     assertThat(code_repo.getAuthors())
         .containsExactly(restClient.makeAPIURL(RegistryAuthor.class, 1));
 
@@ -315,6 +328,8 @@ class CoderunIntegrationTest {
 
     if (outputs == null) assertThat(cr.getOutputs()).isEmpty();
     else {
+      logger.trace("outputs: {}", cr.getOutputs().size());
+      cr.getOutputs().stream().forEach(c -> logger.trace(c.toString()));
       assertThat(cr.getOutputs()).hasSameSizeAs(outputs);
       cr.getOutputs()
           .forEach(
@@ -919,7 +934,7 @@ class CoderunIntegrationTest {
         //
       }
     }
-    String hash = "";
+    String hash = "5f09c2c852d631c9d5966f65e110263e7a5fcf44";
 
     check_last_coderun(
         null,

@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *       ImmutableSamples samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
  *       String dataProduct = "animal/dodo";
  *       String component1 = "example-samples-dodo1";
- *       Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+ *       Data_product_write_toml dp = coderun.get_dp_for_write(dataProduct, "toml");
  *       Object_component_write oc1 = dp.getComponent(component1);
  *       oc1.raise_issue("something is terribly wrong with this component", 10);
  *       oc1.writeSamples(samples);
@@ -77,7 +77,7 @@ import org.slf4j.LoggerFactory;
  * </blockquote>
  */
 public class Coderun implements AutoCloseable {
-  private static final Logger logger = LoggerFactory.getLogger(Coderun.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Coderun.class);
   final Config config;
   final RestClient restClient;
   private final Map<String, Data_product>
@@ -96,6 +96,8 @@ public class Coderun implements AutoCloseable {
   FileObject config_object;
   CodeRepo codeRepo;
   List<APIURL> authors;
+  private String wrong_dp_type =
+      "You have already opened Data_product with name {} but it was not a Data_product_write_{}.";
 
   /**
    * Constructor using only configFilePath - scriptPath is read from the config.
@@ -133,6 +135,7 @@ public class Coderun implements AutoCloseable {
    * @param registryToken the authentication token of the local registry (or null if the token is to
    *     be read from the config or from ~/.fair/registry/token)
    */
+  @SuppressWarnings("squid:S3655")
   public Coderun(Path configFilePath, @Nullable Path scriptPath, @Nullable String registryToken) {
     YamlReader yamlReader = new YamlFactory().yamlReader();
     if (!new File(configFilePath.toString()).isFile()) {
@@ -177,18 +180,18 @@ public class Coderun implements AutoCloseable {
         storageRootURI = URI.create(config.run_metadata().write_data_store().get());
         if (storageRootURI.getScheme() == null) {
           storageRootURI = Path.of(storageRootURI.toString()).toUri();
-          logger.trace(
+          LOGGER.trace(
               "added file:/// scheme to write_data_store from config: {}",
               config.run_metadata().write_data_store().get());
         }
       } catch (Exception e) {
         Path wdsPath = Path.of(config.run_metadata().write_data_store().get());
         storageRootURI = wdsPath.toUri();
-        logger.trace("tried to create write_data_store URI after Exception: {}", storageRootURI);
+        LOGGER.trace("tried to create write_data_store URI after Exception: {}", storageRootURI);
       }
     } else {
       storageRootURI = configFilePath.getParent().getParent().getParent().toUri();
-      logger.trace(
+      LOGGER.trace(
           "Using configFilePath.parent.parent.parent as storageRootURI: {}", storageRootURI);
     }
     this.write_data_store_root = new Storage_root(storageRootURI, restClient);
@@ -346,9 +349,7 @@ public class Coderun implements AutoCloseable {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write_link.class) {
         throw (new IllegalActionException(
-            "You have already opened Data_product with name '"
-                + dataProduct_name
-                + "' but it was not a Data_product_write_link."));
+            String.format(this.wrong_dp_type, dataProduct_name, "link")));
       }
       if (!dp_info_map.get(dataProduct_name).extension.equals(extension)) {
         throw (new IllegalActionException(
@@ -382,9 +383,7 @@ public class Coderun implements AutoCloseable {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write_toml.class) {
         throw (new IllegalActionException(
-            "You have already opened Data_product with name '"
-                + dataProduct_name
-                + "' but it was not a Data_product_write_json."));
+            String.format(this.wrong_dp_type, dataProduct_name, "json")));
       }
       return (Data_product_write_toml) dp_info_map.get(dataProduct_name);
     }
@@ -404,9 +403,7 @@ public class Coderun implements AutoCloseable {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_read_nc.class) {
         throw (new IllegalActionException(
-            "You have already opened Data_product with name '"
-                + dataProduct_name
-                + "' but it was not a Data_product_read_nc."));
+            String.format(this.wrong_dp_type, dataProduct_name, "nc")));
       }
       return (Data_product_read_nc) dp_info_map.get(dataProduct_name);
     }
@@ -425,10 +422,7 @@ public class Coderun implements AutoCloseable {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_read_toml.class) {
-        throw (new IllegalActionException(
-            "You have already opened Data_product with name '"
-                + dataProduct_name
-                + "' but it was not a Data_product_write_toml."));
+        throw (new IllegalActionException(String.format(wrong_dp_type, dataProduct_name, "toml")));
       }
       return (Data_product_read_toml) dp_info_map.get(dataProduct_name);
     }
@@ -447,10 +441,7 @@ public class Coderun implements AutoCloseable {
     if (dp_info_map.containsKey(dataProduct_name)) {
       // I could of course refuse to serve up the same DP twice, but let's be friendly.
       if (dp_info_map.get(dataProduct_name).getClass() != Data_product_write_nc.class) {
-        throw (new IllegalActionException(
-            "You have already opened Data_product with name '"
-                + dataProduct_name
-                + "' but it was not a Data_product_write_json."));
+        throw (new IllegalActionException(String.format(wrong_dp_type, dataProduct_name, "json")));
       }
       return (Data_product_write_nc) dp_info_map.get(dataProduct_name);
     }
@@ -495,7 +486,7 @@ public class Coderun implements AutoCloseable {
     try (FileWriter fw = new FileWriter(this.coderuns_txt.toString(), true)) {
       fw.write(uuid + "\n");
     } catch (IOException e) {
-      logger.error("IOException: append_code_run_uuid() failed.", e);
+      LOGGER.error("IOException: append_code_run_uuid() failed.", e);
     }
   }
 

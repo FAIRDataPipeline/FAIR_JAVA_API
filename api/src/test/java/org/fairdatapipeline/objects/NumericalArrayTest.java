@@ -3,11 +3,10 @@ package org.fairdatapipeline.objects;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.apache.commons.lang3.ArrayUtils;
 import org.fairdatapipeline.api.IllegalActionException;
 import org.junit.jupiter.api.*;
 
-public class NumericalArrayTest {
+class NumericalArrayTest {
 
   @Test
   void t1dArray() {
@@ -24,43 +23,6 @@ public class NumericalArrayTest {
     NumericalArray na = new NumericalArrayImpl(n);
     r = na.as2DArray();
     Assertions.assertEquals(n, r);
-  }
-
-  public void check_type2(Object a) {
-    System.out.println(a.getClass().getSimpleName());
-  }
-
-  @Test
-  void test_unprimitivize1() {
-    Object o = new int[] {1, 2, 3, 4, 5};
-    System.out.println(o.getClass());
-    Object[] oo = ArrayUtils.toObject((int[]) o);
-    System.out.println(oo.getClass());
-    Number[] n = (Number[]) oo;
-    System.out.println(n.getClass());
-  }
-
-  @Test
-  void test_unprimitivize2() {
-    Object o = new double[] {1.1, 2.2, 3.3, 4.4, 5.5};
-    System.out.println(o.getClass());
-    Object[] oo = ArrayUtils.toObject((double[]) o);
-    System.out.println(oo.getClass());
-    Number[] n = (Number[]) oo;
-    System.out.println(n.getClass());
-  }
-
-  @Test
-  void test_unprimitivize3() {
-    Object o = new int[][] {{1, 2, 3}, {3, 4, 5}};
-    System.out.println(o.getClass());
-    Integer[][] oo =
-        Arrays.stream((int[][]) o)
-            .map(ia -> ArrayUtils.toObject((int[]) ia))
-            .toArray(Integer[][]::new);
-    System.out.println(oo.getClass());
-    Number[][] n = (Number[][]) oo;
-    System.out.println(n.getClass());
   }
 
   private ArrayList<Integer> checkShape(Object nDArray, boolean deepCheck) {

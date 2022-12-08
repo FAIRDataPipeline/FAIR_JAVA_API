@@ -6,7 +6,7 @@ import org.fairdatapipeline.netcdf.NetcdfGroupName;
 import org.fairdatapipeline.netcdf.NetcdfName;
 import org.junit.jupiter.api.Test;
 
-public class TableTest {
+class TableTest {
   @Test
   void table() {
     LocalVariableDefinition[] columns =

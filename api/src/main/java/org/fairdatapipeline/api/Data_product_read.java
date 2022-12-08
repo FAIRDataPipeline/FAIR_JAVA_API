@@ -8,7 +8,7 @@ import org.fairdatapipeline.dataregistry.content.RegistryStorage_location;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 
 /**
- * Data_product_read is created by Coderun: {@link Coderun#get_dp_for_read(String)}
+ * Data_product_read_* are created by Coderun.
  *
  * <p>Upon {@link Coderun#close()} it will register its components in the coderun.
  */

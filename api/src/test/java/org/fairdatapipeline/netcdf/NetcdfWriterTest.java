@@ -18,6 +18,8 @@ import org.fairdatapipeline.objects.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Variable;
@@ -25,6 +27,7 @@ import ucar.nc2.write.Nc4Chunking;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NetcdfWriterTest {
+  private static final Logger logger = LoggerFactory.getLogger(NetcdfWriterTest.class);
   private static final String COMMA_DELIMITER = ",";
   final Runnable onClose = this::myClose;
 
@@ -491,7 +494,7 @@ class NetcdfWriterTest {
               if (values[4].length() > 0) hbarchivedbuffer[i] = Integer.parseInt(values[4]);
               else hbarchivedbuffer[i] = (int) healthboards.getColumns()[4].getMissingValue();
             } catch (NumberFormatException e) {
-              System.out.println("numberformatexception: '" + values[4] + "'");
+              logger.error("numberformatexception: '" + values[4] + "'");
               hbarchivedbuffer[i] = (int) healthboards.getColumns()[4].getMissingValue();
             }
             countrybuffer[i] = values[5];
@@ -613,7 +616,7 @@ class NetcdfWriterTest {
             }
             linenum += 1;
             if (linenum == 100000 * Math.floor((float) linenum / 100000)) {
-              System.out.println(linenum);
+              logger.trace(String.valueOf(linenum));
             }
           }
           w.writeArrayData(
@@ -657,7 +660,7 @@ class NetcdfWriterTest {
       }
     }
     Instant end = Instant.now();
-    System.out.println(Duration.between(start, end));
+    logger.trace(Duration.between(start, end).toString());
     start = Instant.now();
     Path bz2file = Path.of(filePath + ".bz2");
     {
@@ -674,7 +677,7 @@ class NetcdfWriterTest {
       in.close();
     }
     end = Instant.now();
-    System.out.println(Duration.between(start, end));
+    logger.trace(Duration.between(start, end).toString());
 
     Assertions.assertTrue(
         FileUtils.contentEquals(

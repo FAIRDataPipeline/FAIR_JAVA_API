@@ -17,6 +17,7 @@ public class Data_product_read_nc extends Data_product_read {
    *
    * @param component_name the name of the object component.
    * @return the Object_component_read_nc object.
+   * @throws IOException if the file cannot be opened for reading.
    */
   public Object_component_read_nc getComponent(@Nonnull String component_name) throws IOException {
     if (componentMap.containsKey(component_name))

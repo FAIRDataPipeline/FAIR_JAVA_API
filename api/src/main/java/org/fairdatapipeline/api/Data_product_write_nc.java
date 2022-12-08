@@ -17,10 +17,10 @@ import ucar.nc2.write.Nc4Chunking;
  * then register its components in the coderun.
  */
 public class Data_product_write_nc extends Data_product_write {
-  private static final Logger logger = LoggerFactory.getLogger(Data_product_write_nc.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Data_product_write_nc.class);
   private NetcdfBuilder netCDFBuilder;
   private NetcdfWriter netCDFWriter;
-  private static String TOOLATE =
+  private static final String TOOLATE =
       "too late.. you can only set chunking details BEFORE any of the components has prepared any array variables.";
 
   public enum chunkingStrategies {
@@ -56,6 +56,9 @@ public class Data_product_write_nc extends Data_product_write {
     }
     Object_component_write_array dc;
     dc = new Object_component_write_array(this, nadef);
+    LOGGER.trace(
+        "new Object_component (DimensionalVariable) created: {}",
+        nadef.getVariableName().getFullPath());
     componentMap.put(nadef.getVariableName().getFullPath(), dc);
     return dc;
   }
@@ -67,6 +70,7 @@ public class Data_product_write_nc extends Data_product_write {
     }
     Object_component_write_table tc;
     tc = new Object_component_write_table(this, tabledef);
+    LOGGER.trace("new Object_component (table) created: {}", tabledef.getGroupName());
     componentMap.put(tabledef.getGroupName().toString(), tc);
     return tc;
   }
@@ -80,6 +84,8 @@ public class Data_product_write_nc extends Data_product_write {
     }
     Object_component_write_dimension dc;
     dc = new Object_component_write_dimension(this, dimdef);
+    LOGGER.trace(
+        "new Object_component (dimension) created: {}", dimdef.getVariableName().getFullPath());
     componentMap.put(dimdef.getVariableName().getFullPath(), dc);
     return dc;
   }
@@ -137,26 +143,27 @@ public class Data_product_write_nc extends Data_product_write {
     this.netCDFWriter = new NetcdfWriter(this.netCDFBuilder, onClose);
     this.netCDFBuilder.close();
     this.netCDFBuilder = null;
+    this.componentMap.forEach((key, value) -> ((Object_component_write) value).write_preset_data());
     return this.netCDFWriter;
   }
 
   void closeNetcdfBuilder() {
     if (this.netCDFWriter != null) {
-      logger.trace("closeNetcdfBuilder() closing writer");
+      LOGGER.trace("closeNetcdfBuilder() closing writer");
       this.netCDFWriter.close();
       this.netCDFWriter = null;
     } else if (this.netCDFBuilder != null) {
-      logger.trace("closeNetcdfBuilder() closing builder");
+      LOGGER.trace("closeNetcdfBuilder() closing builder");
       this.netCDFBuilder.close();
       this.netCDFBuilder = null;
     } else {
-      logger.trace("closeNetcdfBuilder() doing nothing");
+      LOGGER.trace("closeNetcdfBuilder() doing nothing");
     }
   }
 
   @Override
   public void close() {
-    logger.trace("close()");
+    LOGGER.trace("close()");
     closeNetcdfBuilder();
     super.close();
   }

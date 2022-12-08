@@ -26,6 +26,7 @@ public class Object_component_write_table extends Object_component_write {
 
   private void getVariables() {
     if (this.variables != null) return;
+    this.been_used = true;
     NetcdfWriter nWriter = ((Data_product_write_nc) this.dp).getNetCDFWriter();
     LocalVariableDefinition[] columns = tabledef.getColumns();
     this.variables = new Variable[columns.length];
@@ -43,11 +44,11 @@ public class Object_component_write_table extends Object_component_write {
   }
 
   public void writeData(int column_index, int[] ints) throws IOException {
-    writeData((Object) ints, column_index);
+    writeData(ints, column_index);
   }
 
   public void writeData(int column_index, double[] doubles) throws IOException {
-    writeData((Object) doubles, column_index);
+    writeData(doubles, column_index);
   }
 
   private void writeData(Object data, int column_index) throws IOException {
@@ -67,5 +68,9 @@ public class Object_component_write_table extends Object_component_write {
     } catch (InvalidRangeException e) {
       // TODO: error handling
     }
+  }
+
+  void write_preset_data() {
+    // there is no preset data on tables.
   }
 }

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /** Jakarta WS client implementation for interacting with the FAIR Data Registry */
 public class RestClient {
-  private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
   private WebTarget wt;
   private Client client;
   private final MediaType jsonWithVersion =
@@ -83,7 +83,7 @@ public class RestClient {
     try {
       Registry_ObjectList<?> o = wt2.request(this.getJsonMediaType()).get(new GenericType<>(p));
       if (o.getCount() == 0) {
-        logger.trace("getFirst({}, {}) returned 0 items", c.getSimpleName(), m);
+        LOGGER.trace("getFirst({}, {}) returned 0 items", c.getSimpleName(), m);
         return null;
       }
       return o.getResults().get(0);
@@ -159,7 +159,7 @@ public class RestClient {
     try {
       return wt2.request(this.getJsonMediaType()).get(c);
     } catch (NotFoundException e) {
-      logger.warn("get(Class, Int)", e);
+      LOGGER.warn("get(Class, Int)", e);
       return null;
     } catch (Exception e) {
       deal_with_jakarta_http_exceptions(e);
@@ -181,7 +181,7 @@ public class RestClient {
     try {
       return wt2.request(this.getJsonMediaType()).get(c);
     } catch (NotFoundException e) {
-      logger.warn("get(Class, APIURL)", e);
+      LOGGER.warn("get(Class, APIURL)", e);
       return null;
     } catch (Exception e) {
       deal_with_jakarta_http_exceptions(e);
@@ -219,9 +219,9 @@ public class RestClient {
       InputStream i = (InputStream) r.getEntity();
       try {
         String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
-        logger.error("post(Registry_Updateable) -- error: {}", text);
+        LOGGER.error("post(Registry_Updateable) -- error: {}", text);
       } catch (IOException e) {
-        logger.error("post(Registry_Updateable) -- IOException trying to read response entity.", e);
+        LOGGER.error("post(Registry_Updateable) -- IOException trying to read response entity.", e);
       }
       return null;
     } else {
@@ -276,9 +276,9 @@ public class RestClient {
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
-      logger.error("patch(Registry_Updateable) -- error: {}", text);
+      LOGGER.error("patch(Registry_Updateable) -- error: {}", text);
     } catch (IOException e) {
-      logger.error("patch(Registry_Updateable) -- IOException trying to read response entity.", e);
+      LOGGER.error("patch(Registry_Updateable) -- IOException trying to read response entity.", e);
     }
     return null;
   }
@@ -322,9 +322,9 @@ public class RestClient {
     InputStream i = (InputStream) r.getEntity();
     try {
       String text = IOUtils.toString(i, StandardCharsets.UTF_8.name());
-      logger.error("put(Registry_Updateable) -- error: {}", text);
+      LOGGER.error("put(Registry_Updateable) -- error: {}", text);
     } catch (IOException e) {
-      logger.error("put(Registry_Updateable) -- IOException trying to read response entity.", e);
+      LOGGER.error("put(Registry_Updateable) -- IOException trying to read response entity.", e);
     }
     return null;
   }
@@ -385,7 +385,7 @@ public class RestClient {
     try {
       return new APIURL(wt2.getUri() + "/");
     } catch (URISyntaxException e) {
-      logger.error(e.toString());
+      LOGGER.error(e.toString());
       return null;
     }
   }

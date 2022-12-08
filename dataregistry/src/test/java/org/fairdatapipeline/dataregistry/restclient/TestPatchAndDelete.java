@@ -15,7 +15,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class testPatchAndDelete {
+class TestPatchAndDelete {
   String localReg = "http://localhost:8000/api/";
   RestClient lc;
   RegistryCode_run cr;

@@ -6,6 +6,10 @@ import javax.annotation.Nonnull;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
 import org.fairdatapipeline.netcdf.NetcdfName;
 
+/**
+ * LocalVariableDefinition is a variable without a group - it is used as part of a Table: the group
+ * is defined on the table, and the variables within the table are always sharing the tables group.
+ */
 public class LocalVariableDefinition extends VariableDefinition {
   NetcdfName localName;
 
