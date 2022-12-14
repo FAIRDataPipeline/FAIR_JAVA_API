@@ -107,7 +107,12 @@ public class NetcdfWriter implements AutoCloseable {
     // nadat.asOA());
     // the below works for primitive arrays.. if it might contain non primitives we need
     // NetcdfDataType.translate_array instead.
-
+    if (LOGGER.isDebugEnabled()) {
+      String datashape = Arrays.toString(data.getShape());
+      String vshape = Arrays.toString(v.getShape());
+      LOGGER.trace("data.shape: {}", datashape);
+      LOGGER.trace("v.shape: {}", vshape);
+    }
     if (origin == null) {
       LOGGER.debug("origin == null");
       this.netcdfWriterWrapper.writer.write(v, data);
@@ -117,12 +122,6 @@ public class NetcdfWriter implements AutoCloseable {
         LOGGER.debug("origin: {}", originstring);
       }
       this.netcdfWriterWrapper.writer.write(v, origin, data);
-    }
-    if (LOGGER.isDebugEnabled()) {
-      String datashape = Arrays.toString(data.getShape());
-      String vshape = Arrays.toString(v.getShape());
-      LOGGER.trace("data.shape: {}", datashape);
-      LOGGER.trace("v.shape: {}", vshape);
     }
   }
 

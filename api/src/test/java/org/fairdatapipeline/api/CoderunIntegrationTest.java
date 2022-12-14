@@ -212,7 +212,8 @@ class CoderunIntegrationTest {
   }
 
   public void cleanup_datastore() throws IOException {
-    delete_directories();
+    // delete_directories();
+    FileUtils.deleteDirectory(coderunTSPath.toFile());
     Files.createDirectories(coderunTSPath);
     Files.copy(ori_configPath, configPath);
     Files.copy(ori_scriptPath, scriptPath);
@@ -948,14 +949,325 @@ class CoderunIntegrationTest {
   @Order(28)
   void testReadArray() throws IOException {
     String dataProduct = "test/array1";
-    String component1 = "component1/with/a/path/array1";
+    String component_name = "component1/with/a/path/array1";
+    String oc_lon_name = "component1/with/a/path/lon";
+    String oc_lat_name = "component1/with/a/path/lat";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
-      Object_component_read_nc oc1 = dc.getComponent(component1);
-      oc1.readArray();
-      // assertThat(oc1.readSamples()).containsExactly(1, 2, 3);
+      Object_component_read_nc oc_lon = dc.getComponent(oc_lon_name);
+      Number[] lons = oc_lon.readArray().as1DArray();
+      assertThat(lons)
+          .containsExactly(
+              -180.0, -150.0, -120.0, -90.0, -60.0, -30.0, 0.0, 30.0, 60.0, 90.0, 120.0, 150.0);
+      Object_component_read_nc oc_lat = dc.getComponent(oc_lat_name);
+      Number[] lats = oc_lat.readArray().as1DArray();
+      assertThat(lats)
+          .containsExactly(-75.0, -60.0, -45.0, -30.0, -15.0, 0.0, 15.0, 30.0, 45.0, 60.0, 75.0);
+      Object_component_read_nc oc1 = dc.getComponent(component_name);
+      Number[][] temps = oc1.readArray().as2DArray();
+      Number[][] expected_temps = new Number[11][12];
+      for (int lati = 0; lati < 11; lati++)
+        for (int loni = 0; loni < 12; loni++)
+          expected_temps[lati][loni] = lati + (double) loni / 12.0;
+      assertThat(temps).isDeepEqualTo(expected_temps);
     }
-    String hash = "";
-    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component1, hash)), null);
+    String hash = "5f09c2c852d631c9d5966f65e110263e7a5fcf44";
+    check_last_coderun(
+        Arrays.asList(
+            new Triplet<>(dataProduct, component_name, hash),
+            new Triplet<>(dataProduct, oc_lon_name, hash),
+            new Triplet<>(dataProduct, oc_lat_name, hash)),
+        null);
+  }
+
+  @Test
+  @Order(29)
+  void testReadArray_byrow() throws IOException {
+    String dataProduct = "test/array1";
+    String component_name = "component1/with/a/path/array1";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
+      Object_component_read_nc oc1 = dc.getComponent(component_name);
+      Number[][] expected_temps = new Number[1][12];
+      int[] shape = new int[] {1, 12};
+      for (int lati = 0; lati < 11; lati++) {
+        for (int loni = 0; loni < 12; loni++) {
+          expected_temps[0][loni] = lati + (double) loni / 12.0;
+        }
+        NumericalArray na = oc1.readArray(shape);
+
+        assertThat(na.as2DArray()).isDeepEqualTo(expected_temps);
+        System.out.println(Arrays.toString(na.as2DArray()[0]));
+      }
+    }
+    String hash = "5f09c2c852d631c9d5966f65e110263e7a5fcf44";
+    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_name, hash)), null);
+  }
+
+  @Test
+  @Order(30)
+  void testReadArray_byhalfrow() throws IOException {
+    String dataProduct = "test/array1";
+    String component_name = "component1/with/a/path/array1";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
+      Object_component_read_nc oc1 = dc.getComponent(component_name);
+      Number[][] expected_temps1 = new Number[1][6];
+      Number[][] expected_temps2 = new Number[1][6];
+      int[] shape = new int[] {1, 6};
+      for (int lati = 0; lati < 11; lati++) {
+        for (int loni = 0; loni < 6; loni++) {
+          expected_temps1[0][loni] = lati + (double) loni / 12.0;
+          expected_temps2[0][loni] = lati + (double) (6 + loni) / 12.0;
+        }
+        NumericalArray na = oc1.readArray(shape);
+        System.out.println(Arrays.toString(na.as2DArray()[0]));
+        assertThat(na.as2DArray()).isDeepEqualTo(expected_temps1);
+        na = oc1.readArray(shape);
+        System.out.println(Arrays.toString(na.as2DArray()[0]));
+        assertThat(na.as2DArray()).isDeepEqualTo(expected_temps2);
+      }
+    }
+    String hash = "5f09c2c852d631c9d5966f65e110263e7a5fcf44";
+    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_name, hash)), null);
+  }
+
+  @Test
+  @Order(31)
+  void testReadArray_by_single_number() throws IOException {
+    String dataProduct = "test/array1";
+    String component_name = "component1/with/a/path/array1";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
+      Object_component_read_nc oc1 = dc.getComponent(component_name);
+      int[] shape = new int[] {1, 1};
+      double expected_temp;
+      for (int lati = 0; lati < 11; lati++) {
+        for (int loni = 0; loni < 12; loni++) {
+          expected_temp = lati + (double) loni / 12.0;
+          NumericalArray na = oc1.readArray(shape);
+          assertThat(na.as2DArray()[0][0]).isEqualTo(expected_temp);
+        }
+      }
+    }
+    String hash = "5f09c2c852d631c9d5966f65e110263e7a5fcf44";
+    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_name, hash)), null);
+  }
+
+  @Test
+  @Order(32)
+  void testReadArray_bydoublerow() throws IOException {
+    String dataProduct = "test/array1";
+    String component_name = "component1/with/a/path/array1";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
+      Object_component_read_nc oc1 = dc.getComponent(component_name);
+      Number[][] expected_temps = new Number[2][12];
+      int[] shape = new int[] {2, 12};
+      for (int lati = 0; lati < 10; lati += 2) {
+        for (int loni = 0; loni < 12; loni++) {
+          expected_temps[0][loni] = lati + (double) loni / 12.0;
+          expected_temps[1][loni] = lati + 1 + (double) loni / 12.0;
+        }
+        NumericalArray na = oc1.readArray(shape);
+
+        assertThat(na.as2DArray()).isDeepEqualTo(expected_temps);
+      }
+      // trying to read the 11th row fails because there are not 2 rows to read;
+      // we can only read in double rows if there is an even number of rows.
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> {
+            oc1.readArray(shape);
+          });
+    }
+
+    String hash = "5f09c2c852d631c9d5966f65e110263e7a5fcf44";
+    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_name, hash)), null);
+  }
+
+  @Test
+  @Order(33)
+  void testWrite3dArray() throws IOException {
+    String dataProduct = "test/array3d";
+    String component_path = "";
+    VariableName xname = new VariableName("x", component_path);
+    VariableName yname = new VariableName("y", component_path);
+    VariableName zname = new VariableName("z", component_path);
+    VariableName nadefname = new VariableName("array3d", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      CoordinateVariableDefinition xdim =
+          new CoordinateVariableDefinition(xname, new double[] {1, 2, 3, 4}, "", "", "");
+
+      CoordinateVariableDefinition ydim =
+          new CoordinateVariableDefinition(yname, new double[] {1, 2, 3}, "", "", "");
+
+      CoordinateVariableDefinition zdim =
+          new CoordinateVariableDefinition(zname, new double[] {1, 2, 3, 4, 5}, "", "", "");
+
+      NetcdfName[] dims = new NetcdfName[] {xname.getName(), yname.getName(), zname.getName()};
+
+      DimensionalVariableDefinition nadef =
+          new DimensionalVariableDefinition(
+              nadefname, NetcdfDataType.DOUBLE, dims, "a little 3d array", "", "");
+      Object_component_write_dimension oc_x = dp.getComponent(xdim);
+      Object_component_write_dimension oc_y = dp.getComponent(ydim);
+      Object_component_write_dimension oc_z = dp.getComponent(zdim);
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[][][] values = new double[4][3][5];
+      for (int x = 0; x < 4; x++)
+        for (int y = 0; y < 3; y++)
+          for (int z = 0; z < 5; z++) values[x][y][z] = x * 10.0 + (double) y + z / 12.0;
+
+      NumericalArray nadat = new NumericalArrayImpl(values);
+      try {
+        oc1.writeArrayData(nadat);
+      } catch (EOFException e) {
+        //
+      }
+    }
+    String hash = "1dbe7c11162abc87cc9ba4ae1ceb7fa0843a3011";
+
+    check_last_coderun(
+        null,
+        Arrays.asList(
+            new Triplet<>(dataProduct, xname.getFullPath(), hash),
+            new Triplet<>(dataProduct, yname.getFullPath(), hash),
+            new Triplet<>(dataProduct, zname.getFullPath(), hash),
+            new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+  @Test
+  @Order(34)
+  void testRead3dArray() throws IOException {
+    String dataProduct = "test/array3d";
+    String oc_x_name = "x";
+    String oc_y_name = "y";
+    String oc_z_name = "z";
+    String oc_values_name = "array3d";
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
+      Object_component_read_nc oc_x = dc.getComponent(oc_x_name);
+      int[] x_vals =
+          Arrays.stream(oc_x.readArray().as1DArray()).mapToInt(Number::intValue).toArray();
+      assertThat(x_vals).containsExactly(1, 2, 3, 4);
+      Object_component_read_nc oc_y = dc.getComponent(oc_y_name);
+      int[] y_vals =
+          Arrays.stream(oc_y.readArray().as1DArray()).mapToInt(Number::intValue).toArray();
+      assertThat(y_vals).containsExactly(1, 2, 3);
+      Object_component_read_nc oc_z = dc.getComponent(oc_z_name);
+      int[] z_vals =
+          Arrays.stream(oc_z.readArray().as1DArray()).mapToInt(Number::intValue).toArray();
+      assertThat(z_vals).containsExactly(1, 2, 3, 4, 5);
+      Object_component_read_nc oc_values = dc.getComponent(oc_values_name);
+
+      Number[][][] values = oc_values.readArray().as3DArray();
+      Number[][][] expected_values = new Number[4][3][5];
+      for (int x = 0; x < 4; x++)
+        for (int y = 0; y < 3; y++)
+          for (int z = 0; z < 5; z++) expected_values[x][y][z] = x * 10.0 + (double) y + z / 12.0;
+      assertThat(values).isDeepEqualTo(expected_values);
+    }
+    String hash = "1dbe7c11162abc87cc9ba4ae1ceb7fa0843a3011";
+    check_last_coderun(
+        Arrays.asList(
+            new Triplet<>(dataProduct, oc_values_name, hash),
+            new Triplet<>(dataProduct, oc_x_name, hash),
+            new Triplet<>(dataProduct, oc_y_name, hash),
+            new Triplet<>(dataProduct, oc_z_name, hash)),
+        null);
+  }
+
+  @Test
+  @Order(34)
+  void testRead3dArray_in_2d_slices() throws IOException {
+    String dataProduct = "test/array3d";
+    String oc_x_name = "x";
+    String oc_y_name = "y";
+    String oc_z_name = "z";
+    String oc_values_name = "array3d";
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
+      Object_component_read_nc oc_x = dc.getComponent(oc_x_name);
+      int[] x_vals =
+          Arrays.stream(oc_x.readArray().as1DArray()).mapToInt(Number::intValue).toArray();
+      assertThat(x_vals).containsExactly(1, 2, 3, 4);
+      Object_component_read_nc oc_y = dc.getComponent(oc_y_name);
+      int[] y_vals =
+          Arrays.stream(oc_y.readArray().as1DArray()).mapToInt(Number::intValue).toArray();
+      assertThat(y_vals).containsExactly(1, 2, 3);
+      Object_component_read_nc oc_z = dc.getComponent(oc_z_name);
+      int[] z_vals =
+          Arrays.stream(oc_z.readArray().as1DArray()).mapToInt(Number::intValue).toArray();
+      assertThat(z_vals).containsExactly(1, 2, 3, 4, 5);
+      Object_component_read_nc oc_values = dc.getComponent(oc_values_name);
+
+      Number[][][] expected_values = new Number[1][3][5];
+      int[] shape = new int[] {1, 3, 5};
+      for (int x = 0; x < 4; x++) {
+        for (int y = 0; y < 3; y++)
+          for (int z = 0; z < 5; z++) expected_values[0][y][z] = x * 10.0 + (double) y + z / 12.0;
+        Number[][][] values = oc_values.readArray(shape).as3DArray();
+        assertThat(values).isDeepEqualTo(expected_values);
+      }
+    }
+    String hash = "1dbe7c11162abc87cc9ba4ae1ceb7fa0843a3011";
+    check_last_coderun(
+        Arrays.asList(
+            new Triplet<>(dataProduct, oc_values_name, hash),
+            new Triplet<>(dataProduct, oc_x_name, hash),
+            new Triplet<>(dataProduct, oc_y_name, hash),
+            new Triplet<>(dataProduct, oc_z_name, hash)),
+        null);
+  }
+
+  @Test
+  @Order(34)
+  void testRead3dArray_in_1d_slices() throws IOException {
+    String dataProduct = "test/array3d";
+    String oc_x_name = "x";
+    String oc_y_name = "y";
+    String oc_z_name = "z";
+    String oc_values_name = "array3d";
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
+      Object_component_read_nc oc_x = dc.getComponent(oc_x_name);
+      int[] x_vals =
+          Arrays.stream(oc_x.readArray().as1DArray()).mapToInt(Number::intValue).toArray();
+      assertThat(x_vals).containsExactly(1, 2, 3, 4);
+      Object_component_read_nc oc_y = dc.getComponent(oc_y_name);
+      int[] y_vals =
+          Arrays.stream(oc_y.readArray().as1DArray()).mapToInt(Number::intValue).toArray();
+      assertThat(y_vals).containsExactly(1, 2, 3);
+      Object_component_read_nc oc_z = dc.getComponent(oc_z_name);
+      int[] z_vals =
+          Arrays.stream(oc_z.readArray().as1DArray()).mapToInt(Number::intValue).toArray();
+      assertThat(z_vals).containsExactly(1, 2, 3, 4, 5);
+      Object_component_read_nc oc_values = dc.getComponent(oc_values_name);
+
+      Number[][][] expected_values = new Number[1][1][5];
+      int[] shape = new int[] {1, 1, 5};
+      for (int x = 0; x < 4; x++)
+        for (int y = 0; y < 3; y++) {
+          for (int z = 0; z < 5; z++) expected_values[0][0][z] = x * 10.0 + (double) y + z / 12.0;
+          Number[][][] values = oc_values.readArray(shape).as3DArray();
+          assertThat(values).isDeepEqualTo(expected_values);
+        }
+    }
+    String hash = "1dbe7c11162abc87cc9ba4ae1ceb7fa0843a3011";
+    check_last_coderun(
+        Arrays.asList(
+            new Triplet<>(dataProduct, oc_values_name, hash),
+            new Triplet<>(dataProduct, oc_x_name, hash),
+            new Triplet<>(dataProduct, oc_y_name, hash),
+            new Triplet<>(dataProduct, oc_z_name, hash)),
+        null);
   }
 }

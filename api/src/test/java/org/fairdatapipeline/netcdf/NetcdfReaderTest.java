@@ -12,6 +12,12 @@ import ucar.nc2.Variable;
 class NetcdfReaderTest {
   private static final String read_int_resource = "/netcdf/test_build_prepare_write_INT.nc";
 
+  /**
+   * test only the reading of metadata (of the 'temperature' variable). does not test reading of
+   * data.
+   *
+   * @throws IOException
+   */
   @Test
   void test_read_int_ardef() throws IOException {
     String filename = Objects.requireNonNull(getClass().getResource(read_int_resource)).toString();
@@ -28,6 +34,11 @@ class NetcdfReaderTest {
     Assertions.assertEquals(new NetcdfName("Y"), dimvar.getDimensions()[1]);
   }
 
+  /**
+   * test only the reading of metadata (of the 'X' variable). does not test reading of data.
+   *
+   * @throws IOException
+   */
   @Test
   void test_read_int_Xdimdef() throws IOException {
     String filename = Objects.requireNonNull(getClass().getResource(read_int_resource)).toString();
@@ -43,6 +54,11 @@ class NetcdfReaderTest {
     Assertions.assertEquals("", ardef.getLong_name());
   }
 
+  /**
+   * test reading the whole array
+   *
+   * @throws IOException
+   */
   @Test
   void test_read_int_data() throws IOException {
     String filename = Objects.requireNonNull(getClass().getResource(read_int_resource)).toString();
@@ -52,5 +68,25 @@ class NetcdfReaderTest {
     Assertions.assertEquals(1, na.as2DArray()[0][0]);
     Assertions.assertArrayEquals(new Number[] {1, 2, 3}, na.as2DArray()[0]);
     Assertions.assertArrayEquals(new Number[] {11, 12, 13}, na.as2DArray()[1]);
+  }
+
+  /**
+   * test reading the array row by row
+   *
+   * @throws IOException
+   */
+  @Test
+  void test_read_int_data_by_row() throws IOException {
+    String filename = Objects.requireNonNull(getClass().getResource(read_int_resource)).toString();
+    NetcdfReader reader = new NetcdfReader(filename);
+    Variable v = reader.getVariable("aap/noot/mies/temperature");
+    int[] ori = new int[] {0, 0};
+    int[] shape = new int[] {1, 3};
+    for (int i = 0; i <= 1; i++) {
+      ori[0] = i;
+      NumericalArray na = reader.read(v, ori, shape);
+      if (i == 0) Assertions.assertArrayEquals(new Number[] {1, 2, 3}, na.as2DArray()[0]);
+      else Assertions.assertArrayEquals(new Number[] {11, 12, 13}, na.as2DArray()[0]);
+    }
   }
 }

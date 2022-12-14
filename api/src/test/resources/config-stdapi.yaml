@@ -51,6 +51,9 @@ read:
   - data_product: test/array1
     use:
       version: 0.0.1
+  - data_product: test/array3d
+    use:
+      version: 0.0.1
 
 write:
   - data_product: human/population
@@ -94,6 +97,11 @@ write:
       version: 0.0.1
   - data_product: test/array1
     description: the first NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array3d
+    description: the 3d NC array test
     file_type: nc
     use:
       version: 0.0.1
