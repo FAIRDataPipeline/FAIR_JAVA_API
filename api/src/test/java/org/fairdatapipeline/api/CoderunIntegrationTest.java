@@ -28,12 +28,8 @@ import org.fairdatapipeline.distribution.ImmutableMinMax;
 import org.fairdatapipeline.distribution.MinMax;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
-import org.fairdatapipeline.netcdf.NetcdfName;
 import org.fairdatapipeline.netcdf.VariableName;
-import org.fairdatapipeline.objects.CoordinateVariableDefinition;
-import org.fairdatapipeline.objects.DimensionalVariableDefinition;
-import org.fairdatapipeline.objects.NumericalArray;
-import org.fairdatapipeline.objects.NumericalArrayImpl;
+import org.fairdatapipeline.objects.*;
 import org.fairdatapipeline.samples.ImmutableSamples;
 import org.fairdatapipeline.samples.Samples;
 import org.javatuples.Triplet;
@@ -46,7 +42,7 @@ import org.slf4j.LoggerFactory;
 @EnabledIfEnvironmentVariable(named = "LOCALREG", matches = "FRESHASADAISY")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CoderunIntegrationTest {
-  private static final Logger logger = LoggerFactory.getLogger(CoderunIntegrationTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CoderunIntegrationTest.class);
 
   private final Table<Integer, String, Number> mockTable =
       ImmutableTable.<Integer, String, Number>builder()
@@ -282,7 +278,7 @@ class CoderunIntegrationTest {
       return;
     }
     String last_coderun = coderuns.get(coderuns.size() - 1);
-    logger.trace("coderun: {}", last_coderun);
+    LOGGER.trace("coderun: {}", last_coderun);
 
     RegistryCode_run cr =
         (RegistryCode_run)
@@ -291,15 +287,15 @@ class CoderunIntegrationTest {
     RegistryObject script =
         (RegistryObject) restClient.get(RegistryObject.class, cr.getSubmission_script());
     assertNotNull(script);
-    logger.trace("script: {}", script.getDescription());
+    LOGGER.trace("script: {}", script.getDescription());
     RegistryObject config =
         (RegistryObject) restClient.get(RegistryObject.class, cr.getModel_config());
     assertNotNull(config);
-    logger.trace("config: {}", config.getData_products());
+    LOGGER.trace("config: {}", config.getData_products());
     RegistryObject code_repo =
         (RegistryObject) restClient.get(RegistryObject.class, cr.getCode_repo());
     assertNotNull(code_repo);
-    logger.trace("code_repo: {}", code_repo.getDescription());
+    LOGGER.trace("code_repo: {}", code_repo.getDescription());
     assertThat(code_repo.getAuthors())
         .containsExactly(restClient.makeAPIURL(RegistryAuthor.class, 1));
 
@@ -329,8 +325,8 @@ class CoderunIntegrationTest {
 
     if (outputs == null) assertThat(cr.getOutputs()).isEmpty();
     else {
-      logger.trace("outputs: {}", cr.getOutputs().size());
-      cr.getOutputs().stream().forEach(c -> logger.trace(c.toString()));
+      LOGGER.trace("outputs: {}", cr.getOutputs().size());
+      cr.getOutputs().stream().forEach(c -> LOGGER.trace(c.toString()));
       assertThat(cr.getOutputs()).hasSameSizeAs(outputs);
       cr.getOutputs()
           .forEach(
@@ -910,7 +906,7 @@ class CoderunIntegrationTest {
               "",
               "degrees east",
               "longitude");
-      NetcdfName[] dims = new NetcdfName[] {latname.getName(), lonname.getName()};
+      Dimension[] dims = new Dimension[] {new Dimension(latname.getName()), new Dimension(lonname.getName())};
 
       DimensionalVariableDefinition nadef =
           new DimensionalVariableDefinition(
@@ -1108,7 +1104,7 @@ class CoderunIntegrationTest {
       CoordinateVariableDefinition zdim =
           new CoordinateVariableDefinition(zname, new double[] {1, 2, 3, 4, 5}, "", "", "");
 
-      NetcdfName[] dims = new NetcdfName[] {xname.getName(), yname.getName(), zname.getName()};
+      Dimension[] dims = new Dimension[] {new Dimension(xname.getName()), new Dimension(yname.getName()), new Dimension(zname.getName())};
 
       DimensionalVariableDefinition nadef =
           new DimensionalVariableDefinition(
@@ -1270,4 +1266,547 @@ class CoderunIntegrationTest {
             new Triplet<>(dataProduct, oc_z_name, hash)),
         null);
   }
+
+  /** write a 2d (4,4) array, in array[1][4] slices
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(35)
+  void testWriteArray_in_slices() throws IOException {
+    String dataProduct = "test/array2a";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[][] values = new double[1][4];
+      for (int xi = 0; xi < 4; xi++) {
+        for (int yi = 0; yi < 4; yi++)
+          values[0][yi] = xi + (double) yi / 4.0;
+        try {
+          oc1.writeArrayData(new NumericalArrayImpl(values));
+        } catch (EOFException e) {
+          //
+        }
+      }
+
+    }
+    String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+  /** same as previous; but write the slices as array[4] instead of array[1][4]
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(36)
+  void testWriteArray_in_slices_1d() throws IOException {
+    String dataProduct = "test/array2b";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[] values = new double[4];
+      for (int xi = 0; xi < 4; xi++) {
+        for (int yi = 0; yi < 4; yi++)
+          values[yi] = xi + (double) yi / 4.0;
+        try {
+          oc1.writeArrayData(new NumericalArrayImpl(values));
+        } catch (EOFException e) {
+          //
+        }
+      }
+
+    }
+    String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+  /** same as previous but write the slices in double rows: array[2][4]
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(37)
+  void testWriteArray_in_slices2() throws IOException {
+    String dataProduct = "test/array2c";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[][] values = new double[2][4];
+      for (int xi = 0; xi < 4; xi+=2) {
+        for (int yi = 0; yi < 4; yi++) {
+          values[0][yi] = xi + (double) yi / 4.0;
+          values[1][yi] = xi + 1 + (double) yi / 4.0;
+        }
+        try {
+          oc1.writeArrayData(new NumericalArrayImpl(values));
+        } catch (EOFException e) {
+          //
+        }
+      }
+
+    }
+    String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+
+  /** same as previous but write the slices in single values: array[1]
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(38)
+  void testWriteArray_in_single_values() throws IOException {
+    String dataProduct = "test/array2d";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[] value = new double[1];
+      for (int xi = 0; xi < 4; xi++)
+        for (int yi = 0; yi < 4; yi++)
+          try {
+            value[0] = xi + (double) yi / 4.0;
+            oc1.writeArrayData(new NumericalArrayImpl(value));
+          } catch (EOFException e) {
+            //
+          }
+
+
+    }
+    String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+
+  /** same as previous but write the slices in double values: array[2]
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(39)
+  void testWriteArray_in_double_values() throws IOException {
+    String dataProduct = "test/array2e";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[] value = new double[2];
+      for (int xi = 0; xi < 4; xi++)
+        for (int yi = 0; yi < 4; yi+=2)
+          try {
+            value[0] = xi + (double) yi / 4.0;
+            value[1] = xi + (double) (yi+1) / 4.0;
+
+            oc1.writeArrayData(new NumericalArrayImpl(value));
+          } catch (EOFException e) {
+            //
+          }
+
+
+    }
+    String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+
+  /** write a 4d array array[3][4][5][6] by writing one big multi-dim object.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(40)
+  void testWrite_4d_array_a() throws IOException {
+    String dataProduct = "test/array4d_a";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[][][][] values = new double[3][4][5][6];
+      for (int xi = 0; xi < 3; xi++)
+        for (int yi = 0; yi < 4; yi++)
+          for(int zi = 0; zi < 5; zi++)
+            for(int ci = 0; ci < 6; ci++)
+              values[xi][yi][zi][ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
+      try {
+            oc1.writeArrayData(new NumericalArrayImpl(values));
+          } catch (EOFException e) {
+            //
+          }
+
+
+    }
+    String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+  /** write a 4d array array[3][4][5][6] by writing three big array[4][5][6] objects.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(41)
+  void testWrite_4d_array_b() throws IOException {
+    String dataProduct = "test/array4d_b";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[][][] values = new double[4][5][6];
+      for (int xi = 0; xi < 3; xi++) {
+        for (int yi = 0; yi < 4; yi++)
+          for (int zi = 0; zi < 5; zi++)
+            for (int ci = 0; ci < 6; ci++)
+              values[yi][zi][ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
+        LOGGER.trace("x: (" +xi+") = " + Arrays.toString(values));
+        try {
+          oc1.writeArrayData(new NumericalArrayImpl(values));
+        } catch (EOFException e) {
+          //
+        }
+      }
+
+
+    }
+    String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+  /** write a 4d array array[3][4][5][6] by writing 12 array[5][6] objects.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(42)
+  void testWrite_4d_array_c() throws IOException {
+    String dataProduct = "test/array4d_c";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[][] values = new double[5][6];
+      for (int xi = 0; xi < 3; xi++)
+        for (int yi = 0; yi < 4; yi++) {
+          for (int zi = 0; zi < 5; zi++)
+            for (int ci = 0; ci < 6; ci++)
+              values[zi][ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
+          LOGGER.trace("x,y: (" +xi+","+yi+") = " + Arrays.toString(values));
+        try {
+          oc1.writeArrayData(new NumericalArrayImpl(values));
+        } catch (EOFException e) {
+          //
+        }
+      }
+
+
+    }
+    String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+  /** write a 4d array array[3][4][5][6] by writing 6 array[2][5][6] objects.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(43)
+  void testWrite_4d_array_d() throws IOException {
+    String dataProduct = "test/array4d_d";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[][][] values = new double[2][5][6];
+      for (int xi = 0; xi < 3; xi++)
+        for (int yi = 0; yi < 4; yi+=2) {
+          for (int zi = 0; zi < 5; zi++)
+            for (int ci = 0; ci < 6; ci++) {
+              values[0][zi][ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
+              values[1][zi][ci] = 100.0 * xi + 10.0 * (yi+1) + zi + ci / 6.0;
+            }
+          LOGGER.trace("x,y: (" +xi+","+yi+") = " + Arrays.toString(values));
+          try {
+            oc1.writeArrayData(new NumericalArrayImpl(values));
+          } catch (EOFException e) {
+            //
+          }
+        }
+
+
+    }
+    String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+  /** write a 4d array array[3][4][5][6] by writing 60 array[6] objects.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(44)
+  void testWrite_4d_array_e() throws IOException {
+    String dataProduct = "test/array4d_e";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[] values = new double[6];
+      for (int xi = 0; xi < 3; xi++)
+        for (int yi = 0; yi < 4; yi++)
+          for (int zi = 0; zi < 5; zi++) {
+            for (int ci = 0; ci < 6; ci++)
+              values[ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
+            LOGGER.trace("x,y,z: (" +xi+","+yi+","+zi+") = " + Arrays.toString(values));
+
+          try {
+            oc1.writeArrayData(new NumericalArrayImpl(values));
+          } catch (EOFException e) {
+            //
+          }
+        }
+
+
+    }
+    String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+
+  /** write a 4d array array[3][4][5][6] by writing 360 array[1] objects.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(45)
+  void testWrite_4d_array_f() throws IOException {
+    String dataProduct = "test/array4d_f";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+
+      DimensionalVariableDefinition nadef =
+              new DimensionalVariableDefinition(
+                      nadefname,
+                      NetcdfDataType.DOUBLE,
+                      dims,
+                      "",
+                      "",
+                      "");
+      Object_component_write_array oc1 = dp.getComponent(nadef);
+
+      double[] values = new double[1];
+      for (int xi = 0; xi < 3; xi++)
+        for (int yi = 0; yi < 4; yi++)
+          for (int zi = 0; zi < 5; zi++)
+            for (int ci = 0; ci < 6; ci++){
+              values[0] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
+              LOGGER.trace("x,y,z,c: (" +xi+","+yi+","+zi+","+ci+") = " + values[0]);
+
+            try {
+              oc1.writeArrayData(new NumericalArrayImpl(values));
+            } catch (EOFException e) {
+              //
+            }
+          }
+
+
+    }
+    String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
+
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+  }
+
+
+
 }

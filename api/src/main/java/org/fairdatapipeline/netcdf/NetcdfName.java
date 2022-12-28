@@ -9,12 +9,14 @@ public class NetcdfName {
   // FORMAT OF Datapipeline object_component
   // this was based on the definition of 'bare key' from TOML.
   public static final Pattern NAME_P = Pattern.compile("^\\p{Alnum}[\\p{Alnum}_-]*+$");
+  public static final Pattern NAME_P_INTERNAL = Pattern.compile("^__fdp_\\p{Alnum}[\\p{Alnum}_-]*+$");
 
   public NetcdfName(@Nonnull String name) {
-    if (!NAME_P.matcher(name).find())
+    if(!NAME_P_INTERNAL.matcher(name).find() && !NAME_P.matcher(name).find())
       throw (new IllegalArgumentException("not a valid netCDF name: " + name));
     this.name = name;
   }
+
 
   public @Nonnull String getName() {
     return name;

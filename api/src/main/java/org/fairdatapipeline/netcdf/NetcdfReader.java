@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.fairdatapipeline.objects.*;
+import org.fairdatapipeline.objects.Dimension;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -57,10 +58,10 @@ public class NetcdfReader {
         }
       }
     }
-    NetcdfName[] dims =
+    Dimension[] dims =
         v.getDimensions().stream()
             .map(dim -> new NetcdfName(dim.getName()))
-            .toArray(NetcdfName[]::new);
+            .toArray(Dimension[]::new);
     NetcdfDataType dataType = NetcdfDataType.translate(v.getDataType());
     if (v.isCoordinateVariable()) {
       return new CoordinateVariableDefinition(

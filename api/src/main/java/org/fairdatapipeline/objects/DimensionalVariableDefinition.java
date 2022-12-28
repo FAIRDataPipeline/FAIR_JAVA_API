@@ -16,13 +16,13 @@ import org.slf4j.LoggerFactory;
  */
 public class DimensionalVariableDefinition extends VariableDefinition {
   private static final Logger LOGGER = LoggerFactory.getLogger(DimensionalVariableDefinition.class);
-  private final @Nonnull NetcdfName[] dimensions;
+  private final @Nonnull Dimension[] dimensions;
   @Nonnull VariableName variableName;
 
   /**
    * @param name Name and Group of this Variable
    * @param dataType dataType of the Variable
-   * @param dimensions names of the dimensions. (no group names given; the dimensions used will be
+   * @param dimensions names/sizes of the dimensions. (no group names given; the dimensions used will be
    *     the nearest dimension with the given name)
    * @param description a short description of the variable. (ie. "temperature at ground level")
    * @param units the units used for this variable. (ie. "C" or "K" for temperature)
@@ -32,7 +32,7 @@ public class DimensionalVariableDefinition extends VariableDefinition {
   public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
-      @Nonnull NetcdfName[] dimensions,
+      @Nonnull Dimension[] dimensions,
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name) {
@@ -54,7 +54,7 @@ public class DimensionalVariableDefinition extends VariableDefinition {
   public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
-      @Nonnull NetcdfName[] dimensions,
+      @Nonnull Dimension[] dimensions,
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name,
@@ -86,13 +86,13 @@ public class DimensionalVariableDefinition extends VariableDefinition {
         groupName,
         localVarDef.getLocalName());
     this.variableName = new VariableName(localVarDef.getLocalName(), groupName);
-    this.dimensions = new NetcdfName[] {new NetcdfName(dimensionName)};
+    this.dimensions = new Dimension[] {new Dimension(dimensionName)};
   }
 
   public DimensionalVariableDefinition(
       @Nonnull VariableName name,
       @Nonnull NetcdfDataType dataType,
-      @Nonnull NetcdfName[] dimensions,
+      @Nonnull Dimension[] dimensions,
       @Nonnull String description,
       @Nonnull String units,
       @Nonnull String long_name,
@@ -115,7 +115,7 @@ public class DimensionalVariableDefinition extends VariableDefinition {
     return this.variableName;
   }
 
-  public NetcdfName[] getDimensions() {
+  public Dimension[] getDimensions() {
     return this.dimensions.clone();
   }
 }

@@ -21,12 +21,12 @@ class DimensionalVariableDefinitionTest {
         new DimensionalVariableDefinition(
             new VariableName(varname, ""),
             NetcdfDataType.INT,
-            new NetcdfName[] {new NetcdfName(dimname)},
+            new Dimension[] {new Dimension(dimname)},
             "",
             "",
             "",
             Collections.singletonMap("optional_attrib", new String[] {"value1", "value2"}));
-    Assertions.assertEquals(dimname, dv.getDimensions()[0].getName());
+    Assertions.assertEquals(dimname, dv.getDimensions()[0].name().getName());
     Assertions.assertEquals("value1", dv.getOptional_attribs().get("optional_attrib")[0]);
   }
 }

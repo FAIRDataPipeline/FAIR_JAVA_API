@@ -105,5 +105,58 @@ write:
     file_type: nc
     use:
       version: 0.0.1
-
-
+  - data_product: test/array2a
+    description: the second NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array2b
+    description: the second NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array2c
+    description: the second NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array2d
+    description: the second NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array2e
+    description: the second NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_a
+    description: the 4d NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_b
+    description: the 4d NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_c
+    description: the 4d NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_d
+    description: the 4d NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_e
+    description: the 4d NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_f
+    description: the 4d NC array test
+    file_type: nc
+    use:
+      version: 0.0.1

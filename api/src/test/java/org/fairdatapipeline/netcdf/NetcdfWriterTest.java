@@ -69,7 +69,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new NetcdfName[] {xName.getName(), yName.getName()},
+            new Dimension[] {new Dimension(xName.getName()), new Dimension(yName.getName())},
             "a test dataset with temperatures in 2d space",
             "C",
             "surface temperature");
@@ -112,7 +112,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             dataName,
             NetcdfDataType.INT,
-            new NetcdfName[] {dimName.getName()},
+            new Dimension[] {new Dimension(dimName.getName())},
             "a test dataset with missing values",
             "",
             "",
@@ -717,7 +717,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new NetcdfName[] {xName.getName(), yName.getName()},
+            new Dimension[] {new Dimension(xName.getName()), new Dimension(yName.getName())},
             "a test dataset with int temperatures in 2d space, measure in a 2cm grid",
             "C",
             "surface temperature");
@@ -744,7 +744,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             personheightName,
             NetcdfDataType.DOUBLE,
-            new NetcdfName[] {personName.getName(), dateName.getName()},
+            new Dimension[] {new Dimension(personName.getName()), new Dimension(dateName.getName())},
             "a test dataset with real height in 2d space, with measurements for each person on a number of dates",
             "m",
             "");
@@ -816,7 +816,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             temperatureName,
             NetcdfDataType.INT,
-            new NetcdfName[] {timeName.getName(), xName.getName(), yName.getName()},
+            new Dimension[] {new Dimension(timeName.getName()), new Dimension(xName.getName()), new Dimension(yName.getName())},
             "a test dataset with temperatures in time and space",
             "C",
             "");
@@ -888,7 +888,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new NetcdfName[] {timeName.getName(), xName.getName(), yName.getName()},
+            new Dimension[] {new Dimension(timeName.getName()), new Dimension(xName.getName()), new Dimension(yName.getName())},
             "a test dataset with temperatures in time and space",
             "C",
             "");
@@ -960,7 +960,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new NetcdfName[] {timeName.getName(), xName.getName(), yName.getName()},
+            new Dimension[] {new Dimension(timeName.getName()), new Dimension(xName.getName()), new Dimension(yName.getName())},
             "a test dataset with temperatures in time and space",
             "C",
             "surface temperature");
@@ -1022,7 +1022,7 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new NetcdfName[] {timeName.getName()},
+            new Dimension[] {new Dimension(timeName.getName())},
             "a test dataset with temperatures in time",
             "C",
             "");
