@@ -1807,6 +1807,52 @@ class CoderunIntegrationTest {
                     new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
+  /** read a 4d array array[3][4][5][6] by reading 360 array[1] objects.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(45)
+  void testRead_4d_array_f() throws IOException {
+    String dataProduct = "test/array4d_f";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dp = coderun.get_dp_for_read_nc(dataProduct);
+
+      Object_component_read_nc oc1 = dp.getComponent(nadefname.getFullPath());
+
+      double[] values = new double[1];
+      int[] shape = new int[] {1, 1, 1, 1};
+      for (int xi = 0; xi < 3; xi++)
+        for (int yi = 0; yi < 4; yi++)
+          for (int zi = 0; zi < 5; zi++)
+            for (int ci = 0; ci < 6; ci++){
+              values[0] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
+              LOGGER.trace("x,y,z,c: (" +xi+","+yi+","+zi+","+ci+") = " + values[0]);
+
+              try {
+                NumericalArray na = oc1.readArray(shape);
+                Number[][][][] n = na.as4DArray();
+                Number nn = n[0][0][0][0];
+                assertThat(nn).isEqualTo((Number) values[0]);
+              } catch (EOFException e) {
+                //
+              }
+            }
+
+
+    }
+    String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
+
+    check_last_coderun(
+            Arrays.asList(
+                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)),
+            null);
+  }
+
+
 
 
 }

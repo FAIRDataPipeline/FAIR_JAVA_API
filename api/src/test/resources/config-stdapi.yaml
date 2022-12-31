@@ -54,6 +54,40 @@ read:
   - data_product: test/array3d
     use:
       version: 0.0.1
+  - data_product: test/array2a
+    use:
+      version: 0.0.1
+  - data_product: test/array2b
+    use:
+      version: 0.0.1
+  - data_product: test/array2c
+    use:
+      version: 0.0.1
+  - data_product: test/array2d
+    use:
+      version: 0.0.1
+  - data_product: test/array2e
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_a
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_b
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_c
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_d
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_e
+    use:
+      version: 0.0.1
+  - data_product: test/array4d_f
+    use:
+      version: 0.0.1
+
 
 write:
   - data_product: human/population
