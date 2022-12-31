@@ -2,7 +2,6 @@ package org.fairdatapipeline.objects;
 
 import java.util.Collections;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
-import org.fairdatapipeline.netcdf.NetcdfName;
 import org.fairdatapipeline.netcdf.VariableName;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

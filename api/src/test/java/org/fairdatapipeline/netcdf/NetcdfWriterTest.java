@@ -744,7 +744,9 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             personheightName,
             NetcdfDataType.DOUBLE,
-            new Dimension[] {new Dimension(personName.getName()), new Dimension(dateName.getName())},
+            new Dimension[] {
+              new Dimension(personName.getName()), new Dimension(dateName.getName())
+            },
             "a test dataset with real height in 2d space, with measurements for each person on a number of dates",
             "m",
             "");
@@ -816,7 +818,11 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             temperatureName,
             NetcdfDataType.INT,
-            new Dimension[] {new Dimension(timeName.getName()), new Dimension(xName.getName()), new Dimension(yName.getName())},
+            new Dimension[] {
+              new Dimension(timeName.getName()),
+              new Dimension(xName.getName()),
+              new Dimension(yName.getName())
+            },
             "a test dataset with temperatures in time and space",
             "C",
             "");
@@ -888,7 +894,11 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new Dimension[] {new Dimension(timeName.getName()), new Dimension(xName.getName()), new Dimension(yName.getName())},
+            new Dimension[] {
+              new Dimension(timeName.getName()),
+              new Dimension(xName.getName()),
+              new Dimension(yName.getName())
+            },
             "a test dataset with temperatures in time and space",
             "C",
             "");
@@ -960,7 +970,11 @@ class NetcdfWriterTest {
         new DimensionalVariableDefinition(
             tempName,
             NetcdfDataType.INT,
-            new Dimension[] {new Dimension(timeName.getName()), new Dimension(xName.getName()), new Dimension(yName.getName())},
+            new Dimension[] {
+              new Dimension(timeName.getName()),
+              new Dimension(xName.getName()),
+              new Dimension(yName.getName())
+            },
             "a test dataset with temperatures in time and space",
             "C",
             "surface temperature");

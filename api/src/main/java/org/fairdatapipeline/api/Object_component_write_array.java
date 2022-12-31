@@ -43,7 +43,7 @@ public class Object_component_write_array extends Object_component_write {
     for (int i = from; i < shape.length; i++) {
       if (shape[i] != vshape[i])
         throw new IllegalArgumentException(
-                "final dimensions in shape must match final dimensions in variable");
+            "final dimensions in shape must match final dimensions in variable");
     }
     LOGGER.trace("shape and vshape match from {}", from);
   }
@@ -77,17 +77,18 @@ public class Object_component_write_array extends Object_component_write {
           LOGGER.trace("makeArrayRankPlusOne: " + Arrays.toString(a.getShape()));
         }
 
-        LOGGER.trace("nWriter.writeArrayData() a = "  +
-                Arrays.toString(a.getShape()) +
-                "; write_pointer: " +
-                Arrays.toString(this.write_pointer));
+        LOGGER.trace(
+            "nWriter.writeArrayData() a = "
+                + Arrays.toString(a.getShape())
+                + "; write_pointer: "
+                + Arrays.toString(this.write_pointer));
         nWriter.writeArrayData(variable, a, this.write_pointer);
         int update_dimension = this.shape.length - 1;
-        for(int i=0; i < this.shape.length; i++) {
-          if(a.getShape()[i] != 1) {
-            if(a.getShape()[i] == this.shape[i]) {
-              update_dimension = i-1;
-            }else{
+        for (int i = 0; i < this.shape.length; i++) {
+          if (a.getShape()[i] != 1) {
+            if (a.getShape()[i] == this.shape[i]) {
+              update_dimension = i - 1;
+            } else {
               update_dimension = i;
             }
             break;

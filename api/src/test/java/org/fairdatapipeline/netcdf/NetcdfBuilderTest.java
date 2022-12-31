@@ -211,7 +211,9 @@ class NetcdfBuilderTest {
         new DimensionalVariableDefinition(
             new VariableName("var", "one/two"),
             NetcdfDataType.INT,
-            new org.fairdatapipeline.objects.Dimension[] {new org.fairdatapipeline.objects.Dimension("dim")},
+            new org.fairdatapipeline.objects.Dimension[] {
+              new org.fairdatapipeline.objects.Dimension("dim")
+            },
             "",
             "",
             "");
@@ -282,7 +284,9 @@ class NetcdfBuilderTest {
         new DimensionalVariableDefinition(
             new VariableName("dimensionalvariable", ""),
             NetcdfDataType.INT,
-            new org.fairdatapipeline.objects.Dimension[] {new org.fairdatapipeline.objects.Dimension("dimension1")},
+            new org.fairdatapipeline.objects.Dimension[] {
+              new org.fairdatapipeline.objects.Dimension("dimension1")
+            },
             "my first dimensional variable",
             "cm",
             "very long name of my coordinate variable");
@@ -313,7 +317,9 @@ class NetcdfBuilderTest {
         new DimensionalVariableDefinition(
             new VariableName("dimensionalvariable", ""),
             NetcdfDataType.INT,
-            new org.fairdatapipeline.objects.Dimension[] {new org.fairdatapipeline.objects.Dimension("dimension1")},
+            new org.fairdatapipeline.objects.Dimension[] {
+              new org.fairdatapipeline.objects.Dimension("dimension1")
+            },
             "my first dimensional variable",
             "cm",
             "very long name of my coordinate variable");
@@ -357,7 +363,9 @@ class NetcdfBuilderTest {
         new DimensionalVariableDefinition(
             new VariableName("dimensionalvariable", "mygroup/mysubgroup"),
             NetcdfDataType.INT,
-            new org.fairdatapipeline.objects.Dimension[] {new org.fairdatapipeline.objects.Dimension("dimension1")},
+            new org.fairdatapipeline.objects.Dimension[] {
+              new org.fairdatapipeline.objects.Dimension("dimension1")
+            },
             "my first dimensional variable",
             "cm",
             "very long name of my coordinate variable");
@@ -432,7 +440,9 @@ class NetcdfBuilderTest {
         new DimensionalVariableDefinition(
             new VariableName("array", "group"),
             NetcdfDataType.INT,
-            new org.fairdatapipeline.objects.Dimension[] {new org.fairdatapipeline.objects.Dimension("dim")},
+            new org.fairdatapipeline.objects.Dimension[] {
+              new org.fairdatapipeline.objects.Dimension("dim")
+            },
             "",
             "",
             "");

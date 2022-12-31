@@ -22,8 +22,8 @@ public class DimensionalVariableDefinition extends VariableDefinition {
   /**
    * @param name Name and Group of this Variable
    * @param dataType dataType of the Variable
-   * @param dimensions names/sizes of the dimensions. (no group names given; the dimensions used will be
-   *     the nearest dimension with the given name)
+   * @param dimensions names/sizes of the dimensions. (no group names given; the dimensions used
+   *     will be the nearest dimension with the given name)
    * @param description a short description of the variable. (ie. "temperature at ground level")
    * @param units the units used for this variable. (ie. "C" or "K" for temperature)
    * @param long_name a more descriptive name than can be fitted in the VariableName (could be used

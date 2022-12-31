@@ -182,7 +182,6 @@ public class NetcdfBuilder implements AutoCloseable {
     return "__fdp_" + vName + "_dim_" + i;
   }
 
-
   /**
    * prepareArray creates the dimensions and dimension variables for the given
    * NumericalArrayDefinition. It then creates the actual data variable.
@@ -199,25 +198,29 @@ public class NetcdfBuilder implements AutoCloseable {
       if (nadef.getDimensions()[i].is_size()) {
         int[] values = new int[nadef.getDimensions()[i].size()];
         for (int j = 0; j < nadef.getDimensions()[i].size(); j++) values[j] = j + 1;
-        CoordinateVariableDefinition cvdef = new CoordinateVariableDefinition(
-                new VariableName(new NetcdfName(this.generatedDimName(vbn.getName().getName(), i)), vbn.getGroupName()),
-                values, "", "", ""
-        );
+        CoordinateVariableDefinition cvdef =
+            new CoordinateVariableDefinition(
+                new VariableName(
+                    new NetcdfName(this.generatedDimName(vbn.getName().getName(), i)),
+                    vbn.getGroupName()),
+                values,
+                "",
+                "",
+                "");
         this.prepare(cvdef);
       }
     }
 
     for (int i = 0; i < nadef.getDimensions().length; i++) {
       String dimName;
-      if(nadef.getDimensions()[i].is_size()){
+      if (nadef.getDimensions()[i].is_size()) {
         dimName = this.generatedDimName(vbn.getName().getName(), i);
-      }else{
+      } else {
         dimName = nadef.getDimensions()[i].name().getName();
       }
       Optional<Dimension> optionalDimension = gb.findDimension(dimName);
       if (optionalDimension.isEmpty())
-        throw (new IllegalArgumentException(
-            "Can't find dimension " + dimName));
+        throw (new IllegalArgumentException("Can't find dimension " + dimName));
       Dimension d = optionalDimension.get();
       dims.add(d);
     }

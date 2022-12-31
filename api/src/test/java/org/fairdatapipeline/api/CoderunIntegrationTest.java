@@ -906,7 +906,8 @@ class CoderunIntegrationTest {
               "",
               "degrees east",
               "longitude");
-      Dimension[] dims = new Dimension[] {new Dimension(latname.getName()), new Dimension(lonname.getName())};
+      Dimension[] dims =
+          new Dimension[] {new Dimension(latname.getName()), new Dimension(lonname.getName())};
 
       DimensionalVariableDefinition nadef =
           new DimensionalVariableDefinition(
@@ -1104,7 +1105,12 @@ class CoderunIntegrationTest {
       CoordinateVariableDefinition zdim =
           new CoordinateVariableDefinition(zname, new double[] {1, 2, 3, 4, 5}, "", "", "");
 
-      Dimension[] dims = new Dimension[] {new Dimension(xname.getName()), new Dimension(yname.getName()), new Dimension(zname.getName())};
+      Dimension[] dims =
+          new Dimension[] {
+            new Dimension(xname.getName()),
+            new Dimension(yname.getName()),
+            new Dimension(zname.getName())
+          };
 
       DimensionalVariableDefinition nadef =
           new DimensionalVariableDefinition(
@@ -1267,7 +1273,8 @@ class CoderunIntegrationTest {
         null);
   }
 
-  /** write a 2d (4,4) array, in array[1][4] slices
+  /**
+   * write a 2d (4,4) array, in array[1][4] slices
    *
    * @throws IOException
    */
@@ -1284,36 +1291,27 @@ class CoderunIntegrationTest {
       Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[][] values = new double[1][4];
       for (int xi = 0; xi < 4; xi++) {
-        for (int yi = 0; yi < 4; yi++)
-          values[0][yi] = xi + (double) yi / 4.0;
+        for (int yi = 0; yi < 4; yi++) values[0][yi] = xi + (double) yi / 4.0;
         try {
           oc1.writeArrayData(new NumericalArrayImpl(values));
         } catch (EOFException e) {
           //
         }
       }
-
     }
     String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-  /** same as previous; but write the slices as array[4] instead of array[1][4]
+  /**
+   * same as previous; but write the slices as array[4] instead of array[1][4]
    *
    * @throws IOException
    */
@@ -1330,36 +1328,27 @@ class CoderunIntegrationTest {
       Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[] values = new double[4];
       for (int xi = 0; xi < 4; xi++) {
-        for (int yi = 0; yi < 4; yi++)
-          values[yi] = xi + (double) yi / 4.0;
+        for (int yi = 0; yi < 4; yi++) values[yi] = xi + (double) yi / 4.0;
         try {
           oc1.writeArrayData(new NumericalArrayImpl(values));
         } catch (EOFException e) {
           //
         }
       }
-
     }
     String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-  /** same as previous but write the slices in double rows: array[2][4]
+  /**
+   * same as previous but write the slices in double rows: array[2][4]
    *
    * @throws IOException
    */
@@ -1376,17 +1365,11 @@ class CoderunIntegrationTest {
       Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[][] values = new double[2][4];
-      for (int xi = 0; xi < 4; xi+=2) {
+      for (int xi = 0; xi < 4; xi += 2) {
         for (int yi = 0; yi < 4; yi++) {
           values[0][yi] = xi + (double) yi / 4.0;
           values[1][yi] = xi + 1 + (double) yi / 4.0;
@@ -1397,18 +1380,15 @@ class CoderunIntegrationTest {
           //
         }
       }
-
     }
     String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-
-  /** same as previous but write the slices in single values: array[1]
+  /**
+   * same as previous but write the slices in single values: array[1]
    *
    * @throws IOException
    */
@@ -1425,13 +1405,7 @@ class CoderunIntegrationTest {
       Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[] value = new double[1];
@@ -1443,19 +1417,15 @@ class CoderunIntegrationTest {
           } catch (EOFException e) {
             //
           }
-
-
     }
     String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-
-  /** same as previous but write the slices in double values: array[2]
+  /**
+   * same as previous but write the slices in double values: array[2]
    *
    * @throws IOException
    */
@@ -1472,39 +1442,29 @@ class CoderunIntegrationTest {
       Dimension[] dims = new Dimension[] {new Dimension(4), new Dimension(4)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[] value = new double[2];
       for (int xi = 0; xi < 4; xi++)
-        for (int yi = 0; yi < 4; yi+=2)
+        for (int yi = 0; yi < 4; yi += 2)
           try {
             value[0] = xi + (double) yi / 4.0;
-            value[1] = xi + (double) (yi+1) / 4.0;
+            value[1] = xi + (double) (yi + 1) / 4.0;
 
             oc1.writeArrayData(new NumericalArrayImpl(value));
           } catch (EOFException e) {
             //
           }
-
-
     }
     String hash = "9cd6b8fbe9c2dfc1ec38375bad70b333fc90cef9";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-
-  /** write a 4d array array[3][4][5][6] by writing one big multi-dim object.
+  /**
+   * write a 4d array array[3][4][5][6] by writing one big multi-dim object.
    *
    * @throws IOException
    */
@@ -1518,41 +1478,33 @@ class CoderunIntegrationTest {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
 
-      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+      Dimension[] dims =
+          new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[][][][] values = new double[3][4][5][6];
       for (int xi = 0; xi < 3; xi++)
         for (int yi = 0; yi < 4; yi++)
-          for(int zi = 0; zi < 5; zi++)
-            for(int ci = 0; ci < 6; ci++)
+          for (int zi = 0; zi < 5; zi++)
+            for (int ci = 0; ci < 6; ci++)
               values[xi][yi][zi][ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
       try {
-            oc1.writeArrayData(new NumericalArrayImpl(values));
-          } catch (EOFException e) {
-            //
-          }
-
-
+        oc1.writeArrayData(new NumericalArrayImpl(values));
+      } catch (EOFException e) {
+        //
+      }
     }
     String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-  /** write a 4d array array[3][4][5][6] by writing three big array[4][5][6] objects.
+  /**
+   * write a 4d array array[3][4][5][6] by writing three big array[4][5][6] objects.
    *
    * @throws IOException
    */
@@ -1566,16 +1518,11 @@ class CoderunIntegrationTest {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
 
-      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+      Dimension[] dims =
+          new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[][][] values = new double[4][5][6];
@@ -1584,25 +1531,22 @@ class CoderunIntegrationTest {
           for (int zi = 0; zi < 5; zi++)
             for (int ci = 0; ci < 6; ci++)
               values[yi][zi][ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
-        LOGGER.trace("x: (" +xi+") = " + Arrays.toString(values));
+        LOGGER.trace("x: (" + xi + ") = " + Arrays.toString(values));
         try {
           oc1.writeArrayData(new NumericalArrayImpl(values));
         } catch (EOFException e) {
           //
         }
       }
-
-
     }
     String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-  /** write a 4d array array[3][4][5][6] by writing 12 array[5][6] objects.
+  /**
+   * write a 4d array array[3][4][5][6] by writing 12 array[5][6] objects.
    *
    * @throws IOException
    */
@@ -1616,43 +1560,34 @@ class CoderunIntegrationTest {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
 
-      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+      Dimension[] dims =
+          new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[][] values = new double[5][6];
       for (int xi = 0; xi < 3; xi++)
         for (int yi = 0; yi < 4; yi++) {
           for (int zi = 0; zi < 5; zi++)
-            for (int ci = 0; ci < 6; ci++)
-              values[zi][ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
-          LOGGER.trace("x,y: (" +xi+","+yi+") = " + Arrays.toString(values));
-        try {
-          oc1.writeArrayData(new NumericalArrayImpl(values));
-        } catch (EOFException e) {
-          //
+            for (int ci = 0; ci < 6; ci++) values[zi][ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
+          LOGGER.trace("x,y: (" + xi + "," + yi + ") = " + Arrays.toString(values));
+          try {
+            oc1.writeArrayData(new NumericalArrayImpl(values));
+          } catch (EOFException e) {
+            //
+          }
         }
-      }
-
-
     }
     String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-  /** write a 4d array array[3][4][5][6] by writing 6 array[2][5][6] objects.
+  /**
+   * write a 4d array array[3][4][5][6] by writing 6 array[2][5][6] objects.
    *
    * @throws IOException
    */
@@ -1666,45 +1601,37 @@ class CoderunIntegrationTest {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
 
-      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+      Dimension[] dims =
+          new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[][][] values = new double[2][5][6];
       for (int xi = 0; xi < 3; xi++)
-        for (int yi = 0; yi < 4; yi+=2) {
+        for (int yi = 0; yi < 4; yi += 2) {
           for (int zi = 0; zi < 5; zi++)
             for (int ci = 0; ci < 6; ci++) {
               values[0][zi][ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
-              values[1][zi][ci] = 100.0 * xi + 10.0 * (yi+1) + zi + ci / 6.0;
+              values[1][zi][ci] = 100.0 * xi + 10.0 * (yi + 1) + zi + ci / 6.0;
             }
-          LOGGER.trace("x,y: (" +xi+","+yi+") = " + Arrays.toString(values));
+          LOGGER.trace("x,y: (" + xi + "," + yi + ") = " + Arrays.toString(values));
           try {
             oc1.writeArrayData(new NumericalArrayImpl(values));
           } catch (EOFException e) {
             //
           }
         }
-
-
     }
     String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-  /** write a 4d array array[3][4][5][6] by writing 60 array[6] objects.
+  /**
+   * write a 4d array array[3][4][5][6] by writing 60 array[6] objects.
    *
    * @throws IOException
    */
@@ -1718,45 +1645,35 @@ class CoderunIntegrationTest {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
 
-      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+      Dimension[] dims =
+          new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[] values = new double[6];
       for (int xi = 0; xi < 3; xi++)
         for (int yi = 0; yi < 4; yi++)
           for (int zi = 0; zi < 5; zi++) {
-            for (int ci = 0; ci < 6; ci++)
-              values[ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
-            LOGGER.trace("x,y,z: (" +xi+","+yi+","+zi+") = " + Arrays.toString(values));
+            for (int ci = 0; ci < 6; ci++) values[ci] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
+            LOGGER.trace("x,y,z: (" + xi + "," + yi + "," + zi + ") = " + Arrays.toString(values));
 
-          try {
-            oc1.writeArrayData(new NumericalArrayImpl(values));
-          } catch (EOFException e) {
-            //
+            try {
+              oc1.writeArrayData(new NumericalArrayImpl(values));
+            } catch (EOFException e) {
+              //
+            }
           }
-        }
-
-
     }
     String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-
-  /** write a 4d array array[3][4][5][6] by writing 360 array[1] objects.
+  /**
+   * write a 4d array array[3][4][5][6] by writing 360 array[1] objects.
    *
    * @throws IOException
    */
@@ -1770,44 +1687,36 @@ class CoderunIntegrationTest {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
 
-      Dimension[] dims = new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
+      Dimension[] dims =
+          new Dimension[] {new Dimension(3), new Dimension(4), new Dimension(5), new Dimension(6)};
 
       DimensionalVariableDefinition nadef =
-              new DimensionalVariableDefinition(
-                      nadefname,
-                      NetcdfDataType.DOUBLE,
-                      dims,
-                      "",
-                      "",
-                      "");
+          new DimensionalVariableDefinition(nadefname, NetcdfDataType.DOUBLE, dims, "", "", "");
       Object_component_write_array oc1 = dp.getComponent(nadef);
 
       double[] values = new double[1];
       for (int xi = 0; xi < 3; xi++)
         for (int yi = 0; yi < 4; yi++)
           for (int zi = 0; zi < 5; zi++)
-            for (int ci = 0; ci < 6; ci++){
+            for (int ci = 0; ci < 6; ci++) {
               values[0] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
-              LOGGER.trace("x,y,z,c: (" +xi+","+yi+","+zi+","+ci+") = " + values[0]);
+              LOGGER.trace("x,y,z,c: (" + xi + "," + yi + "," + zi + "," + ci + ") = " + values[0]);
 
-            try {
-              oc1.writeArrayData(new NumericalArrayImpl(values));
-            } catch (EOFException e) {
-              //
+              try {
+                oc1.writeArrayData(new NumericalArrayImpl(values));
+              } catch (EOFException e) {
+                //
+              }
             }
-          }
-
-
     }
     String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
 
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
+        null, Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)));
   }
 
-  /** read a 4d array array[3][4][5][6] by reading 360 array[1] objects.
+  /**
+   * read a 4d array array[3][4][5][6] by reading 360 array[1] objects.
    *
    * @throws IOException
    */
@@ -1828,9 +1737,9 @@ class CoderunIntegrationTest {
       for (int xi = 0; xi < 3; xi++)
         for (int yi = 0; yi < 4; yi++)
           for (int zi = 0; zi < 5; zi++)
-            for (int ci = 0; ci < 6; ci++){
+            for (int ci = 0; ci < 6; ci++) {
               values[0] = 100.0 * xi + 10.0 * yi + zi + ci / 6.0;
-              LOGGER.trace("x,y,z,c: (" +xi+","+yi+","+zi+","+ci+") = " + values[0]);
+              LOGGER.trace("x,y,z,c: (" + xi + "," + yi + "," + zi + "," + ci + ") = " + values[0]);
 
               try {
                 NumericalArray na = oc1.readArray(shape);
@@ -1841,18 +1750,10 @@ class CoderunIntegrationTest {
                 //
               }
             }
-
-
     }
     String hash = "75edff902a6cec8a27e5ca17c57be0f7e452d9b6";
 
     check_last_coderun(
-            Arrays.asList(
-                    new Triplet<>(dataProduct, nadefname.getFullPath(), hash)),
-            null);
+        Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)), null);
   }
-
-
-
-
 }
