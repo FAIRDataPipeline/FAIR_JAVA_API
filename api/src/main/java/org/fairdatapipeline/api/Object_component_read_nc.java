@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.fairdatapipeline.netcdf.NetcdfReader;
 import org.fairdatapipeline.netcdf.VariableName;
 import org.fairdatapipeline.objects.NumericalArray;
+import org.fairdatapipeline.objects.VariableDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ucar.nc2.Variable;
@@ -27,6 +28,12 @@ public class Object_component_read_nc extends Object_component_read {
     this.variable = r.getVariable(variableName);
     origin_read_pointer = r.getShape(this.variable);
     for (int i = 0; i < origin_read_pointer.length; i++) origin_read_pointer[i] = 0;
+  }
+
+  public VariableDefinition getVardef() throws IOException {
+    Data_product_read_nc dpr = (Data_product_read_nc) this.dp;
+    NetcdfReader r = dpr.getNetcdfReader();
+    return r.getArray(this.component_name);
   }
 
   /**

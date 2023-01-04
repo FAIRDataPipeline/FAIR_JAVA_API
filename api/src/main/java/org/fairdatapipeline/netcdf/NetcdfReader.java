@@ -58,10 +58,18 @@ public class NetcdfReader {
         }
       }
     }
+    int[] sh = v.getShape();
+
     Dimension[] dims =
         v.getDimensions().stream()
-            .map(dim -> new NetcdfName(dim.getName()))
+            .map(
+                dim -> {
+                  if (dim.getName().startsWith("__fdp"))
+                    return new Dimension(sh[Integer.valueOf(dim.getName().split("_dim_")[1])]);
+                  else return new NetcdfName(dim.getName());
+                })
             .toArray(Dimension[]::new);
+
     NetcdfDataType dataType = NetcdfDataType.translate(v.getDataType());
     if (v.isCoordinateVariable()) {
       return new CoordinateVariableDefinition(

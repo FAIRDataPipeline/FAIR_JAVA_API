@@ -1756,4 +1756,31 @@ class CoderunIntegrationTest {
     check_last_coderun(
         Arrays.asList(new Triplet<>(dataProduct, nadefname.getFullPath(), hash)), null);
   }
+
+  /**
+   * test that dimensions for non-metadata'd non-described dimensions get returned as just 'sized'
+   * dimensions.
+   *
+   * @throws IOException
+   */
+  @Test
+  void getVarDef() throws IOException {
+    String dataProduct = "test/array4d_f";
+    String component_path = "";
+    VariableName nadefname = new VariableName("array", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dp = coderun.get_dp_for_read_nc(dataProduct);
+
+      Object_component_read_nc oc1 = dp.getComponent(nadefname.getFullPath());
+      VariableDefinition vDef = oc1.getVardef();
+      assertThat(vDef.getDescription()).isEmpty();
+      assertThat(vDef.getDataType()).isEqualTo(NetcdfDataType.DOUBLE);
+      assertThat(vDef.getUnits()).isEmpty();
+      assertThat(vDef.getLong_name()).isEmpty();
+      Dimension[] dims = ((DimensionalVariableDefinition) vDef).getDimensions();
+
+      for (int i = 0; i < 4; i++) assertThat(dims[i].size()).isEqualTo(i + 3);
+    }
+  }
 }
