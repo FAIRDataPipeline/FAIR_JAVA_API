@@ -29,6 +29,9 @@ public class RegistryCode_run extends Registry_Updateable {
 
   @XmlElement private APIURL prov_report;
 
+  @XmlElement private APIURL ro_crate;
+
+
   /** Empty Constructor. */
   public RegistryCode_run() {
     methods_allowed = List.of("GET", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS");
@@ -119,6 +122,15 @@ public class RegistryCode_run extends Registry_Updateable {
    */
   public APIURL getProv_report() {
     return this.prov_report;
+  }
+
+  /**
+   * APIURL reference to the RO CRATE for this Data product
+   *
+   * @return APIURL reference to the RO Crate for this Data product
+   */
+  public APIURL getRo_crate() {
+    return this.ro_crate;
   }
 
   /** @param run_date Datetime of the CodeRun. */

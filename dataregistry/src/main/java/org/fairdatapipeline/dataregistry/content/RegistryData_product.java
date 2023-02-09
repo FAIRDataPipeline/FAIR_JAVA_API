@@ -26,6 +26,8 @@ public class RegistryData_product extends Registry_Updateable {
 
   @XmlElement private APIURL prov_report;
 
+  @XmlElement private APIURL ro_crate;
+
   /** Empty constructor. */
   public RegistryData_product() {
     this.methods_allowed = List.of("GET", "PUT", "PATCH", "HEAD", "OPTIONS");
@@ -93,6 +95,15 @@ public class RegistryData_product extends Registry_Updateable {
    */
   public APIURL getProv_report() {
     return this.prov_report;
+  }
+
+  /**
+   * APIURL reference to the RO CRATE for this Data product
+   *
+   * @return APIURL reference to the RO Crate for this Data product
+   */
+  public APIURL getRo_crate() {
+    return this.ro_crate;
   }
 
   /**
