@@ -60,6 +60,7 @@ class testPatchAndDelete {
             "outputs",
             "code_repo",
             "prov_report",
+            "ro_crate",
             "run_date",
             "updated_by",
             "uuid"));
@@ -93,6 +94,7 @@ class testPatchAndDelete {
             "outputs",
             "code_repo",
             "prov_report",
+            "ro_crate",
             "run_date",
             "updated_by",
             "uuid"));
