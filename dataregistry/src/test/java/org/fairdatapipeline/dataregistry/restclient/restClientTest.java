@@ -59,6 +59,7 @@ class restClientTest {
                 "inputs",
                 "outputs",
                 "prov_report",
+                "ro_crate",
                 "run_date"));
         break;
       case ("RegistryIssue"):
@@ -117,7 +118,7 @@ class restClientTest {
         assertThat(
             r,
             samePropertyValuesAs(
-                o, "uuid", "url", "updated_by", "last_updated", "_id", "prov_report"));
+                o, "uuid", "url", "updated_by", "last_updated", "_id", "prov_report", "ro_crate"));
         break;
       default:
         assertThat(r, samePropertyValuesAs(o, "uuid", "url", "updated_by", "last_updated", "_id"));
