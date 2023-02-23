@@ -78,9 +78,11 @@ public class Object_component_read_nc extends Object_component_read {
     NumericalArray na = r.read(this.variable, origin_read_pointer, shape);
     // which is the 'update' dimension; ie the dimension that we increment with each read?
     int update_dim = shape.length - 1;
-    LOGGER.trace("readArray({})", Arrays.toString(shape));
-    LOGGER.trace("origin_read_pointer: {}", Arrays.toString(origin_read_pointer));
-    LOGGER.trace("variable shape: {}", Arrays.toString(vshape));
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("readArray({})", Arrays.toString(shape));
+      LOGGER.trace("origin_read_pointer: {}", Arrays.toString(origin_read_pointer));
+      LOGGER.trace("variable shape: {}", Arrays.toString(vshape));
+    }
     for (int i = 0; i < shape.length; i++) {
       if (shape[i] != 1) {
         if (shape[i] == vshape[i]) {

@@ -4,6 +4,7 @@ import java.util.Collections;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
 import org.fairdatapipeline.netcdf.NetcdfGroupName;
 import org.fairdatapipeline.netcdf.NetcdfName;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TableTest {
@@ -30,5 +31,6 @@ class TableTest {
             "Bram's beautiful test table",
             Collections.emptyMap(),
             columns);
+    Assertions.assertEquals("A test table", td.getDescription());
   }
 }

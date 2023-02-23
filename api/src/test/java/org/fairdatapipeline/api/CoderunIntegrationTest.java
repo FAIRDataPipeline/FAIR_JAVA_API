@@ -28,6 +28,8 @@ import org.fairdatapipeline.distribution.ImmutableMinMax;
 import org.fairdatapipeline.distribution.MinMax;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
+import org.fairdatapipeline.netcdf.NetcdfGroupName;
+import org.fairdatapipeline.netcdf.NetcdfName;
 import org.fairdatapipeline.netcdf.VariableName;
 import org.fairdatapipeline.objects.*;
 import org.fairdatapipeline.samples.ImmutableSamples;
@@ -1764,6 +1766,7 @@ class CoderunIntegrationTest {
    * @throws IOException
    */
   @Test
+  @Order(46)
   void getVarDef() throws IOException {
     String dataProduct = "test/array4d_f";
     String component_path = "";
@@ -1782,5 +1785,173 @@ class CoderunIntegrationTest {
 
       for (int i = 0; i < 4; i++) assertThat(dims[i].size()).isEqualTo(i + 3);
     }
+  }
+
+  /**
+   * test write table with 1 column only; with 3 ints.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(47)
+  void writeTable() throws IOException {
+    String dataProduct = "my_lovely_little_table";
+    String component_path = "table";
+    NetcdfGroupName tablename = new NetcdfGroupName(component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      LocalVariableDefinition[] columns =
+          new LocalVariableDefinition[] {
+            new LocalVariableDefinition(
+                new NetcdfName("itemIndex"),
+                NetcdfDataType.INT,
+                "the index number of the item",
+                "",
+                "indexNr")
+          };
+      TableDefinition tabledef =
+          new TableDefinition(tablename, 3, "", "", Collections.emptyMap(), columns);
+      Object_component_write_table oc1 = dp.getComponent(tabledef);
+      oc1.writeData(0, new int[] {2, 4, 6});
+    }
+    String hash = "905e08bc0d4b794afc20d988eb7822d90c69d553";
+
+    check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
+  }
+
+  /**
+   * test write table with a String and a double column only
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(48)
+  void writeTable2() throws IOException {
+    String dataProduct = "my_lovely_little_table2";
+    String component_path = "table";
+    NetcdfGroupName tablename = new NetcdfGroupName(component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      LocalVariableDefinition[] columns =
+          new LocalVariableDefinition[] {
+            new LocalVariableDefinition(
+                new NetcdfName("item_name"),
+                NetcdfDataType.STRING,
+                "the name of the item",
+                "",
+                "Item name"),
+            new LocalVariableDefinition(
+                new NetcdfName("item_price"),
+                NetcdfDataType.DOUBLE,
+                "the price of the item",
+                "",
+                "Item price")
+          };
+      TableDefinition tabledef =
+          new TableDefinition(tablename, 3, "", "", Collections.emptyMap(), columns);
+      Object_component_write_table oc1 = dp.getComponent(tabledef);
+      oc1.writeData(0, new String[] {"Apples", "Pears", "Oranges"});
+      oc1.writeData(1, new double[] {1.1, 2.2, 3.3});
+    }
+    String hash = "9c79f02502a4c1af3681b9d43f57d2dd81ac0f2b";
+
+    check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
+  }
+
+  /**
+   * test write a table with unlimited size.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(49)
+  void writeTable3() throws IOException {
+    String dataProduct = "my_lovely_little_table3";
+    String component_path = "tablex";
+    NetcdfGroupName tablename = new NetcdfGroupName(component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      LocalVariableDefinition[] columns =
+          new LocalVariableDefinition[] {
+            new LocalVariableDefinition(
+                new NetcdfName("item_name"),
+                NetcdfDataType.STRING,
+                "the name of the items",
+                "",
+                "Item name"),
+            new LocalVariableDefinition(
+                new NetcdfName("item_price"),
+                NetcdfDataType.DOUBLE,
+                "the price of the items",
+                "",
+                "Item price")
+          };
+      TableDefinition tabledef =
+          new TableDefinition(tablename, 0, "", "", Collections.emptyMap(), columns);
+      Object_component_write_table oc1 = dp.getComponent(tabledef);
+      oc1.writeData(0, new String[] {"Apples", "Pears", "Oranges"});
+      oc1.writeData(1, new double[] {1.1, 2.2, 3.3});
+    }
+    String hash = "beb3ef94f6f41c03c59a6f518d02f9bd44273bf5";
+
+    check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
+  }
+
+  /**
+   * write table, unlimited size. write each column 3 items at a time.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(50)
+  void writeTable4() throws IOException {
+    String dataProduct = "my_lovely_little_table4";
+    String component_path = "table";
+    NetcdfGroupName tablename = new NetcdfGroupName(component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      LocalVariableDefinition[] columns =
+          new LocalVariableDefinition[] {
+            new LocalVariableDefinition(
+                new NetcdfName("item_name"),
+                NetcdfDataType.STRING,
+                "the name of the item",
+                "",
+                "Item name"),
+            new LocalVariableDefinition(
+                new NetcdfName("item_price"),
+                NetcdfDataType.DOUBLE,
+                "the price of one item",
+                "GBP",
+                "Item price"),
+            new LocalVariableDefinition(
+                new NetcdfName("item_quantity"),
+                NetcdfDataType.INT,
+                "the number of items",
+                "",
+                "quantity")
+          };
+      TableDefinition tabledef =
+          new TableDefinition(tablename, 0, "", "", Collections.emptyMap(), columns);
+      Object_component_write_table oc1 = dp.getComponent(tabledef);
+      oc1.writeData(0, new String[] {"Apples", "Pears", "Oranges"});
+      oc1.writeData(1, new double[] {1.1, 2.2, 3.3});
+      oc1.writeData(2, new int[] {3, 5, 7});
+
+      oc1.writeData(0, new String[] {"Bananas", "Kiwis", "Grapes"});
+      oc1.writeData(1, new double[] {2.5, 1.5, 0.2});
+      oc1.writeData(2, new int[] {9, 11, 13});
+    }
+    String hash = "7638b450dffec9621c8bbbbd7db6b0618bc5d662";
+
+    check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
   }
 }

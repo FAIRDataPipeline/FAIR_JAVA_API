@@ -2,6 +2,7 @@ package org.fairdatapipeline.netcdf;
 
 import java.io.IOException;
 import java.util.Objects;
+import org.fairdatapipeline.objects.Dimension;
 import org.fairdatapipeline.objects.DimensionalVariableDefinition;
 import org.fairdatapipeline.objects.NumericalArray;
 import org.fairdatapipeline.objects.VariableDefinition;
@@ -30,8 +31,8 @@ class NetcdfReaderTest {
     Assertions.assertEquals(
         org.fairdatapipeline.objects.DimensionalVariableDefinition.class, ardef.getClass());
     DimensionalVariableDefinition dimvar = (DimensionalVariableDefinition) ardef;
-    Assertions.assertEquals(new NetcdfName("X"), dimvar.getDimensions()[0]);
-    Assertions.assertEquals(new NetcdfName("Y"), dimvar.getDimensions()[1]);
+    Assertions.assertEquals(new Dimension("X"), dimvar.getDimensions()[0]);
+    Assertions.assertEquals(new Dimension("Y"), dimvar.getDimensions()[1]);
   }
 
   /**

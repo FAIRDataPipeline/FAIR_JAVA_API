@@ -74,14 +74,15 @@ public class Object_component_write_array extends Object_component_write {
         Array a = Array.makeFromJavaArray(nadat.asObject());
         while (a.getShape().length < this.shape.length) {
           a = Array.makeArrayRankPlusOne(a);
-          LOGGER.trace("makeArrayRankPlusOne: " + Arrays.toString(a.getShape()));
+          if (LOGGER.isTraceEnabled())
+            LOGGER.trace("makeArrayRankPlusOne: {}", Arrays.toString(a.getShape()));
         }
 
-        LOGGER.trace(
-            "nWriter.writeArrayData() a = "
-                + Arrays.toString(a.getShape())
-                + "; write_pointer: "
-                + Arrays.toString(this.write_pointer));
+        if (LOGGER.isTraceEnabled())
+          LOGGER.trace(
+              "nWriter.writeArrayData() a = {}; write_pointer: {}",
+              Arrays.toString(a.getShape()),
+              Arrays.toString(this.write_pointer));
         nWriter.writeArrayData(variable, a, this.write_pointer);
         int update_dimension = this.shape.length - 1;
         for (int i = 0; i < this.shape.length; i++) {
@@ -94,10 +95,12 @@ public class Object_component_write_array extends Object_component_write {
             break;
           }
         }
-        LOGGER.trace("line 96 .. update_dimension: " + update_dimension);
-        LOGGER.trace("this.shape: " + Arrays.toString(this.shape));
-        LOGGER.trace("a.shape: " + Arrays.toString(a.getShape()));
-        LOGGER.trace("update_dim: " + update_dimension);
+        if (LOGGER.isTraceEnabled()) {
+          LOGGER.trace("line 96 .. update_dimension: {}", update_dimension);
+          LOGGER.trace("this.shape: {}", Arrays.toString(this.shape));
+          LOGGER.trace("a.shape: {}", Arrays.toString(a.getShape()));
+          LOGGER.trace("update_dim: {}", update_dimension);
+        }
         this.write_pointer[update_dimension] += a.getShape()[update_dimension];
         while (this.shape[update_dimension] != 0
             && this.write_pointer[update_dimension] >= this.shape[update_dimension]) {

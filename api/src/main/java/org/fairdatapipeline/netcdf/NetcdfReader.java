@@ -66,7 +66,7 @@ public class NetcdfReader {
                 dim -> {
                   if (dim.getName().startsWith("__fdp"))
                     return new Dimension(sh[Integer.valueOf(dim.getName().split("_dim_")[1])]);
-                  else return new NetcdfName(dim.getName());
+                  else return new Dimension(dim.getName());
                 })
             .toArray(Dimension[]::new);
 

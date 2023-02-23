@@ -32,4 +32,13 @@ public class Dimension {
   public NetcdfName name() {
     return name;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) return true;
+    if (!(o instanceof Dimension)) return false;
+    Dimension d = (Dimension) o;
+    return ((this.is_size() && d.is_size() && d.size == this.size)
+        || (!this.is_size() && !d.is_size() && d.name().getName().equals(this.name.getName())));
+  }
 }

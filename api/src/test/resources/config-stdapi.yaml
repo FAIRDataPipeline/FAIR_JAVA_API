@@ -87,6 +87,9 @@ read:
   - data_product: test/array4d_f
     use:
       version: 0.0.1
+  - data_product: my_lovely_little_table
+    use:
+      version: 0.0.1
 
 
 write:
@@ -191,6 +194,26 @@ write:
       version: 0.0.1
   - data_product: test/array4d_f
     description: the 4d NC array test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: my_lovely_little_table
+    description: table test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: my_lovely_little_table2
+    description: table test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: my_lovely_little_table3
+    description: table test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: my_lovely_little_table4
+    description: table test
     file_type: nc
     use:
       version: 0.0.1
