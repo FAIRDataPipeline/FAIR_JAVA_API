@@ -20,7 +20,7 @@ import ucar.nc2.write.NetcdfFormatWriter;
 public class NetcdfBuilder implements AutoCloseable {
   private static final String ATTRIB_DESC = "description";
   private static final String ATTRIB_LNAME = "long_name";
-  private static final String ATTRIB_FILLVALUE = "_FillValue";
+  public static final String ATTRIB_FILLVALUE = "_FillValue";
   private static final String ATTRIB_UNITS = "units";
   private static final String ATTRIB_GROUP_TYPE = "group_type";
 

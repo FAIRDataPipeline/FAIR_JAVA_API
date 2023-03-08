@@ -20,11 +20,31 @@ public class Data_product_read_nc extends Data_product_read {
    * @throws IOException if the file cannot be opened for reading.
    */
   public Object_component_read_nc getComponent(@Nonnull String component_name) throws IOException {
-    if (componentMap.containsKey(component_name))
+    if (componentMap.containsKey(component_name)) {
+      // check its on Object_component_read_nc
       return (Object_component_read_nc) componentMap.get(component_name);
+    }
     Object_component_read_nc dc;
     VariableName vn = new VariableName(component_name);
     dc = new Object_component_read_nc(this, vn);
+    componentMap.put(component_name, dc);
+    return dc;
+  }
+
+  /**
+   * Obtain an Object_component_read_table for reading.
+   *
+   * @param component_name the name of the object component.
+   * @return the Object_component_read_nc object.
+   * @throws IOException if the file cannot be opened for reading.
+   */
+  public Object_component_read_table getTable(@Nonnull String component_name) throws IOException {
+    if (componentMap.containsKey(component_name)) {
+      // check it's an Object_component_read_table
+      return (Object_component_read_table) componentMap.get(component_name);
+    }
+    VariableName vn = new VariableName(component_name);
+    Object_component_read_table dc = new Object_component_read_table(this, vn);
     componentMap.put(component_name, dc);
     return dc;
   }

@@ -954,15 +954,33 @@ class CoderunIntegrationTest {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read_nc dc = coderun.get_dp_for_read_nc(dataProduct);
       Object_component_read_nc oc_lon = dc.getComponent(oc_lon_name);
+      VariableDefinition oc_lonVardef = oc_lon.getVardef();
+      assertThat(oc_lonVardef.getClass()).isEqualTo(CoordinateVariableDefinition.class);
+      assertThat(oc_lonVardef.getDescription()).isEmpty();
+      assertThat(oc_lonVardef.getUnits()).isEqualTo("degrees east");
+
       Number[] lons = oc_lon.readArray().as1DArray();
       assertThat(lons)
           .containsExactly(
               -180.0, -150.0, -120.0, -90.0, -60.0, -30.0, 0.0, 30.0, 60.0, 90.0, 120.0, 150.0);
       Object_component_read_nc oc_lat = dc.getComponent(oc_lat_name);
+      VariableDefinition oc_latVardef = oc_lat.getVardef();
+      assertThat(oc_latVardef.getDescription()).isEmpty();
+      assertThat(oc_latVardef.getUnits()).isEqualTo("degrees north");
+
       Number[] lats = oc_lat.readArray().as1DArray();
       assertThat(lats)
           .containsExactly(-75.0, -60.0, -45.0, -30.0, -15.0, 0.0, 15.0, 30.0, 45.0, 60.0, 75.0);
       Object_component_read_nc oc1 = dc.getComponent(component_name);
+      VariableDefinition oc_vardef = oc1.getVardef();
+      assertThat(oc_vardef.getClass()).isEqualTo(DimensionalVariableDefinition.class);
+      assertThat(oc_vardef.getUnits()).isEqualTo("C");
+      assertThat(oc_vardef.getDescription()).isEqualTo("a test dataset of temperatures in space");
+      assertThat(oc_vardef.getLong_name()).isEqualTo("surface temperature");
+      DimensionalVariableDefinition oc_dimvarDef = (DimensionalVariableDefinition) oc_vardef;
+      Dimension[] dims = oc_dimvarDef.getDimensions();
+      assertThat(dims).hasSize(2);
+      assertThat(dims[0].name().getName()).isEqualTo("lat");
       Number[][] temps = oc1.readArray().as2DArray();
       Number[][] expected_temps = new Number[11][12];
       for (int lati = 0; lati < 11; lati++)
@@ -1781,7 +1799,9 @@ class CoderunIntegrationTest {
       assertThat(vDef.getDataType()).isEqualTo(NetcdfDataType.DOUBLE);
       assertThat(vDef.getUnits()).isEmpty();
       assertThat(vDef.getLong_name()).isEmpty();
-      Dimension[] dims = ((DimensionalVariableDefinition) vDef).getDimensions();
+      assertThat(vDef.getClass()).isEqualTo(DimensionalVariableDefinition.class);
+      DimensionalVariableDefinition dvDef = (DimensionalVariableDefinition) vDef;
+      Dimension[] dims = dvDef.getDimensions();
 
       for (int i = 0; i < 4; i++) assertThat(dims[i].size()).isEqualTo(i + 3);
     }
@@ -1953,5 +1973,40 @@ class CoderunIntegrationTest {
     String hash = "7638b450dffec9621c8bbbbd7db6b0618bc5d662";
 
     check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
+  }
+
+  /**
+   * test read table with 1 column only; with 3 ints.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(51)
+  void readTable() throws IOException {
+    String dataProduct = "my_lovely_little_table";
+    String component_path = "table";
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dp = coderun.get_dp_for_read_nc(dataProduct);
+
+      Object_component_read_table oc1 = dp.getTable(component_path);
+      TableDefinition tabledef = oc1.getTabledef();
+      Assertions.assertEquals("", tabledef.getDescription());
+      Assertions.assertEquals("", tabledef.getLong_name());
+      Assertions.assertEquals(3, tabledef.getSize());
+      LocalVariableDefinition[] c = tabledef.getColumns();
+      Assertions.assertEquals(1, c.length);
+      Assertions.assertEquals(NetcdfDataType.INT, c[0].getDataType());
+      Assertions.assertEquals("the index number of the item", c[0].getDescription());
+      Assertions.assertEquals("", c[0].getUnits());
+      Assertions.assertEquals("indexNr", c[0].getLong_name());
+
+      Object o = oc1.readData(0);
+      int[] i = (int[]) o;
+      Assertions.assertArrayEquals(new int[] {2, 4, 6}, i);
+    }
+    String hash = "905e08bc0d4b794afc20d988eb7822d90c69d553";
+
+    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_path, hash)), null);
   }
 }
