@@ -1,10 +1,7 @@
 package org.fairdatapipeline.netcdf;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.fairdatapipeline.objects.*;
 import org.fairdatapipeline.objects.Dimension;
 import ucar.ma2.Array;
@@ -14,8 +11,6 @@ import ucar.nc2.*;
 
 public class NetcdfReader {
   NetcdfFile file;
-  private static final String[] attrib_names =
-      new String[] {"description", "units", "long_name", "standard_name"};
 
   /**
    * @param fileName the fileName of the file to open.
@@ -40,11 +35,14 @@ public class NetcdfReader {
    *
    * @param variableName
    * @return the variable definition (all the metadata) for the given VariableName.
+   * @throws NetcdfComponentNotfoundException
+   * @throws NetcdfComponentWrongTypeException
    */
-  public VariableDefinition getArray(VariableName variableName) {
+  public VariableDefinition getArray(VariableName variableName)
+      throws NetcdfComponentWrongTypeException, NetcdfComponentNotfoundException {
     Variable v = this.getVariable(variableName);
     Map<String, String> argument_attribs = new HashMap<>();
-    Arrays.stream(attrib_names).forEach(s -> argument_attribs.put(s, ""));
+    Arrays.stream(NetcdfNames.attrib_names).forEach(s -> argument_attribs.put(s, ""));
     Map<String, String[]> optional_attribs = new HashMap<>();
     for (Attribute attribute : v.attributes()) {
       if (attribute.isString()) {
@@ -77,9 +75,9 @@ public class NetcdfReader {
           variableName,
           dataType,
           v.getShape(0),
-          argument_attribs.get(attrib_names[0]),
-          argument_attribs.get(attrib_names[1]),
-          argument_attribs.get(attrib_names[2]),
+          argument_attribs.get(NetcdfNames.attrib_names[0]),
+          argument_attribs.get(NetcdfNames.attrib_names[1]),
+          argument_attribs.get(NetcdfNames.attrib_names[2]),
           optional_attribs);
 
     } else {
@@ -88,25 +86,26 @@ public class NetcdfReader {
           variableName,
           dataType,
           dims,
-          argument_attribs.get(attrib_names[0]),
-          argument_attribs.get(attrib_names[1]),
-          argument_attribs.get(attrib_names[2]),
+          argument_attribs.get(NetcdfNames.attrib_names[0]),
+          argument_attribs.get(NetcdfNames.attrib_names[1]),
+          argument_attribs.get(NetcdfNames.attrib_names[2]),
           optional_attribs);
     }
   }
 
   private Object getMissingValue(Variable v) {
-    Attribute a = v.findAttribute(NetcdfBuilder.ATTRIB_FILLVALUE);
+    Attribute a = v.findAttribute(NetcdfNames.ATTRIB_FILLVALUE);
     if (a == null) return null;
     if (a.isString()) return a.getStringValue();
     return a.getNumericValue();
   }
 
   private LocalVariableDefinition makeVarDef(Variable v) {
+    Integer columnIndex = null;
     NetcdfName localName = new NetcdfName(v.getShortName());
     NetcdfDataType dataType = NetcdfDataType.translate(v.getDataType());
     Map<String, String> argument_attribs = new HashMap<>();
-    Arrays.stream(attrib_names).forEach(s -> argument_attribs.put(s, ""));
+    Arrays.stream(NetcdfNames.attrib_names).forEach(s -> argument_attribs.put(s, ""));
     Map<String, String[]> optional_attribs = new HashMap<>();
     Object missingValue = getMissingValue(v);
     for (Attribute attribute : v.attributes()) {
@@ -122,32 +121,49 @@ public class NetcdfReader {
                     .toArray(String[]::new));
           }
         }
+      } else {
+        if (attribute.getName().equals(NetcdfNames.ATTRIB_COLUMN_INDEX))
+          columnIndex = (Integer) attribute.getNumericValue();
       }
     }
 
     return new LocalVariableDefinition(
         localName,
         dataType,
-        argument_attribs.get(attrib_names[0]),
-        argument_attribs.get(attrib_names[1]),
-        argument_attribs.get(attrib_names[2]),
+        argument_attribs.get(NetcdfNames.attrib_names[0]),
+        argument_attribs.get(NetcdfNames.attrib_names[1]),
+        argument_attribs.get(NetcdfNames.attrib_names[2]),
         optional_attribs,
-        missingValue);
+        missingValue,
+        columnIndex);
   }
 
-  public TableDefinition getTable(VariableName tablename) {
+  public TableDefinition getTable(VariableName tablename)
+      throws NetcdfComponentWrongTypeException, NetcdfComponentNotfoundException {
+    if (file.findVariable(tablename.getFullPath()) != null)
+      throw new NetcdfComponentWrongTypeException(
+          "component named " + tablename.getFullPath() + " is an array/variable,  not a table");
     Group g = file.findGroup(tablename.getFullPath());
-    if (g == null) throw (new IllegalArgumentException("tablename group not found"));
+    if (g == null)
+      throw (new NetcdfComponentNotfoundException(
+          "tablename " + tablename.getFullPath() + " group not found"));
+    Attribute a = g.findAttribute(NetcdfNames.ATTRIB_GROUP_TYPE);
+    if (a == null
+        || a.getStringValue() == null
+        || !a.getStringValue().equals(NetcdfNames.ATTRIB_GROUP_TYPE_TABLE))
+      throw (new NetcdfComponentNotfoundException(
+          "tablename " + tablename.getFullPath() + " group not found"));
     List<Variable> variables = getVariables(tablename);
     Map<String, String> argument_attribs = new HashMap<>();
-    Arrays.stream(attrib_names).forEach(s -> argument_attribs.put(s, ""));
+    Arrays.stream(NetcdfNames.attrib_names).forEach(s -> argument_attribs.put(s, ""));
     Map<String, String[]> optional_attribs = new HashMap<>();
     for (Attribute attribute : g.attributes()) {
       if (attribute.isString()) {
         if (argument_attribs.containsKey(attribute.getName())) {
           argument_attribs.put(attribute.getName(), attribute.getStringValue());
         } else {
-          if (attribute.getValues() != null) {
+          if (attribute.getValues() != null
+              && !attribute.getName().startsWith(NetcdfNames.FDP_PREFIX)) {
             optional_attribs.put(
                 attribute.getName(),
                 Arrays.stream((Object[]) attribute.getValues().get1DJavaArray(DataType.STRING))
@@ -160,17 +176,38 @@ public class NetcdfReader {
     LocalVariableDefinition[] columns =
         variables.stream().map(this::makeVarDef).toArray(LocalVariableDefinition[]::new);
 
+    Arrays.sort(
+        columns,
+        Comparator.comparing(
+            p -> {
+              if (p.getColumnIndex() == null) return -1;
+              else return p.getColumnIndex();
+            }));
+
     return new TableDefinition(
         new NetcdfGroupName(tablename.getFullPath()),
         (int) variables.get(0).getSize(),
-        argument_attribs.get(attrib_names[0]),
-        argument_attribs.get(attrib_names[2]),
+        argument_attribs.get(NetcdfNames.attrib_names[0]),
+        argument_attribs.get(NetcdfNames.attrib_names[2]),
         optional_attribs,
         columns);
   }
 
   public List<Variable> getVariables(VariableName tableName) {
     Group g = file.findGroup(tableName.getFullPath());
+    if (g == null) {
+      if (file.findVariable(tableName.getFullPath()) != null)
+        throw new NetcdfComponentWrongTypeException(
+            "trying to read variable "
+                + tableName.getFullPath()
+                + " as a table but it might be an array.");
+      throw new NetcdfComponentNotfoundException("can't find table " + tableName);
+    }
+    Attribute a = g.findAttribute(NetcdfNames.ATTRIB_GROUP_TYPE);
+    if (a == null
+        || a.getStringValue() == null
+        || !a.getStringValue().equals(NetcdfNames.ATTRIB_GROUP_TYPE_TABLE))
+      throw new NetcdfComponentNotfoundException("can't find table " + tableName);
     return g.getVariables();
   }
 
@@ -181,7 +218,8 @@ public class NetcdfReader {
    * @return the Variable (needed for read methods)
    * @throws IllegalArgumentException when the variable can't be found
    */
-  public Variable getVariable(VariableName variableName) throws IllegalArgumentException {
+  public Variable getVariable(VariableName variableName)
+      throws NetcdfComponentWrongTypeException, NetcdfComponentNotfoundException {
     return this.getVariable(variableName.getFullPath());
   }
 
@@ -192,9 +230,23 @@ public class NetcdfReader {
    * @return the Variable (needed for read methods)
    * @throws IllegalArgumentException when the variable can't be found
    */
-  public Variable getVariable(String variablefullname) throws IllegalArgumentException {
+  public Variable getVariable(String variablefullname)
+      throws NetcdfComponentWrongTypeException, NetcdfComponentNotfoundException {
     Variable v = file.findVariable(variablefullname);
-    if (v == null) throw (new IllegalArgumentException("can't find variable " + variablefullname));
+    if (v == null) {
+      Group g = file.findGroup(variablefullname);
+      if (g != null) {
+        Attribute a = g.findAttribute(NetcdfNames.ATTRIB_GROUP_TYPE);
+        if (a != null
+            && a.getStringValue() != null
+            && a.getStringValue().equals(NetcdfNames.ATTRIB_GROUP_TYPE_TABLE))
+          throw new NetcdfComponentWrongTypeException(
+              "Component "
+                  + variablefullname
+                  + " is a table, you are trying to open it as an Array");
+      }
+      throw (new NetcdfComponentNotfoundException("can't find variable " + variablefullname));
+    }
     return v;
   }
 

@@ -18,11 +18,6 @@ import ucar.nc2.write.NetcdfFormatWriter;
 
 /** */
 public class NetcdfBuilder implements AutoCloseable {
-  private static final String ATTRIB_DESC = "description";
-  private static final String ATTRIB_LNAME = "long_name";
-  public static final String ATTRIB_FILLVALUE = "_FillValue";
-  private static final String ATTRIB_UNITS = "units";
-  private static final String ATTRIB_GROUP_TYPE = "group_type";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NetcdfBuilder.class);
   private static final Cleaner cleaner = Cleaner.create();
@@ -125,19 +120,24 @@ public class NetcdfBuilder implements AutoCloseable {
             .setDataType(coordinateVariable.getDataType().translate())
             .setDimensions(Collections.singletonList(d));
     if (coordinateVariable.getDescription().length() > 0)
-      varbuilder.addAttribute(new Attribute(ATTRIB_DESC, coordinateVariable.getDescription()));
+      varbuilder.addAttribute(
+          new Attribute(NetcdfNames.ATTRIB_DESC, coordinateVariable.getDescription()));
     if (coordinateVariable.getUnits().length() > 0)
-      varbuilder.addAttribute(new Attribute(ATTRIB_UNITS, coordinateVariable.getUnits()));
+      varbuilder.addAttribute(
+          new Attribute(NetcdfNames.ATTRIB_UNITS, coordinateVariable.getUnits()));
     if (coordinateVariable.getLong_name().length() > 0)
-      varbuilder.addAttribute(new Attribute(ATTRIB_LNAME, coordinateVariable.getLong_name()));
+      varbuilder.addAttribute(
+          new Attribute(NetcdfNames.ATTRIB_LNAME, coordinateVariable.getLong_name()));
     if (coordinateVariable.getMissingValue() != null) {
       // coordinateVariables should not have any missing values.
       if (coordinateVariable.getMissingValue().getClass() == String.class) {
         varbuilder.addAttribute(
-            new Attribute(ATTRIB_FILLVALUE, (String) coordinateVariable.getMissingValue()));
+            new Attribute(
+                NetcdfNames.ATTRIB_FILLVALUE, (String) coordinateVariable.getMissingValue()));
       } else {
         varbuilder.addAttribute(
-            new Attribute(ATTRIB_FILLVALUE, (Number) coordinateVariable.getMissingValue()));
+            new Attribute(
+                NetcdfNames.ATTRIB_FILLVALUE, (Number) coordinateVariable.getMissingValue()));
       }
     }
     gb.addVariable(varbuilder);
@@ -156,9 +156,9 @@ public class NetcdfBuilder implements AutoCloseable {
     }
     gb.addDimension(d);
     if (tabledef.getDescription().length() > 0)
-      gb.addAttribute(new Attribute(ATTRIB_DESC, tabledef.getDescription()));
+      gb.addAttribute(new Attribute(NetcdfNames.ATTRIB_DESC, tabledef.getDescription()));
     if (tabledef.getLong_name().length() > 0)
-      gb.addAttribute(new Attribute(ATTRIB_LNAME, tabledef.getLong_name()));
+      gb.addAttribute(new Attribute(NetcdfNames.ATTRIB_LNAME, tabledef.getLong_name()));
     tabledef
         .getOptional_attribs()
         .forEach(
@@ -169,17 +169,18 @@ public class NetcdfBuilder implements AutoCloseable {
                         .setDataType(DataType.STRING)
                         .setValues(NetcdfDataType.translateArray(value))
                         .build()));
-    Arrays.stream(tabledef.getColumns())
-        .forEach(
-            localVarDef ->
-                this.prepare(
-                    new DimensionalVariableDefinition(
-                        localVarDef, tabledef.getGroupName(), dimensionName)));
-    gb.addAttribute(new Attribute(ATTRIB_GROUP_TYPE, "table"));
+    for (int i = 0; i < tabledef.getColumns().length; i++) {
+      this.prepare(
+          new DimensionalVariableDefinition(
+              tabledef.getColumns()[i], tabledef.getGroupName(), dimensionName),
+          i);
+    }
+    gb.addAttribute(
+        new Attribute(NetcdfNames.ATTRIB_GROUP_TYPE, NetcdfNames.ATTRIB_GROUP_TYPE_TABLE));
   }
 
-  String generatedDimName(String vName, int i) {
-    return "__fdp_" + vName + "_dim_" + i;
+  public void prepare(DimensionalVariableDefinition nadef) {
+    prepare(nadef, null);
   }
 
   /**
@@ -188,7 +189,7 @@ public class NetcdfBuilder implements AutoCloseable {
    *
    * @param nadef
    */
-  public void prepare(DimensionalVariableDefinition nadef) {
+  public void prepare(DimensionalVariableDefinition nadef, Integer columnIndex) {
     List<Dimension> dims = new ArrayList<>();
     VariableName vbn = nadef.getVariableName();
     NetcdfGroupName gn = vbn.getGroupName();
@@ -201,7 +202,7 @@ public class NetcdfBuilder implements AutoCloseable {
         CoordinateVariableDefinition cvdef =
             new CoordinateVariableDefinition(
                 new VariableName(
-                    new NetcdfName(this.generatedDimName(vbn.getName().getName(), i)),
+                    new NetcdfName(NetcdfNames.generatedDimName(vbn.getName().getName(), i)),
                     vbn.getGroupName()),
                 values,
                 "",
@@ -214,7 +215,7 @@ public class NetcdfBuilder implements AutoCloseable {
     for (int i = 0; i < nadef.getDimensions().length; i++) {
       String dimName;
       if (nadef.getDimensions()[i].is_size()) {
-        dimName = this.generatedDimName(vbn.getName().getName(), i);
+        dimName = NetcdfNames.generatedDimName(vbn.getName().getName(), i);
       } else {
         dimName = nadef.getDimensions()[i].name().getName();
       }
@@ -230,17 +231,22 @@ public class NetcdfBuilder implements AutoCloseable {
             .setDataType(nadef.getDataType().translate())
             .setDimensions(dims);
     if (nadef.getDescription().length() > 0)
-      varbuilder.addAttribute(new Attribute(ATTRIB_DESC, nadef.getDescription()));
+      varbuilder.addAttribute(new Attribute(NetcdfNames.ATTRIB_DESC, nadef.getDescription()));
     if (nadef.getUnits().length() > 0)
-      varbuilder.addAttribute(new Attribute(ATTRIB_UNITS, nadef.getUnits()));
+      varbuilder.addAttribute(new Attribute(NetcdfNames.ATTRIB_UNITS, nadef.getUnits()));
     if (nadef.getLong_name().length() > 0)
-      varbuilder.addAttribute(new Attribute(ATTRIB_LNAME, nadef.getLong_name()));
+      varbuilder.addAttribute(new Attribute(NetcdfNames.ATTRIB_LNAME, nadef.getLong_name()));
     if (nadef.getMissingValue() != null) {
       if (nadef.getMissingValue().getClass() == String.class) {
-        varbuilder.addAttribute(new Attribute(ATTRIB_FILLVALUE, (String) nadef.getMissingValue()));
+        varbuilder.addAttribute(
+            new Attribute(NetcdfNames.ATTRIB_FILLVALUE, (String) nadef.getMissingValue()));
       } else {
-        varbuilder.addAttribute(new Attribute(ATTRIB_FILLVALUE, (Number) nadef.getMissingValue()));
+        varbuilder.addAttribute(
+            new Attribute(NetcdfNames.ATTRIB_FILLVALUE, (Number) nadef.getMissingValue()));
       }
+    }
+    if (columnIndex != null) {
+      varbuilder.addAttribute(new Attribute(NetcdfNames.ATTRIB_COLUMN_INDEX, columnIndex));
     }
 
     gb.addVariable(varbuilder);
@@ -256,7 +262,7 @@ public class NetcdfBuilder implements AutoCloseable {
     if (start_group == null) start_group = netcdfBuilderWrapper.builder.getRootGroup();
     if (group_name.equals("")) {
       if (mustBeFresh) throw (new IllegalArgumentException("this group already exists"));
-      if (start_group.getAttributeContainer().findAttribute(ATTRIB_GROUP_TYPE) != null)
+      if (start_group.getAttributeContainer().findAttribute(NetcdfNames.ATTRIB_GROUP_TYPE) != null)
         throw (new IllegalArgumentException(
             "we can't create anything new in groups marked with group_type attribute."));
       return start_group;
@@ -265,7 +271,7 @@ public class NetcdfBuilder implements AutoCloseable {
     Optional<Group.Builder> optGroupBuilder = start_group.findGroupLocal(split[0]);
     if (optGroupBuilder.isPresent()) {
       Group.Builder found_group = optGroupBuilder.get();
-      if (found_group.getAttributeContainer().findAttribute(ATTRIB_GROUP_TYPE) != null)
+      if (found_group.getAttributeContainer().findAttribute(NetcdfNames.ATTRIB_GROUP_TYPE) != null)
         throw (new IllegalArgumentException(
             "we can't create anything new in groups marked with group_type attribute."));
       if (split.length == 2) {

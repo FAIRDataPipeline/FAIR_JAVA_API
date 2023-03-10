@@ -27,10 +27,7 @@ import org.fairdatapipeline.distribution.ImmutableDistribution;
 import org.fairdatapipeline.distribution.ImmutableMinMax;
 import org.fairdatapipeline.distribution.MinMax;
 import org.fairdatapipeline.file.CleanableFileChannel;
-import org.fairdatapipeline.netcdf.NetcdfDataType;
-import org.fairdatapipeline.netcdf.NetcdfGroupName;
-import org.fairdatapipeline.netcdf.NetcdfName;
-import org.fairdatapipeline.netcdf.VariableName;
+import org.fairdatapipeline.netcdf.*;
 import org.fairdatapipeline.objects.*;
 import org.fairdatapipeline.samples.ImmutableSamples;
 import org.fairdatapipeline.samples.Samples;
@@ -1836,7 +1833,7 @@ class CoderunIntegrationTest {
       Object_component_write_table oc1 = dp.getComponent(tabledef);
       oc1.writeData(0, new int[] {2, 4, 6});
     }
-    String hash = "905e08bc0d4b794afc20d988eb7822d90c69d553";
+    String hash = "cfaeec9980ac37a8527f934ea3fba957d6d7fc9e";
 
     check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
   }
@@ -1877,7 +1874,7 @@ class CoderunIntegrationTest {
       oc1.writeData(0, new String[] {"Apples", "Pears", "Oranges"});
       oc1.writeData(1, new double[] {1.1, 2.2, 3.3});
     }
-    String hash = "9c79f02502a4c1af3681b9d43f57d2dd81ac0f2b";
+    String hash = "2fdfc1c1dc88937c94f0c6172661ef4808b40257";
 
     check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
   }
@@ -1918,7 +1915,7 @@ class CoderunIntegrationTest {
       oc1.writeData(0, new String[] {"Apples", "Pears", "Oranges"});
       oc1.writeData(1, new double[] {1.1, 2.2, 3.3});
     }
-    String hash = "beb3ef94f6f41c03c59a6f518d02f9bd44273bf5";
+    String hash = "837a7f07ca0dbcdda0e76485a2f7fc16d5428481";
 
     check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
   }
@@ -1970,7 +1967,7 @@ class CoderunIntegrationTest {
       oc1.writeData(1, new double[] {2.5, 1.5, 0.2});
       oc1.writeData(2, new int[] {9, 11, 13});
     }
-    String hash = "7638b450dffec9621c8bbbbd7db6b0618bc5d662";
+    String hash = "e7542ca7f48109246407c314ef8979650bb9efb5";
 
     check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
   }
@@ -2005,7 +2002,133 @@ class CoderunIntegrationTest {
       int[] i = (int[]) o;
       Assertions.assertArrayEquals(new int[] {2, 4, 6}, i);
     }
-    String hash = "905e08bc0d4b794afc20d988eb7822d90c69d553";
+    String hash = "cfaeec9980ac37a8527f934ea3fba957d6d7fc9e";
+
+    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_path, hash)), null);
+  }
+
+  /**
+   * test - when we are trying to open a component as Array, when in reality it is a table the
+   * dp.getComponent() will throw IllegalArgumentException.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(52)
+  void readTable_as_array() throws IOException {
+    String dataProduct = "my_lovely_little_table";
+    String component_path = "table";
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dp = coderun.get_dp_for_read_nc(dataProduct);
+      Assertions.assertThrows(
+          NetcdfComponentWrongTypeException.class,
+          () -> {
+            dp.getComponent(component_path);
+          });
+    }
+  }
+
+  /**
+   * test - when we are trying to open a component as Array, when in reality it is a table the
+   * dp.getComponent() will throw IllegalArgumentException.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(52)
+  void readArray_as_table() throws IOException {
+    String dataProduct = "test/array1";
+    String component_path = "component1/with/a/path";
+    VariableName latname = new VariableName("lat", component_path);
+    VariableName arrayname = new VariableName("array1", component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dp = coderun.get_dp_for_read_nc(dataProduct);
+      String latnames = latname.getFullPath();
+      Assertions.assertThrows(
+          NetcdfComponentWrongTypeException.class,
+          () -> {
+            dp.getTable(latnames);
+          });
+      String arraynames = arrayname.getFullPath();
+      Assertions.assertThrows(
+          NetcdfComponentWrongTypeException.class,
+          () -> {
+            dp.getTable(arraynames);
+          });
+    }
+  }
+
+  /**
+   * test write table with a String and a double column only
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(53)
+  void readTable2() throws IOException {
+    String dataProduct = "my_lovely_little_table2";
+    String component_path = "table";
+    NetcdfGroupName tablename = new NetcdfGroupName(component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dp = coderun.get_dp_for_read_nc(dataProduct);
+      Object_component_read_table oc1 = dp.getTable(tablename.getGroupName());
+      TableDefinition tabledef = oc1.getTabledef();
+      Assertions.assertEquals(3, tabledef.getSize());
+      Assertions.assertEquals("", tabledef.getDescription());
+      Assertions.assertEquals("", tabledef.getLong_name());
+      LocalVariableDefinition[] columns = tabledef.getColumns();
+      Assertions.assertEquals(2, columns.length);
+      Assertions.assertEquals(NetcdfDataType.STRING, columns[0].getDataType());
+      Assertions.assertEquals("item_name", columns[0].getLocalName().getName());
+      Assertions.assertEquals("the name of the item", columns[0].getDescription());
+      Assertions.assertEquals("", columns[0].getUnits());
+      Assertions.assertEquals(NetcdfDataType.DOUBLE, columns[1].getDataType());
+      Assertions.assertEquals("item_price", columns[1].getLocalName().getName());
+      Assertions.assertEquals("the price of the item", columns[1].getDescription());
+      Assertions.assertEquals("", columns[1].getUnits());
+      String[] s = (String[]) oc1.readData(0);
+      Assertions.assertArrayEquals(new String[] {"Apples", "Pears", "Oranges"}, s);
+      double[] n = (double[]) oc1.readData(1);
+      Assertions.assertArrayEquals(new double[] {1.1, 2.2, 3.3}, n);
+    }
+    String hash = "2fdfc1c1dc88937c94f0c6172661ef4808b40257";
+
+    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_path, hash)), null);
+  }
+
+  @Test
+  @Order(54)
+  void readTable3() throws IOException {
+    String dataProduct = "my_lovely_little_table3";
+    String component_path = "tablex";
+    NetcdfGroupName tablename = new NetcdfGroupName(component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dp = coderun.get_dp_for_read_nc(dataProduct);
+      Object_component_read_table oc1 = dp.getTable(tablename.getGroupName());
+      TableDefinition tableDef = oc1.getTabledef();
+      Assertions.assertEquals("", tableDef.getDescription());
+      Assertions.assertEquals("", tableDef.getLong_name());
+      Assertions.assertEquals(3, tableDef.getSize());
+      LocalVariableDefinition[] columns = tableDef.getColumns();
+      Assertions.assertEquals(2, columns.length);
+      Assertions.assertEquals(NetcdfDataType.STRING, columns[0].getDataType());
+      Assertions.assertEquals("item_name", columns[0].getLocalName().getName());
+      Assertions.assertEquals("the name of the items", columns[0].getDescription());
+      Assertions.assertEquals("", columns[0].getUnits());
+      Assertions.assertEquals(NetcdfDataType.DOUBLE, columns[1].getDataType());
+      Assertions.assertEquals("item_price", columns[1].getLocalName().getName());
+      Assertions.assertEquals("the price of the items", columns[1].getDescription());
+      Assertions.assertEquals("", columns[1].getUnits());
+      String[] s = (String[]) oc1.readData(0);
+      Assertions.assertArrayEquals(new String[] {"Apples", "Pears", "Oranges"}, s);
+      double[] n = (double[]) oc1.readData(1);
+      Assertions.assertArrayEquals(new double[] {1.1, 2.2, 3.3}, n);
+    }
+    String hash = "837a7f07ca0dbcdda0e76485a2f7fc16d5428481";
 
     check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_path, hash)), null);
   }

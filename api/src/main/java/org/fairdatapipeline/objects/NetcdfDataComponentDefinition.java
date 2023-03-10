@@ -2,6 +2,7 @@ package org.fairdatapipeline.objects;
 
 import java.util.Map;
 import javax.annotation.Nonnull;
+import org.fairdatapipeline.netcdf.NetcdfNames;
 
 /**
  * basic DataComponentDef - the only fields shared between all types of variables/dimensions/tables
@@ -18,6 +19,14 @@ abstract class NetcdfDataComponentDefinition {
       @Nonnull Map<String, String[]> optional_attribs) {
     this.description = description;
     this.long_name = long_name;
+    optional_attribs.keySet().stream()
+        .forEach(
+            k -> {
+              if (k.startsWith(NetcdfNames.FDP_PREFIX))
+                throw new IllegalArgumentException(
+                    "attribute names are not allowed to start with prefix "
+                        + NetcdfNames.FDP_PREFIX);
+            });
     this.optional_attribs = optional_attribs;
   }
 

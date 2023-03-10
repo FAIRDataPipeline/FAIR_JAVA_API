@@ -3,6 +3,7 @@ package org.fairdatapipeline.objects;
 import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.fairdatapipeline.netcdf.NetcdfDataType;
 import org.fairdatapipeline.netcdf.NetcdfName;
 
@@ -12,6 +13,21 @@ import org.fairdatapipeline.netcdf.NetcdfName;
  */
 public class LocalVariableDefinition extends VariableDefinition {
   NetcdfName localName;
+  @Nullable Integer columnIndex;
+
+  public LocalVariableDefinition(
+      @Nonnull NetcdfName localName,
+      @Nonnull NetcdfDataType dataType,
+      @Nonnull String description,
+      @Nonnull String units,
+      @Nonnull String long_name,
+      @Nonnull Map<String, String[]> optional_attribs,
+      Object missingValue,
+      @Nullable Integer columnIndex) {
+    super(dataType, description, units, long_name, optional_attribs, missingValue);
+    this.columnIndex = columnIndex;
+    this.localName = localName;
+  }
 
   public LocalVariableDefinition(
       @Nonnull NetcdfName localName,
@@ -48,5 +64,9 @@ public class LocalVariableDefinition extends VariableDefinition {
 
   public @Nonnull NetcdfName getLocalName() {
     return localName;
+  }
+
+  public @Nullable Integer getColumnIndex() {
+    return columnIndex;
   }
 }
