@@ -99,6 +99,9 @@ read:
   - data_product: my_lovely_little_table4
     use:
       version: 0.0.1
+  - data_product: my_lovely_little_table5
+    use:
+      version: 0.0.1
 
 
 write:
@@ -222,6 +225,11 @@ write:
     use:
       version: 0.0.1
   - data_product: my_lovely_little_table4
+    description: table test
+    file_type: nc
+    use:
+      version: 0.0.1
+  - data_product: my_lovely_little_table5
     description: table test
     file_type: nc
     use:

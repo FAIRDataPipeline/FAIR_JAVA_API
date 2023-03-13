@@ -1973,12 +1973,66 @@ class CoderunIntegrationTest {
   }
 
   /**
-   * test read table with 1 column only; with 3 ints.
+   * write table, with missing values
    *
    * @throws IOException
    */
   @Test
   @Order(51)
+  void writeTable5() throws IOException {
+    String dataProduct = "my_lovely_little_table5";
+    String component_path = "table";
+    NetcdfGroupName tablename = new NetcdfGroupName(component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write_nc dp = coderun.get_dp_for_write_nc(dataProduct);
+
+      LocalVariableDefinition[] columns =
+          new LocalVariableDefinition[] {
+            new LocalVariableDefinition(
+                new NetcdfName("item_name"),
+                NetcdfDataType.STRING,
+                "the name of the item",
+                "",
+                "Item name",
+                Collections.emptyMap(),
+                "_"),
+            new LocalVariableDefinition(
+                new NetcdfName("item_price"),
+                NetcdfDataType.DOUBLE,
+                "the price of one item",
+                "GBP",
+                "Item price",
+                Collections.emptyMap(),
+                Double.NaN),
+            new LocalVariableDefinition(
+                new NetcdfName("item_quantity"),
+                NetcdfDataType.INT,
+                "the number of items",
+                "",
+                "quantity",
+                Collections.emptyMap(),
+                Integer.MIN_VALUE)
+          };
+      TableDefinition tabledef =
+          new TableDefinition(tablename, 0, "", "", Collections.emptyMap(), columns);
+      Object_component_write_table oc1 = dp.getComponent(tabledef);
+      oc1.writeData(0, new String[] {"Apples", "_", "Oranges"});
+      oc1.writeData(1, new double[] {1.1, Double.NaN, 3.3});
+      oc1.writeData(2, new int[] {3, Integer.MIN_VALUE, 7});
+    }
+    String hash = "094efd5e8557d20d4842fe45dad01ca43ed718f2";
+
+    check_last_coderun(null, Arrays.asList(new Triplet<>(dataProduct, component_path, hash)));
+  }
+
+  /**
+   * test read table with 1 column only; with 3 ints.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(52)
   void readTable() throws IOException {
     String dataProduct = "my_lovely_little_table";
     String component_path = "table";
@@ -2014,7 +2068,7 @@ class CoderunIntegrationTest {
    * @throws IOException
    */
   @Test
-  @Order(52)
+  @Order(53)
   void readTable_as_array() throws IOException {
     String dataProduct = "my_lovely_little_table";
     String component_path = "table";
@@ -2036,7 +2090,7 @@ class CoderunIntegrationTest {
    * @throws IOException
    */
   @Test
-  @Order(52)
+  @Order(54)
   void readArray_as_table() throws IOException {
     String dataProduct = "test/array1";
     String component_path = "component1/with/a/path";
@@ -2066,7 +2120,7 @@ class CoderunIntegrationTest {
    * @throws IOException
    */
   @Test
-  @Order(53)
+  @Order(55)
   void readTable2() throws IOException {
     String dataProduct = "my_lovely_little_table2";
     String component_path = "table";
@@ -2100,7 +2154,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(54)
+  @Order(56)
   void readTable3() throws IOException {
     String dataProduct = "my_lovely_little_table3";
     String component_path = "tablex";
@@ -2129,6 +2183,69 @@ class CoderunIntegrationTest {
       Assertions.assertArrayEquals(new double[] {1.1, 2.2, 3.3}, n);
     }
     String hash = "837a7f07ca0dbcdda0e76485a2f7fc16d5428481";
+
+    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_path, hash)), null);
+  }
+
+  /**
+   * write table, unlimited size. write each column 3 items at a time.
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(57)
+  void readTable4() throws IOException {
+    String dataProduct = "my_lovely_little_table4";
+    String component_path = "table";
+    NetcdfGroupName tablename = new NetcdfGroupName(component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dp = coderun.get_dp_for_read_nc(dataProduct);
+
+      Object_component_read_table oc1 = dp.getTable(tablename.getGroupName());
+      Assertions.assertNull(oc1.getTabledef().getColumns()[0].getMissingValue());
+      Assertions.assertArrayEquals(
+          new String[] {"Apples", "Pears", "Oranges"}, (String[]) oc1.readData(0, 3));
+      Assertions.assertArrayEquals(new double[] {1.1, 2.2, 3.3}, (double[]) oc1.readData(1, 3));
+      Assertions.assertArrayEquals(new int[] {3, 5, 7}, (int[]) oc1.readData(2, 3));
+
+      Assertions.assertArrayEquals(
+          new String[] {"Bananas", "Kiwis", "Grapes"}, (String[]) oc1.readData(0, 3));
+      Assertions.assertArrayEquals(new double[] {2.5, 1.5, 0.2}, (double[]) oc1.readData(1, 3));
+      Assertions.assertArrayEquals(new int[] {9, 11, 13}, (int[]) oc1.readData(2, 3));
+    }
+    String hash = "e7542ca7f48109246407c314ef8979650bb9efb5";
+
+    check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_path, hash)), null);
+  }
+
+  /**
+   * write table, with missing values
+   *
+   * @throws IOException
+   */
+  @Test
+  @Order(58)
+  void readTable5() throws IOException {
+    String dataProduct = "my_lovely_little_table5";
+    String component_path = "table";
+    NetcdfGroupName tablename = new NetcdfGroupName(component_path);
+
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read_nc dp = coderun.get_dp_for_read_nc(dataProduct);
+
+      Object_component_read_table oc1 = dp.getTable(tablename.getGroupName());
+      LocalVariableDefinition[] c = oc1.getTabledef().getColumns();
+      Assertions.assertEquals("_", c[0].getMissingValue());
+      Assertions.assertEquals(Double.NaN, c[1].getMissingValue());
+      Assertions.assertEquals(Integer.MIN_VALUE, c[2].getMissingValue());
+
+      Assertions.assertArrayEquals(
+          new String[] {"Apples", "_", "Oranges"}, (String[]) oc1.readData(0));
+      Assertions.assertArrayEquals(new double[] {1.1, Double.NaN, 3.3}, (double[]) oc1.readData(1));
+      Assertions.assertArrayEquals(new int[] {3, Integer.MIN_VALUE, 7}, (int[]) oc1.readData(2));
+    }
+    String hash = "094efd5e8557d20d4842fe45dad01ca43ed718f2";
 
     check_last_coderun(Arrays.asList(new Triplet<>(dataProduct, component_path, hash)), null);
   }

@@ -271,6 +271,16 @@ public class NetcdfReader {
     return new NumericalArrayImpl(this.readObj(v));
   }
 
+  public Object readObj(Variable v) throws IllegalArgumentException {
+    Array a;
+    try {
+      a = v.read();
+    } catch (IOException e) {
+      throw (new IllegalArgumentException("problem"));
+    }
+    return a.copyToNDJavaArray();
+  }
+
   /**
    * read ALL data in the Variable.
    *
@@ -278,12 +288,14 @@ public class NetcdfReader {
    * @return all data in this array
    * @throws IllegalArgumentException if it runs into a problem reading.
    */
-  public Object readObj(Variable v) throws IllegalArgumentException {
+  public Object readObj(Variable v, int[] origin, int[] shape) throws IllegalArgumentException {
     Array a;
     try {
-      a = v.read();
+      a = v.read(origin, shape);
     } catch (IOException e) {
       throw (new IllegalArgumentException("problem"));
+    } catch (InvalidRangeException e) {
+      throw new IllegalArgumentException("invalid range");
     }
     return a.copyToNDJavaArray();
   }
