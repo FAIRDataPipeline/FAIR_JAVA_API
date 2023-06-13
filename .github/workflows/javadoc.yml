@@ -16,7 +16,7 @@ jobs:
         with:
           distribution: 'adopt'
           cache: gradle
-          java-version: 11
+          java-version: '11'
           java-package: jdk+fx
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
