@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up JDK 11
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: '11'
         distribution: 'adopt'
@@ -34,6 +34,6 @@ jobs:
         export REGTOKEN=`cat ~/.fair/registry/token`
         export LOCALREG=FRESHASADAISY
         ./gradlew build
-    - uses: codecov/codecov-action@v2
+    - uses: codecov/codecov-action@v3
       with:
         files: ./api/build/reports/jacoco/test/jacocoTestReport.xml,./dataregistry/build/reports/jacoco/test/jacocoTestReport.xml
