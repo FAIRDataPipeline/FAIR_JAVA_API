@@ -22,7 +22,7 @@ jobs:
       - name: Generate Javadoc
         run: ./gradlew javadoc
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.4.2
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           BRANCH: gh-pages
           CLEAN: true
