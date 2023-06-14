@@ -12,12 +12,12 @@ Documentation can be found on https://www.fairdatapipeline.org/docs/API/Java/
 
 JavaDocs are automatically published on https://www.fairdatapipeline.org/javaDataPipeline/
 
-To use a release version (latest: 1.0.0-rc2) include the following dependency (available from mavenCentral):
+To use a release version (latest: 1.0.0-rc3) include the following dependency (available from mavenCentral):
 
 ```gradle
 group: 'org.fairdatapipeline',
 name: 'api',
-version: '1.0.0-rc2'
+version: '1.0.0-rc3'
 ```
 
 ## javaSimpleModel
