@@ -2,6 +2,8 @@ package org.fairdatapipeline.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -405,6 +407,19 @@ class CoderunIntegrationTest {
     }
     String hash = "a30b735ba6ce0340dbf264518d8a3ca1918397b8";
     check_last_coderun(List.of(new Triplet<>(dataProduct, component, hash)), null);
+  }
+
+  @Test
+  @Order(7)
+  void testWriteSamplesFail() throws RuntimeException {
+    String dataProduct = "human/samples2";
+    String component = "example-samples-w";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent(component);
+      oc.writeSamples(samples2);
+      assertThrows(RuntimeException.class, () -> oc.writeSamples(samples3));
+    }
   }
 
   @Test

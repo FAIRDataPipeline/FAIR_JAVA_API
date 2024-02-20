@@ -94,11 +94,15 @@ public class Object_component_write extends Object_component {
    * @param samples a Samples object containing the samples
    */
   public void writeSamples(Samples samples) {
+    if(this.been_used) {
+      throw(new RuntimeException("obj component already written"));
+    }
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, samples);
     } catch (IOException e) {
       throw (new RuntimeException("writeSamples() -- IOException trying to write to file.", e));
     }
+    this.been_used = true;
   }
 
   void register_me_in_code_run() {

@@ -66,6 +66,10 @@ write:
     description: Coderun Integration test for samples
     use:
       version: 0.0.1
+  - data_product: human/samples2
+    description: Coderun Integration test for samples
+    use:
+      version: 0.0.1
   - data_product: human/multicomp
     description: Coderun Integration test for samples multiple components
     use:
