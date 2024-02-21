@@ -64,6 +64,9 @@ public class Object_component_write extends Object_component {
    * @param estimateNumber the number to write.
    */
   public void writeEstimate(Number estimateNumber) {
+    if(this.been_used) {
+      throw(new RuntimeException("obj component already written"));
+    }
     var estimate =
         ImmutableEstimate.builder().internalValue(estimateNumber).rng(this.dp.coderun.rng).build();
 
@@ -72,6 +75,7 @@ public class Object_component_write extends Object_component {
     } catch (IOException e) {
       throw (new RuntimeException("writeEstimate() -- IOException trying to write to file.", e));
     }
+    this.been_used = true;
   }
 
   /**
@@ -80,12 +84,16 @@ public class Object_component_write extends Object_component {
    * @param distribution the Distribution to write
    */
   public void writeDistribution(Distribution distribution) {
+    if(this.been_used) {
+      throw(new RuntimeException("obj component already written"));
+    }
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, distribution);
     } catch (IOException e) {
       throw (new RuntimeException(
           "writeDistribution() -- IOException trying to write to file.", e));
     }
+    this.been_used = true;
   }
 
   /**

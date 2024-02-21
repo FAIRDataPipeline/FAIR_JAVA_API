@@ -327,6 +327,18 @@ class CoderunIntegrationTest {
 
   @Test
   @Order(1)
+  void testWriteEstimateFail() {
+    String dataProduct = "human/population2";
+    String component = "estimate-component";
+    try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent(component);
+      oc.writeEstimate(estimate);
+      assertThrows(RuntimeException.class, () -> oc.writeEstimate(estimate));
+    }
+  }
+  @Test
+  @Order(1)
   void testWriteEstimate() {
     String dataProduct = "human/population";
     String component = "estimate-component";
@@ -381,6 +393,18 @@ class CoderunIntegrationTest {
     check_last_coderun(List.of(new Triplet<>(dataProduct, component, hash)), null);
   }
 
+  @Test
+  @Order(5)
+  void testWriteCategoricalDistributionFail() {
+    String dataProduct = "human/cdistribution2";
+    String component = "cdistribution-component";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent(component);
+      oc.writeDistribution(categoricalDistribution);
+      assertThrows(RuntimeException.class, () -> oc.writeDistribution(distribution));
+    }
+  }
   @Test
   @Order(5)
   void testWriteCategoricalDistribution() {
