@@ -3,7 +3,6 @@ package org.fairdatapipeline.api;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -337,6 +336,7 @@ class CoderunIntegrationTest {
       assertThrows(RuntimeException.class, () -> oc.writeEstimate(estimate));
     }
   }
+
   @Test
   @Order(1)
   void testWriteEstimate() {
@@ -405,6 +405,7 @@ class CoderunIntegrationTest {
       assertThrows(RuntimeException.class, () -> oc.writeDistribution(distribution));
     }
   }
+
   @Test
   @Order(5)
   void testWriteCategoricalDistribution() {
