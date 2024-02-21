@@ -50,12 +50,20 @@ read:
       version: 0.0.1
 
 write:
+  - data_product: human/population2
+    description: Coderun Integration test
+    use:
+      version: 0.0.1
   - data_product: human/population
     description: Coderun Integration test
     use:
       version: 0.0.1
   - data_product: human/distribution
     description: Coderun Integration test for distribution
+    use:
+      version: 0.0.1
+  - data_product: human/cdistribution2
+    description: Coderun Integration test for cdistribution
     use:
       version: 0.0.1
   - data_product: human/cdistribution
