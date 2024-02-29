@@ -125,7 +125,7 @@ public class Object_component_read extends Object_component {
     }
     if (!(data instanceof ImmutableBoolList)) {
       throw (new RuntimeException(
-              "readBools() -- this objComponent (" + this.component_name + ") is not a BoolList"));
+          "readBools() -- this objComponent (" + this.component_name + ") is not a BoolList"));
     }
     return ((ImmutableBoolList) data).getBools();
   }
@@ -144,11 +144,10 @@ public class Object_component_read extends Object_component {
     }
     if (!(data instanceof ImmutableStringList)) {
       throw (new RuntimeException(
-              "readStrings() -- this objComponent (" + this.component_name + ") is not a StringList"));
+          "readStrings() -- this objComponent (" + this.component_name + ") is not a StringList"));
     }
     return ((ImmutableStringList) data).getStrings();
   }
-
 
   /**
    * read the Samples that were stored as this component in a TOML file.

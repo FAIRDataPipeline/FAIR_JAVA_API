@@ -110,8 +110,7 @@ public class Object_component_write extends Object_component {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, bools);
     } catch (IOException e) {
-      throw (new RuntimeException(
-              "writeBools() -- IOException trying to write to file.", e));
+      throw (new RuntimeException("writeBools() -- IOException trying to write to file.", e));
     }
     this.been_used = true;
   }
@@ -128,8 +127,7 @@ public class Object_component_write extends Object_component {
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, strings);
     } catch (IOException e) {
-      throw (new RuntimeException(
-              "writeStrings() -- IOException trying to write to file.", e));
+      throw (new RuntimeException("writeStrings() -- IOException trying to write to file.", e));
     }
     this.been_used = true;
   }
