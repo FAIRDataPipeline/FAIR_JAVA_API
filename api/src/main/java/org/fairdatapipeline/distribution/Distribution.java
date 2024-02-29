@@ -18,7 +18,7 @@ import org.apache.commons.math3.distribution.GammaDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.EmpiricalDistribution;
-import org.fairdatapipeline.parameters.Component;
+import org.fairdatapipeline.parameters.RngComponent;
 import org.immutables.value.Value.Auxiliary;
 import org.immutables.value.Value.Check;
 import org.immutables.value.Value.Immutable;
@@ -33,7 +33,7 @@ import org.immutables.value.Value.Lazy;
  TODO support other distributions:
  https://github.com/ScottishCovidResponse/SCRCIssueTracking/issues/671
 */
-public interface Distribution extends Component {
+public interface Distribution extends RngComponent {
   enum DistributionType {
     gamma(),
     exponential(),

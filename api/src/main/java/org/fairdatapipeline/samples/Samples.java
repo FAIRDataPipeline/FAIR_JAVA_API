@@ -6,13 +6,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
 import org.fairdatapipeline.distribution.Distribution;
 import org.fairdatapipeline.distribution.ImmutableDistribution;
-import org.fairdatapipeline.parameters.Component;
+import org.fairdatapipeline.parameters.RngComponent;
 import org.immutables.value.Value.Immutable;
 
 @Immutable
 @JsonSerialize
 @JsonDeserialize
-public interface Samples extends Component {
+public interface Samples extends RngComponent {
   List<Number> samples();
 
   @JsonIgnore

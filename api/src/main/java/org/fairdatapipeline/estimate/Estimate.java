@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
 import org.fairdatapipeline.distribution.Distribution;
-import org.fairdatapipeline.parameters.Component;
+import org.fairdatapipeline.parameters.RngComponent;
 import org.immutables.value.Value.Immutable;
 
 /** a component to store a plain simple single Number */
 @Immutable
 @JsonDeserialize
 @JsonSerialize
-public interface Estimate extends Component {
+public interface Estimate extends RngComponent {
   /** @return Number - the value that is stored in this component */
   @JsonProperty("value")
   Number internalValue();

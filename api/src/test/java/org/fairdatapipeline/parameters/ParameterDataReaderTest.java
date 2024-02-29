@@ -18,12 +18,14 @@ class ParameterDataReaderTest {
   private CleanableFileChannel fileChannel;
   private TomlReader tomlReader;
   private Estimate mockEstimate;
+  private StringList mockStringList;
 
   @BeforeAll
   public void setUp() {
     this.fileChannel = mock(CleanableFileChannel.class);
     this.tomlReader = mock(TomlReader.class);
     this.mockEstimate = mock(Estimate.class);
+    this.mockStringList = mock(StringList.class);
   }
 
   @Test

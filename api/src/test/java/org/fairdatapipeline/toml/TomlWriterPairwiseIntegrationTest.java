@@ -3,7 +3,6 @@ package org.fairdatapipeline.toml;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
 import java.io.StringWriter;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -12,26 +11,28 @@ import org.fairdatapipeline.distribution.ImmutableDistribution;
 import org.fairdatapipeline.estimate.ImmutableEstimate;
 import org.fairdatapipeline.parameters.Components;
 import org.fairdatapipeline.parameters.ImmutableComponents;
+import org.fairdatapipeline.parameters.ImmutableStringList;
 import org.fairdatapipeline.samples.ImmutableSamples;
-import org.json.JSONException;
 import org.junit.jupiter.api.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TomlWriterPairwiseIntegrationTest {
+
   private final String expectedToml =
-      "[\"example estimate\"]\n"
-          + "type = \"point-estimate\"\n"
+      "[example-estimate]\n"
           + "value = 1.0\n"
-          + "\n"
+          + "type = \"point-estimate\"\n"
           + "[example-distribution]\n"
-          + "type = \"distribution\"\n"
           + "distribution = \"gamma\"\n"
-          + "shape = 1\n"
-          + "scale = 2\n"
-          + "\n"
+          + "shape = 1.0\n"
+          + "scale = 2.0\n"
+          + "type = \"distribution\"\n"
           + "[example-samples]\n"
+          + "samples = [1, 2, 3]\n"
           + "type = \"samples\"\n"
-          + "samples = [ 1, 2, 3,]";
+          + "[example-strings]\n"
+          + "strings = [\"bla\", \"blo\"]\n"
+          + "type = \"strings\"\n";
 
   private TOMLMapper tomlMapper;
   private RandomGenerator rng;
@@ -44,7 +45,7 @@ class TomlWriterPairwiseIntegrationTest {
   }
 
   @Test
-  void write() throws JSONException {
+  void write() {
     var estimate = ImmutableEstimate.builder().internalValue(1.0).rng(rng).build();
     var distribution =
         ImmutableDistribution.builder()
@@ -54,12 +55,14 @@ class TomlWriterPairwiseIntegrationTest {
             .rng(rng)
             .build();
     var samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
+    var strings = ImmutableStringList.builder().addStrings("bla", "blo").build();
 
     Components components =
         ImmutableComponents.builder()
-            .putComponents("example estimate", estimate)
+            .putComponents("example-estimate", estimate)
             .putComponents("example-distribution", distribution)
             .putComponents("example-samples", samples)
+            .putComponents("example-strings", strings)
             .build();
 
     var writer = new StringWriter();
@@ -68,7 +71,6 @@ class TomlWriterPairwiseIntegrationTest {
     tomlWriter.write(writer, components);
 
     var actualToml = writer.toString();
-    assertThat(actualToml).isNotBlank();
-    assertEquals(actualToml, expectedToml, true);
+    assertThat(actualToml).isEqualTo(expectedToml);
   }
 }
