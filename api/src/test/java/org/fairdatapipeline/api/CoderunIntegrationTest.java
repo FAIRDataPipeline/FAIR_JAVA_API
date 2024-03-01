@@ -27,6 +27,10 @@ import org.fairdatapipeline.distribution.ImmutableDistribution;
 import org.fairdatapipeline.distribution.ImmutableMinMax;
 import org.fairdatapipeline.distribution.MinMax;
 import org.fairdatapipeline.file.CleanableFileChannel;
+import org.fairdatapipeline.parameters.BoolList;
+import org.fairdatapipeline.parameters.ImmutableBoolList;
+import org.fairdatapipeline.parameters.ImmutableStringList;
+import org.fairdatapipeline.parameters.StringList;
 import org.fairdatapipeline.samples.ImmutableSamples;
 import org.fairdatapipeline.samples.Samples;
 import org.javatuples.Triplet;
@@ -51,6 +55,8 @@ class CoderunIntegrationTest {
   private final String chickenTestText =
       "This is a text file about chickens.\nPlease forgive the lack of interesting content in this file.";
   private Samples samples, samples2, samples3, samples4;
+  private StringList stringlist1, stringlist2;
+  private BoolList boollist;
   private Distribution distribution;
   private Distribution categoricalDistribution;
   private final Number estimate = 1.0;
@@ -99,6 +105,9 @@ class CoderunIntegrationTest {
     samples2 = ImmutableSamples.builder().addSamples(4, 5, 6).rng(rng).build();
     samples3 = ImmutableSamples.builder().addSamples(7, 8, 9).rng(rng).build();
     samples4 = ImmutableSamples.builder().addSamples(10, 11, 12).rng(rng).build();
+    stringlist1 = ImmutableStringList.builder().addStrings("do", "re", "mi").build();
+    stringlist2 = ImmutableStringList.builder().addStrings("just the one").build();
+    boollist = ImmutableBoolList.builder().addBools(true).build();
 
     csv_data = new ArrayList<>();
     csv_data.add(new String[] {"apple", "12", "green"});
@@ -517,6 +526,61 @@ class CoderunIntegrationTest {
             new Triplet<>(dataProduct, component1, hash),
             new Triplet<>(dataProduct, component2, hash)),
         null);
+  }
+
+  @Test
+  @Order(9)
+  void testWriteAllSortsComponents() {
+    String dataProduct = "human/allsortscomp";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+
+      dp.getComponent("a").writeSamples(samples);
+      dp.getComponent("b").writeSamples(samples2);
+      dp.getComponent("c").writeDistribution(categoricalDistribution);
+      dp.getComponent("d").writeEstimate(estimate);
+      dp.getComponent("e").writeStrings(stringlist1);
+      dp.getComponent("f").writeStrings(stringlist2);
+      dp.getComponent("g").writeBools(boollist);
+    }
+    String hash = "b756331d77b31ab6ab9c55d1825e3f625997fdf9";
+    check_last_coderun(
+            null,
+            Arrays.asList(
+                    new Triplet<>(dataProduct, "a", hash),
+                    new Triplet<>(dataProduct, "b", hash),
+                    new Triplet<>(dataProduct, "c", hash),
+                    new Triplet<>(dataProduct, "d", hash),
+                    new Triplet<>(dataProduct, "e", hash),
+                    new Triplet<>(dataProduct, "f", hash),
+                    new Triplet<>(dataProduct, "g", hash)));
+  }
+
+  @Test
+  @Order(10)
+  void testReadAllSortsComponents() {
+    String dataProduct = "human/allsortscomp";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read dc = coderun.get_dp_for_read(dataProduct);
+      assertThat(dc.getComponent("a").readSamples()).containsExactly(1,2,3);
+      assertThat(dc.getComponent("b").readSamples()).containsExactly(4,5,6);
+      assertThat(dc.getComponent("c").readDistribution().getDistribution().internalType()).isEqualTo(DistributionType.categorical);
+      assertThat(dc.getComponent("d").readEstimate()).isEqualTo(estimate);
+      assertThat(dc.getComponent("e").readStrings()).containsExactly("do", "re", "mi");
+      assertThat(dc.getComponent("f").readStrings()).containsExactly("just the one");
+      assertThat(dc.getComponent("g").readBools()).containsExactly(true);
+    }
+    String hash = "b756331d77b31ab6ab9c55d1825e3f625997fdf9";
+    check_last_coderun(
+            Arrays.asList(
+                    new Triplet<>(dataProduct, "a", hash),
+                    new Triplet<>(dataProduct, "b", hash),
+                    new Triplet<>(dataProduct, "c", hash),
+                    new Triplet<>(dataProduct, "d", hash),
+                    new Triplet<>(dataProduct, "e", hash),
+                    new Triplet<>(dataProduct, "f", hash),
+                    new Triplet<>(dataProduct, "g", hash)),
+            null);
   }
 
   @Test

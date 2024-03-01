@@ -25,6 +25,9 @@ read:
   - data_product: human/multicomp
     use:
       version: 0.0.1
+  - data_product: human/allsortscomp
+    use:
+      version: 0.0.1
   - data_product: animal/dog
     use:
       version: 0.0.1
@@ -80,6 +83,10 @@ write:
       version: 0.0.1
   - data_product: human/multicomp
     description: Coderun Integration test for samples multiple components
+    use:
+      version: 0.0.1
+  - data_product: human/allsortscomp
+    description: Coderun Integration test for writing a whole variety of components
     use:
       version: 0.0.1
   - data_product: animal/*
