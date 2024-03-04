@@ -5,8 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.StringWriter;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.fairdatapipeline.distribution.Distribution.DistributionType;
 import org.fairdatapipeline.distribution.ImmutableDistribution;
@@ -50,22 +48,22 @@ class TomlWriterPairwiseIntegrationTest {
   void write() {
     var estimate = ImmutableEstimate.builder().internalValue(1.0).rng(rng).build();
     var distribution =
-            ImmutableDistribution.builder()
-                    .internalType(DistributionType.gamma)
-                    .internalShape(1)
-                    .internalScale(2)
-                    .rng(rng)
-                    .build();
+        ImmutableDistribution.builder()
+            .internalType(DistributionType.gamma)
+            .internalShape(1)
+            .internalScale(2)
+            .rng(rng)
+            .build();
     var samples = ImmutableSamples.builder().addSamples(1.5, 2, 3).rng(rng).build();
     var strings = ImmutableStringList.builder().addStrings("bla", "blo").build();
 
     Components components =
-            ImmutableComponents.builder()
-                    .putComponents("example-estimate", estimate)
-                    .putComponents("example-distribution", distribution)
-                    .putComponents("example-samples", samples)
-                    .putComponents("example-strings", strings)
-                    .build();
+        ImmutableComponents.builder()
+            .putComponents("example-estimate", estimate)
+            .putComponents("example-distribution", distribution)
+            .putComponents("example-samples", samples)
+            .putComponents("example-strings", strings)
+            .build();
 
     var writer = new StringWriter();
     var tomlWriter = new TomlWriter(tomlMapper);

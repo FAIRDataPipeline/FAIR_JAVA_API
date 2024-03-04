@@ -24,7 +24,9 @@ public interface NumberList extends Component {
     // count the number of integers in this list:
     int i = (int) numbers().stream().filter((x) -> ((Number) x.intValue()) == x).count();
     if (i != 0 && i < numbers().size()) {
-      return ImmutableNumberList.builder().numbers(numbers().stream().map(Number::doubleValue).collect(Collectors.toList())).build();
+      return ImmutableNumberList.builder()
+          .numbers(numbers().stream().map(Number::doubleValue).collect(Collectors.toList()))
+          .build();
     }
     return this;
   }

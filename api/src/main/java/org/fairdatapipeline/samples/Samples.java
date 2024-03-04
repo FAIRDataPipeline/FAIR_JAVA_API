@@ -5,11 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.fairdatapipeline.distribution.Distribution;
 import org.fairdatapipeline.distribution.ImmutableDistribution;
-import org.fairdatapipeline.parameters.ImmutableNumberList;
-import org.fairdatapipeline.parameters.NumberList;
 import org.fairdatapipeline.parameters.RngComponent;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
@@ -52,7 +49,10 @@ public interface Samples extends RngComponent {
     // count the number of integers in this list:
     int i = (int) samples().stream().filter((x) -> ((Number) x.intValue()) == x).count();
     if (i != 0 && i < samples().size()) {
-      return ImmutableSamples.builder().samples(samples().stream().map(Number::doubleValue).collect(Collectors.toList())).rng(rng()).build();
+      return ImmutableSamples.builder()
+          .samples(samples().stream().map(Number::doubleValue).collect(Collectors.toList()))
+          .rng(rng())
+          .build();
     }
     return this;
   }
