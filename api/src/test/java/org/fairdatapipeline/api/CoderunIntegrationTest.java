@@ -27,10 +27,7 @@ import org.fairdatapipeline.distribution.ImmutableDistribution;
 import org.fairdatapipeline.distribution.ImmutableMinMax;
 import org.fairdatapipeline.distribution.MinMax;
 import org.fairdatapipeline.file.CleanableFileChannel;
-import org.fairdatapipeline.parameters.BoolList;
-import org.fairdatapipeline.parameters.ImmutableBoolList;
-import org.fairdatapipeline.parameters.ImmutableStringList;
-import org.fairdatapipeline.parameters.StringList;
+import org.fairdatapipeline.parameters.*;
 import org.fairdatapipeline.samples.ImmutableSamples;
 import org.fairdatapipeline.samples.Samples;
 import org.javatuples.Triplet;
@@ -57,6 +54,7 @@ class CoderunIntegrationTest {
   private Samples samples, samples2, samples3, samples4;
   private StringList stringlist1, stringlist2;
   private BoolList boollist;
+  private NumberList numberlist;
   private Distribution distribution;
   private Distribution categoricalDistribution;
   private final Number estimate = 1.0;
@@ -108,6 +106,7 @@ class CoderunIntegrationTest {
     stringlist1 = ImmutableStringList.builder().addStrings("do", "re", "mi").build();
     stringlist2 = ImmutableStringList.builder().addStrings("just the one").build();
     boollist = ImmutableBoolList.builder().addBools(true).build();
+    numberlist = ImmutableNumberList.builder().addNumbers(1, 1.5, 12345.67).build();
 
     csv_data = new ArrayList<>();
     csv_data.add(new String[] {"apple", "12", "green"});
@@ -542,18 +541,20 @@ class CoderunIntegrationTest {
       dp.getComponent("e").writeStrings(stringlist1);
       dp.getComponent("f").writeStrings(stringlist2);
       dp.getComponent("g").writeBools(boollist);
+      dp.getComponent("h").writeNumbers(numberlist);
     }
-    String hash = "b756331d77b31ab6ab9c55d1825e3f625997fdf9";
+    String hash = "68608005664459de456d75941430e7290031ddb5";
     check_last_coderun(
-            null,
-            Arrays.asList(
-                    new Triplet<>(dataProduct, "a", hash),
-                    new Triplet<>(dataProduct, "b", hash),
-                    new Triplet<>(dataProduct, "c", hash),
-                    new Triplet<>(dataProduct, "d", hash),
-                    new Triplet<>(dataProduct, "e", hash),
-                    new Triplet<>(dataProduct, "f", hash),
-                    new Triplet<>(dataProduct, "g", hash)));
+        null,
+        Arrays.asList(
+            new Triplet<>(dataProduct, "a", hash),
+            new Triplet<>(dataProduct, "b", hash),
+            new Triplet<>(dataProduct, "c", hash),
+            new Triplet<>(dataProduct, "d", hash),
+            new Triplet<>(dataProduct, "e", hash),
+            new Triplet<>(dataProduct, "f", hash),
+            new Triplet<>(dataProduct, "g", hash),
+            new Triplet<>(dataProduct, "h", hash)));
   }
 
   @Test
@@ -562,25 +563,28 @@ class CoderunIntegrationTest {
     String dataProduct = "human/allsortscomp";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       Data_product_read dc = coderun.get_dp_for_read(dataProduct);
-      assertThat(dc.getComponent("a").readSamples()).containsExactly(1,2,3);
-      assertThat(dc.getComponent("b").readSamples()).containsExactly(4,5,6);
-      assertThat(dc.getComponent("c").readDistribution().getDistribution().internalType()).isEqualTo(DistributionType.categorical);
+      assertThat(dc.getComponent("a").readSamples()).containsExactly(1, 2, 3);
+      assertThat(dc.getComponent("b").readSamples()).containsExactly(4, 5, 6);
+      assertThat(dc.getComponent("c").readDistribution().getDistribution().internalType())
+          .isEqualTo(DistributionType.categorical);
       assertThat(dc.getComponent("d").readEstimate()).isEqualTo(estimate);
       assertThat(dc.getComponent("e").readStrings()).containsExactly("do", "re", "mi");
       assertThat(dc.getComponent("f").readStrings()).containsExactly("just the one");
       assertThat(dc.getComponent("g").readBools()).containsExactly(true);
+      assertThat(dc.getComponent("h").readNumbers()).containsExactly(1.0, 1.5, 12345.67);
     }
-    String hash = "b756331d77b31ab6ab9c55d1825e3f625997fdf9";
+    String hash = "68608005664459de456d75941430e7290031ddb5";
     check_last_coderun(
-            Arrays.asList(
-                    new Triplet<>(dataProduct, "a", hash),
-                    new Triplet<>(dataProduct, "b", hash),
-                    new Triplet<>(dataProduct, "c", hash),
-                    new Triplet<>(dataProduct, "d", hash),
-                    new Triplet<>(dataProduct, "e", hash),
-                    new Triplet<>(dataProduct, "f", hash),
-                    new Triplet<>(dataProduct, "g", hash)),
-            null);
+        Arrays.asList(
+            new Triplet<>(dataProduct, "a", hash),
+            new Triplet<>(dataProduct, "b", hash),
+            new Triplet<>(dataProduct, "c", hash),
+            new Triplet<>(dataProduct, "d", hash),
+            new Triplet<>(dataProduct, "e", hash),
+            new Triplet<>(dataProduct, "f", hash),
+            new Triplet<>(dataProduct, "g", hash),
+            new Triplet<>(dataProduct, "h", hash)),
+        null);
   }
 
   @Test

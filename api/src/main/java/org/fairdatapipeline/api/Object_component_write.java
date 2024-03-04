@@ -8,6 +8,7 @@ import org.fairdatapipeline.distribution.Distribution;
 import org.fairdatapipeline.estimate.ImmutableEstimate;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.parameters.BoolList;
+import org.fairdatapipeline.parameters.NumberList;
 import org.fairdatapipeline.parameters.StringList;
 import org.fairdatapipeline.samples.Samples;
 
@@ -116,7 +117,7 @@ public class Object_component_write extends Object_component {
   }
 
   /**
-   * write a BoolList, as this named component in the data product.
+   * write a StringList, as this named component in the data product.
    *
    * @param strings the Strings to write
    */
@@ -126,6 +127,23 @@ public class Object_component_write extends Object_component {
     }
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, strings);
+    } catch (IOException e) {
+      throw (new RuntimeException("writeStrings() -- IOException trying to write to file.", e));
+    }
+    this.been_used = true;
+  }
+
+  /**
+   * write NumberList, as this named component in the data product.
+   *
+   * @param numbers the Numbers to write
+   */
+  public void writeNumbers(NumberList numbers) {
+    if (this.been_used) {
+      throw (new RuntimeException("obj component already written"));
+    }
+    try (CleanableFileChannel fileChannel = this.getFileChannel()) {
+      this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, numbers);
     } catch (IOException e) {
       throw (new RuntimeException("writeStrings() -- IOException trying to write to file.", e));
     }

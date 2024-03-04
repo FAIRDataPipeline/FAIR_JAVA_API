@@ -38,7 +38,9 @@ public class ComponentsDeserializer extends JsonDeserializer<Components> {
           "bools",
           ImmutableBoolList.class,
           "strings",
-          ImmutableStringList.class);
+          ImmutableStringList.class,
+          "numbers",
+          ImmutableNumberList.class);
 
   @Override
   public Components deserialize(JsonParser jsonParser, DeserializationContext ctxt)

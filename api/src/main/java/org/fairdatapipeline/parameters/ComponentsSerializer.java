@@ -33,7 +33,9 @@ public class ComponentsSerializer extends JsonSerializer<Components> {
           ImmutableStringList.class,
           "strings",
           ImmutableBoolList.class,
-          "bools");
+          "bools",
+          ImmutableNumberList.class,
+          "numbers");
 
   @Override
   public void serialize(Components components, JsonGenerator gen, SerializerProvider serializers)

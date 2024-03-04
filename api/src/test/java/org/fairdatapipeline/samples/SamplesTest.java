@@ -40,6 +40,12 @@ class SamplesTest {
   }
 
   @Test
+  void heterogenousToDoubles() {
+    var samples = ImmutableSamples.builder().addSamples(1.4, 2.5, 3).rng(rng).build();
+    assertThat(samples.getSamples()).containsExactly(1.4, 2.5, 3.0);
+  }
+
+  @Test
   void derivedDistributionFromSamples() {
     var samples = ImmutableSamples.builder().addSamples(1, 2, 3).rng(rng).build();
     var distribution = samples.getDistribution();

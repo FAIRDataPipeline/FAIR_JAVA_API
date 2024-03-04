@@ -8,6 +8,7 @@ import org.fairdatapipeline.distribution.ImmutableDistribution;
 import org.fairdatapipeline.estimate.ImmutableEstimate;
 import org.fairdatapipeline.file.CleanableFileChannel;
 import org.fairdatapipeline.parameters.ImmutableBoolList;
+import org.fairdatapipeline.parameters.ImmutableNumberList;
 import org.fairdatapipeline.parameters.ImmutableStringList;
 import org.fairdatapipeline.parameters.ReadComponent;
 import org.fairdatapipeline.samples.ImmutableSamples;
@@ -147,6 +148,25 @@ public class Object_component_read extends Object_component {
           "readStrings() -- this objComponent (" + this.component_name + ") is not a StringList"));
     }
     return ((ImmutableStringList) data).getStrings();
+  }
+
+  /**
+   * read the Numbers that were stored as this component in a TOML file.
+   *
+   * @return the Numbers object
+   */
+  public List<Number> readNumbers() {
+    ReadComponent data;
+    try (CleanableFileChannel fileChannel = this.getFileChannel()) {
+      data = this.dp.coderun.parameterDataReader.read(fileChannel, this.component_name);
+    } catch (IOException e) {
+      throw (new RuntimeException("readStrings() -- IOException trying to read from file.", e));
+    }
+    if (!(data instanceof ImmutableNumberList)) {
+      throw (new RuntimeException(
+          "readNumbers() -- this objComponent (" + this.component_name + ") is not a NumberList"));
+    }
+    return ((ImmutableNumberList) data).getNumbers();
   }
 
   /**
