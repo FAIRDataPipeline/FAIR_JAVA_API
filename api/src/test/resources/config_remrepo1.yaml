@@ -1,0 +1,21 @@
+fail_on_hash_mismatch: True
+run_metadata:
+  description: Coderun Integration test
+  local_data_registry_url: http://localhost:8000/api/
+  default_input_namespace: CoderunTest2
+  default_output_namespace: CoderunTest2
+  local_repo: local repo
+  script: ''
+  latest_commit: 988637ffb95381375f6b22e2281fea1bcb6c8fe0
+  remote_repo: user@host.xz:/path/to/repo.git
+
+read:
+  - data_product: human/population
+    use:
+      version: 0.0.1
+
+write:
+  - data_product: human/population
+    description: Coderun Integration test
+    use:
+      version: 0.0.1

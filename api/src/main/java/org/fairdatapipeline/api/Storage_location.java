@@ -2,7 +2,6 @@ package org.fairdatapipeline.api;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 /** This is used to store a file or a remote repo to the registry as a RegistryStorage_location. */
 class Storage_location {
   private static final Logger logger = LoggerFactory.getLogger(Storage_location.class);
+
   RegistryStorage_location registryStorage_location;
 
   /**
@@ -25,8 +25,8 @@ class Storage_location {
    *     we will use the existing one instead of storing this one.
    * @param coderun link back to the Coderun that created us.
    */
-  Storage_location(URL remote_repo, String latest_commit, Coderun coderun) {
-    String[] split_repo = Storage_root.url_to_root(remote_repo);
+  Storage_location(String remote_repo, String latest_commit, Coderun coderun) {
+    String[] split_repo = Storage_root.gitrepo_to_root(remote_repo);
     Storage_root storage_root = new Storage_root(URI.create(split_repo[0]), coderun.restClient);
     create_storagelocation(latest_commit, storage_root, coderun, split_repo[1], null);
   }

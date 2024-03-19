@@ -62,16 +62,18 @@ class CoderunIntegrationTest {
   private RestClient restClient;
 
   private Path ori_configPath;
+  private Path ori_configPath2;
   private Path ori_scriptPath;
   private Path datastorePath;
   private String coderun_ts;
   private Path coderunPath;
   private Path coderunTSPath;
-  private String ns;
+  private String ns, ns2;
   private String altNamespace;
-  private Path nsPath;
+  private Path nsPath, nsPath2;
+
   private Path altNamespacePath;
-  private Path configPath;
+  private Path configPath, configPath2;
   private Path scriptPath;
   private Path coderuns_txt;
   private String token;
@@ -83,6 +85,9 @@ class CoderunIntegrationTest {
   void setup_paths() throws URISyntaxException {
     ori_configPath =
         Paths.get(Objects.requireNonNull(getClass().getResource("/config-stdapi.yaml")).toURI());
+    ori_configPath2 =
+        Paths.get(Objects.requireNonNull(getClass().getResource("/config_remrepo1.yaml")).toURI());
+
     ori_scriptPath =
         Paths.get(Objects.requireNonNull(getClass().getResource("/script.sh")).toURI());
     datastorePath = ori_configPath.getParent().resolve("datastore");
@@ -90,10 +95,13 @@ class CoderunIntegrationTest {
     coderunPath = datastorePath.resolve("coderun");
     coderunTSPath = coderunPath.resolve(coderun_ts);
     ns = "CoderunTest";
+    ns2 = "CoderunTest2";
     altNamespace = "alternativeNS";
     nsPath = datastorePath.resolve(ns);
+    nsPath2 = datastorePath.resolve(ns2);
     altNamespacePath = datastorePath.resolve(altNamespace);
     configPath = coderunTSPath.resolve("config.yaml");
+    configPath2 = coderunTSPath.resolve("config2.yaml");
     scriptPath = coderunTSPath.resolve("script.sh");
     coderuns_txt = coderunTSPath.resolve("coderuns.txt");
   }
@@ -206,6 +214,7 @@ class CoderunIntegrationTest {
     delete_directories();
     Files.createDirectories(coderunTSPath);
     Files.copy(ori_configPath, configPath);
+    Files.copy(ori_configPath2, configPath2);
     Files.copy(ori_scriptPath, scriptPath);
   }
 
@@ -213,6 +222,9 @@ class CoderunIntegrationTest {
     FileUtils.deleteDirectory(coderunTSPath.toFile());
     FileUtils.deleteDirectory(
         nsPath.toFile()); // remove the whole namespace in the local datastore.
+    FileUtils.deleteDirectory(
+        nsPath2.toFile()); // remove the whole namespace in the local datastore.
+
     FileUtils.deleteDirectory(
         altNamespacePath
             .toFile()); // remove the whole alternative namespace in the local datastore.
@@ -346,7 +358,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(1)
+  @Order(2)
   void testWriteEstimate() {
     String dataProduct = "human/population";
     String component = "estimate-component";
@@ -360,7 +372,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(2)
+  @Order(3)
   void testReadEstimate() {
     String dataProduct = "human/population";
     String component = "estimate-component";
@@ -374,7 +386,35 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(3)
+  @Order(4)
+  void testWriteEstimate_remrep2() {
+    String dataProduct = "human/population";
+    String component = "estimate-component";
+    try (Coderun coderun = new Coderun(configPath2, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent(component);
+      oc.writeEstimate(estimate);
+    }
+    String hash = "a4f9d47dac45639e69a758a8b2d49bf11bbeb262";
+    check_last_coderun(null, List.of(new Triplet<>(dataProduct, component, hash)));
+  }
+
+  @Test
+  @Order(5)
+  void testReadEstimate_remrep2() {
+    String dataProduct = "human/population";
+    String component = "estimate-component";
+    try (var coderun = new Coderun(configPath2, scriptPath, token)) {
+      Data_product_read dp = coderun.get_dp_for_read(dataProduct);
+      Object_component_read oc = dp.getComponent(component);
+      assertThat(oc.readEstimate()).isEqualTo(estimate);
+    }
+    String hash = "a4f9d47dac45639e69a758a8b2d49bf11bbeb262";
+    check_last_coderun(List.of(new Triplet<>(dataProduct, component, hash)), null);
+  }
+
+  @Test
+  @Order(6)
   void testWriteDistribution() {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
@@ -388,7 +428,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(4)
+  @Order(7)
   void testReadDistribution() {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
@@ -402,7 +442,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(5)
+  @Order(8)
   void testWriteCategoricalDistributionFail() {
     String dataProduct = "human/cdistribution2";
     String component = "cdistribution-component";
@@ -415,7 +455,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(5)
+  @Order(9)
   void testWriteCategoricalDistribution() {
     String dataProduct = "human/cdistribution";
     String component = "cdistribution-component";
@@ -429,7 +469,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(6)
+  @Order(10)
   void testReadCategoricalDistribution() {
     String dataProduct = "human/cdistribution";
     String component = "cdistribution-component";
@@ -443,7 +483,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(7)
+  @Order(11)
   void testWriteSamplesFail() throws RuntimeException {
     String dataProduct = "human/samples2";
     String component = "example-samples-w";
@@ -456,7 +496,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(7)
+  @Order(12)
   void testWriteSamples() {
     String dataProduct = "human/samples";
     String component = "example-samples-w";
@@ -470,7 +510,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(8)
+  @Order(13)
   void testReadSamples() {
     String dataProduct = "human/samples";
     String component = "example-samples-w";
@@ -484,7 +524,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(9)
+  @Order(14)
   void testWriteSamplesMultipleComponents() {
     String dataProduct = "human/multicomp";
     String component1 = "example-samples-w1";
@@ -507,7 +547,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(10)
+  @Order(15)
   void testReadSamplesMultipleComponents() {
     String dataProduct = "human/multicomp";
     String component1 = "example-samples-w1";
@@ -528,7 +568,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(9)
+  @Order(16)
   void testWriteAllSortsComponents() {
     String dataProduct = "human/allsortscomp";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -558,7 +598,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(10)
+  @Order(17)
   void testReadAllSortsComponents() {
     String dataProduct = "human/allsortscomp";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -588,7 +628,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(11)
+  @Order(18)
   void testWriteGlobDP() {
     String dataProduct = "animal/dog";
     String component = "example-samples";
@@ -602,7 +642,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(12)
+  @Order(19)
   void testReadNoGlob() {
     String dataProduct = "animal/dog";
     String component = "example-samples";
@@ -616,7 +656,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(13)
+  @Order(20)
   void testWriteGlobMultiDP() {
     String dataProduct1 = "animal/horse";
     String dataProduct2 = "animal/mouse";
@@ -676,7 +716,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(14)
+  @Order(21)
   void testWriteSamplesMultipleComponentsAndIssues() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
@@ -708,7 +748,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(15)
+  @Order(22)
   void testReadSamplesMultipleComponentsAndIssues() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
@@ -735,7 +775,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(16)
+  @Order(23)
   void testRead_oneIssueToMultipleComp_and_script() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
@@ -766,7 +806,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(17)
+  @Order(24)
   void testCSV_writeLink() throws IOException {
     String dataProduct = "animal/ant";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -796,7 +836,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(18)
+  @Order(25)
   void testCSV_readLink() throws IOException {
     String dataProduct = "animal/ant";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -815,7 +855,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(19)
+  @Order(26)
   void testCSV_writeLink_withIssue() throws IOException {
     String dataProduct = "animal/monkey";
     String issue = "this does not seem to contain anything monkey-related";
@@ -834,7 +874,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(20)
+  @Order(27)
   void testCSV_readLink_withIssue() throws IOException {
     String dataProduct = "animal/ant";
     String issue = "not enough orange";
@@ -856,7 +896,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(21)
+  @Order(28)
   void testRewriteDPname() {
     String dataProduct = "animal/canine";
     String component = "NumberOfLegs";
@@ -872,7 +912,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(22)
+  @Order(29)
   void testReadRewrittenDPname() {
     String dataProduct = "animal/canine";
     String component = "NumberOfLegs";
@@ -887,7 +927,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(23)
+  @Order(30)
   void testAltNS() {
     String dataProduct = "test/altns";
     String component = "altNScompo";
@@ -902,7 +942,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(24)
+  @Order(31)
   void testAltNSread() {
     String dataProduct = "test/altns";
     String component = "altNScompo";
@@ -916,7 +956,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(25)
+  @Order(32)
   void testConfigFiletype() {
     String dataProduct = "animal/chicken";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -953,7 +993,7 @@ class CoderunIntegrationTest {
 
   @SuppressWarnings("EmptyTryBlock")
   @Test
-  @Order(26)
+  @Order(33)
   void emptyCoderun() {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       // do nothing
