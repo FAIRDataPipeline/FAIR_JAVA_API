@@ -3,9 +3,7 @@ package org.fairdatapipeline.api;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -237,18 +235,11 @@ public class Coderun implements AutoCloseable {
     this.registryCode_run.setSubmission_script(this.script_object.getUrl());
     String latest_commit = this.config.run_metadata().latest_commit().orElse("");
     String remote_repo = this.config.run_metadata().remote_repo().orElse("");
-    URL remote_repo_url;
-    try {
-      remote_repo_url = new URL(remote_repo);
-    } catch (MalformedURLException e) {
-      throw (new ConfigException(
-          "Remote repo must be a valid URL; (" + remote_repo + " isn't)", e));
-    }
 
     this.codeRepo =
         new CodeRepo(
             latest_commit,
-            remote_repo_url,
+            remote_repo,
             "Analysis / processing script location",
             this.authors,
             this);

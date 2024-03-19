@@ -2,6 +2,7 @@ package org.fairdatapipeline.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +27,7 @@ import org.fairdatapipeline.distribution.ImmutableDistribution;
 import org.fairdatapipeline.distribution.ImmutableMinMax;
 import org.fairdatapipeline.distribution.MinMax;
 import org.fairdatapipeline.file.CleanableFileChannel;
+import org.fairdatapipeline.parameters.*;
 import org.fairdatapipeline.samples.ImmutableSamples;
 import org.fairdatapipeline.samples.Samples;
 import org.javatuples.Triplet;
@@ -50,6 +52,9 @@ class CoderunIntegrationTest {
   private final String chickenTestText =
       "This is a text file about chickens.\nPlease forgive the lack of interesting content in this file.";
   private Samples samples, samples2, samples3, samples4;
+  private StringList stringlist1, stringlist2;
+  private BoolList boollist;
+  private NumberList numberlist;
   private Distribution distribution;
   private Distribution categoricalDistribution;
   private final Number estimate = 1.0;
@@ -57,16 +62,18 @@ class CoderunIntegrationTest {
   private RestClient restClient;
 
   private Path ori_configPath;
+  private Path ori_configPath2;
   private Path ori_scriptPath;
   private Path datastorePath;
   private String coderun_ts;
   private Path coderunPath;
   private Path coderunTSPath;
-  private String ns;
+  private String ns, ns2;
   private String altNamespace;
-  private Path nsPath;
+  private Path nsPath, nsPath2;
+
   private Path altNamespacePath;
-  private Path configPath;
+  private Path configPath, configPath2;
   private Path scriptPath;
   private Path coderuns_txt;
   private String token;
@@ -78,6 +85,9 @@ class CoderunIntegrationTest {
   void setup_paths() throws URISyntaxException {
     ori_configPath =
         Paths.get(Objects.requireNonNull(getClass().getResource("/config-stdapi.yaml")).toURI());
+    ori_configPath2 =
+        Paths.get(Objects.requireNonNull(getClass().getResource("/config_remrepo1.yaml")).toURI());
+
     ori_scriptPath =
         Paths.get(Objects.requireNonNull(getClass().getResource("/script.sh")).toURI());
     datastorePath = ori_configPath.getParent().resolve("datastore");
@@ -85,10 +95,13 @@ class CoderunIntegrationTest {
     coderunPath = datastorePath.resolve("coderun");
     coderunTSPath = coderunPath.resolve(coderun_ts);
     ns = "CoderunTest";
+    ns2 = "CoderunTest2";
     altNamespace = "alternativeNS";
     nsPath = datastorePath.resolve(ns);
+    nsPath2 = datastorePath.resolve(ns2);
     altNamespacePath = datastorePath.resolve(altNamespace);
     configPath = coderunTSPath.resolve("config.yaml");
+    configPath2 = coderunTSPath.resolve("config2.yaml");
     scriptPath = coderunTSPath.resolve("script.sh");
     coderuns_txt = coderunTSPath.resolve("coderuns.txt");
   }
@@ -98,6 +111,10 @@ class CoderunIntegrationTest {
     samples2 = ImmutableSamples.builder().addSamples(4, 5, 6).rng(rng).build();
     samples3 = ImmutableSamples.builder().addSamples(7, 8, 9).rng(rng).build();
     samples4 = ImmutableSamples.builder().addSamples(10, 11, 12).rng(rng).build();
+    stringlist1 = ImmutableStringList.builder().addStrings("do", "re", "mi").build();
+    stringlist2 = ImmutableStringList.builder().addStrings("just the one").build();
+    boollist = ImmutableBoolList.builder().addBools(true).build();
+    numberlist = ImmutableNumberList.builder().addNumbers(1, 1.5, 12345.67).build();
 
     csv_data = new ArrayList<>();
     csv_data.add(new String[] {"apple", "12", "green"});
@@ -197,6 +214,7 @@ class CoderunIntegrationTest {
     delete_directories();
     Files.createDirectories(coderunTSPath);
     Files.copy(ori_configPath, configPath);
+    Files.copy(ori_configPath2, configPath2);
     Files.copy(ori_scriptPath, scriptPath);
   }
 
@@ -204,6 +222,9 @@ class CoderunIntegrationTest {
     FileUtils.deleteDirectory(coderunTSPath.toFile());
     FileUtils.deleteDirectory(
         nsPath.toFile()); // remove the whole namespace in the local datastore.
+    FileUtils.deleteDirectory(
+        nsPath2.toFile()); // remove the whole namespace in the local datastore.
+
     FileUtils.deleteDirectory(
         altNamespacePath
             .toFile()); // remove the whole alternative namespace in the local datastore.
@@ -325,6 +346,19 @@ class CoderunIntegrationTest {
 
   @Test
   @Order(1)
+  void testWriteEstimateFail() {
+    String dataProduct = "human/population2";
+    String component = "estimate-component";
+    try (Coderun coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent(component);
+      oc.writeEstimate(estimate);
+      assertThrows(RuntimeException.class, () -> oc.writeEstimate(estimate));
+    }
+  }
+
+  @Test
+  @Order(2)
   void testWriteEstimate() {
     String dataProduct = "human/population";
     String component = "estimate-component";
@@ -338,7 +372,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(2)
+  @Order(3)
   void testReadEstimate() {
     String dataProduct = "human/population";
     String component = "estimate-component";
@@ -352,7 +386,35 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(3)
+  @Order(4)
+  void testWriteEstimate_remrep2() {
+    String dataProduct = "human/population";
+    String component = "estimate-component";
+    try (Coderun coderun = new Coderun(configPath2, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent(component);
+      oc.writeEstimate(estimate);
+    }
+    String hash = "a4f9d47dac45639e69a758a8b2d49bf11bbeb262";
+    check_last_coderun(null, List.of(new Triplet<>(dataProduct, component, hash)));
+  }
+
+  @Test
+  @Order(5)
+  void testReadEstimate_remrep2() {
+    String dataProduct = "human/population";
+    String component = "estimate-component";
+    try (var coderun = new Coderun(configPath2, scriptPath, token)) {
+      Data_product_read dp = coderun.get_dp_for_read(dataProduct);
+      Object_component_read oc = dp.getComponent(component);
+      assertThat(oc.readEstimate()).isEqualTo(estimate);
+    }
+    String hash = "a4f9d47dac45639e69a758a8b2d49bf11bbeb262";
+    check_last_coderun(List.of(new Triplet<>(dataProduct, component, hash)), null);
+  }
+
+  @Test
+  @Order(6)
   void testWriteDistribution() {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
@@ -366,7 +428,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(4)
+  @Order(7)
   void testReadDistribution() {
     String dataProduct = "human/distribution";
     String component = "distribution-component";
@@ -380,7 +442,20 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(5)
+  @Order(8)
+  void testWriteCategoricalDistributionFail() {
+    String dataProduct = "human/cdistribution2";
+    String component = "cdistribution-component";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent(component);
+      oc.writeDistribution(categoricalDistribution);
+      assertThrows(RuntimeException.class, () -> oc.writeDistribution(distribution));
+    }
+  }
+
+  @Test
+  @Order(9)
   void testWriteCategoricalDistribution() {
     String dataProduct = "human/cdistribution";
     String component = "cdistribution-component";
@@ -394,7 +469,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(6)
+  @Order(10)
   void testReadCategoricalDistribution() {
     String dataProduct = "human/cdistribution";
     String component = "cdistribution-component";
@@ -408,7 +483,20 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(7)
+  @Order(11)
+  void testWriteSamplesFail() throws RuntimeException {
+    String dataProduct = "human/samples2";
+    String component = "example-samples-w";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+      Object_component_write oc = dp.getComponent(component);
+      oc.writeSamples(samples2);
+      assertThrows(RuntimeException.class, () -> oc.writeSamples(samples3));
+    }
+  }
+
+  @Test
+  @Order(12)
   void testWriteSamples() {
     String dataProduct = "human/samples";
     String component = "example-samples-w";
@@ -422,7 +510,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(8)
+  @Order(13)
   void testReadSamples() {
     String dataProduct = "human/samples";
     String component = "example-samples-w";
@@ -436,7 +524,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(9)
+  @Order(14)
   void testWriteSamplesMultipleComponents() {
     String dataProduct = "human/multicomp";
     String component1 = "example-samples-w1";
@@ -459,7 +547,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(10)
+  @Order(15)
   void testReadSamplesMultipleComponents() {
     String dataProduct = "human/multicomp";
     String component1 = "example-samples-w1";
@@ -480,7 +568,67 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(11)
+  @Order(16)
+  void testWriteAllSortsComponents() {
+    String dataProduct = "human/allsortscomp";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_write dp = coderun.get_dp_for_write(dataProduct, "toml");
+
+      dp.getComponent("a").writeSamples(samples);
+      dp.getComponent("b").writeSamples(samples2);
+      dp.getComponent("c").writeDistribution(categoricalDistribution);
+      dp.getComponent("d").writeEstimate(estimate);
+      dp.getComponent("e").writeStrings(stringlist1);
+      dp.getComponent("f").writeStrings(stringlist2);
+      dp.getComponent("g").writeBools(boollist);
+      dp.getComponent("h").writeNumbers(numberlist);
+    }
+    String hash = "68608005664459de456d75941430e7290031ddb5";
+    check_last_coderun(
+        null,
+        Arrays.asList(
+            new Triplet<>(dataProduct, "a", hash),
+            new Triplet<>(dataProduct, "b", hash),
+            new Triplet<>(dataProduct, "c", hash),
+            new Triplet<>(dataProduct, "d", hash),
+            new Triplet<>(dataProduct, "e", hash),
+            new Triplet<>(dataProduct, "f", hash),
+            new Triplet<>(dataProduct, "g", hash),
+            new Triplet<>(dataProduct, "h", hash)));
+  }
+
+  @Test
+  @Order(17)
+  void testReadAllSortsComponents() {
+    String dataProduct = "human/allsortscomp";
+    try (var coderun = new Coderun(configPath, scriptPath, token)) {
+      Data_product_read dc = coderun.get_dp_for_read(dataProduct);
+      assertThat(dc.getComponent("a").readSamples()).containsExactly(1, 2, 3);
+      assertThat(dc.getComponent("b").readSamples()).containsExactly(4, 5, 6);
+      assertThat(dc.getComponent("c").readDistribution().getDistribution().internalType())
+          .isEqualTo(DistributionType.categorical);
+      assertThat(dc.getComponent("d").readEstimate()).isEqualTo(estimate);
+      assertThat(dc.getComponent("e").readStrings()).containsExactly("do", "re", "mi");
+      assertThat(dc.getComponent("f").readStrings()).containsExactly("just the one");
+      assertThat(dc.getComponent("g").readBools()).containsExactly(true);
+      assertThat(dc.getComponent("h").readNumbers()).containsExactly(1.0, 1.5, 12345.67);
+    }
+    String hash = "68608005664459de456d75941430e7290031ddb5";
+    check_last_coderun(
+        Arrays.asList(
+            new Triplet<>(dataProduct, "a", hash),
+            new Triplet<>(dataProduct, "b", hash),
+            new Triplet<>(dataProduct, "c", hash),
+            new Triplet<>(dataProduct, "d", hash),
+            new Triplet<>(dataProduct, "e", hash),
+            new Triplet<>(dataProduct, "f", hash),
+            new Triplet<>(dataProduct, "g", hash),
+            new Triplet<>(dataProduct, "h", hash)),
+        null);
+  }
+
+  @Test
+  @Order(18)
   void testWriteGlobDP() {
     String dataProduct = "animal/dog";
     String component = "example-samples";
@@ -494,7 +642,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(12)
+  @Order(19)
   void testReadNoGlob() {
     String dataProduct = "animal/dog";
     String component = "example-samples";
@@ -508,7 +656,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(13)
+  @Order(20)
   void testWriteGlobMultiDP() {
     String dataProduct1 = "animal/horse";
     String dataProduct2 = "animal/mouse";
@@ -568,7 +716,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(14)
+  @Order(21)
   void testWriteSamplesMultipleComponentsAndIssues() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
@@ -600,7 +748,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(15)
+  @Order(22)
   void testReadSamplesMultipleComponentsAndIssues() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
@@ -627,7 +775,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(16)
+  @Order(23)
   void testRead_oneIssueToMultipleComp_and_script() {
     String dataProduct = "animal/dodo";
     String component1 = "example-samples-dodo1";
@@ -658,7 +806,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(17)
+  @Order(24)
   void testCSV_writeLink() throws IOException {
     String dataProduct = "animal/ant";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -688,7 +836,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(18)
+  @Order(25)
   void testCSV_readLink() throws IOException {
     String dataProduct = "animal/ant";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -707,7 +855,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(19)
+  @Order(26)
   void testCSV_writeLink_withIssue() throws IOException {
     String dataProduct = "animal/monkey";
     String issue = "this does not seem to contain anything monkey-related";
@@ -726,7 +874,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(20)
+  @Order(27)
   void testCSV_readLink_withIssue() throws IOException {
     String dataProduct = "animal/ant";
     String issue = "not enough orange";
@@ -748,7 +896,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(21)
+  @Order(28)
   void testRewriteDPname() {
     String dataProduct = "animal/canine";
     String component = "NumberOfLegs";
@@ -764,7 +912,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(22)
+  @Order(29)
   void testReadRewrittenDPname() {
     String dataProduct = "animal/canine";
     String component = "NumberOfLegs";
@@ -779,7 +927,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(23)
+  @Order(30)
   void testAltNS() {
     String dataProduct = "test/altns";
     String component = "altNScompo";
@@ -794,7 +942,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(24)
+  @Order(31)
   void testAltNSread() {
     String dataProduct = "test/altns";
     String component = "altNScompo";
@@ -808,7 +956,7 @@ class CoderunIntegrationTest {
   }
 
   @Test
-  @Order(25)
+  @Order(32)
   void testConfigFiletype() {
     String dataProduct = "animal/chicken";
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
@@ -845,7 +993,7 @@ class CoderunIntegrationTest {
 
   @SuppressWarnings("EmptyTryBlock")
   @Test
-  @Order(26)
+  @Order(33)
   void emptyCoderun() {
     try (var coderun = new Coderun(configPath, scriptPath, token)) {
       // do nothing

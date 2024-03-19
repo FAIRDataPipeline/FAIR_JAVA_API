@@ -29,9 +29,18 @@ public class ComponentsDeserializer extends JsonDeserializer<Components> {
 
   private static final Map<String, Class<?>> typeMapping =
       Map.of(
-          "point-estimate", ImmutableEstimate.class,
-          "distribution", ImmutableDistribution.class,
-          "samples", ImmutableSamples.class);
+          "point-estimate",
+          ImmutableEstimate.class,
+          "distribution",
+          ImmutableDistribution.class,
+          "samples",
+          ImmutableSamples.class,
+          "bools",
+          ImmutableBoolList.class,
+          "strings",
+          ImmutableStringList.class,
+          "numbers",
+          ImmutableNumberList.class);
 
   @Override
   public Components deserialize(JsonParser jsonParser, DeserializationContext ctxt)
@@ -42,15 +51,12 @@ public class ComponentsDeserializer extends JsonDeserializer<Components> {
         Streams.stream(rootNode.fields())
             .map(this::deserializeSingleComponent)
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-
     return ImmutableComponents.builder().components(components).build();
   }
 
   private Entry<String, Component> deserializeSingleComponent(Entry<String, JsonNode> entry) {
     String key = entry.getKey();
     ObjectNode componentNode = entry.getValue().deepCopy();
-    componentNode.putPOJO("rng", new Object()); // this is a hack to force rng to populate via
-    // RandomGeneratorDeserializer.class
     String type = componentNode.get("type").asText();
     componentNode.remove("type");
     Class<?> deserializeClass = typeMapping.get(type);
@@ -58,7 +64,11 @@ public class ComponentsDeserializer extends JsonDeserializer<Components> {
     if (deserializeClass == null) {
       throw new IllegalArgumentException(String.format("Unsupported component type %s", type));
     }
-
+    if (RngComponent.class.isAssignableFrom(deserializeClass.getInterfaces()[0])) {
+      componentNode.putPOJO("rng", new Object());
+      // this is a hack to force rng to populate via
+      // RandomGeneratorDeserializer.class
+    }
     ObjectMapper objectMapper = new DataPipelineMapper(rng);
     Component component;
     try {

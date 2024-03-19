@@ -24,9 +24,18 @@ public class ComponentsSerializer extends JsonSerializer<Components> {
 
   private static final Map<Class<?>, String> typeMapping =
       Map.of(
-          ImmutableEstimate.class, "point-estimate",
-          ImmutableDistribution.class, "distribution",
-          ImmutableSamples.class, "samples");
+          ImmutableEstimate.class,
+          "point-estimate",
+          ImmutableDistribution.class,
+          "distribution",
+          ImmutableSamples.class,
+          "samples",
+          ImmutableStringList.class,
+          "strings",
+          ImmutableBoolList.class,
+          "bools",
+          ImmutableNumberList.class,
+          "numbers");
 
   @Override
   public void serialize(Components components, JsonGenerator gen, SerializerProvider serializers)

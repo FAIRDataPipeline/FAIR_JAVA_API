@@ -1,6 +1,5 @@
 package org.fairdatapipeline.api;
 
-import java.net.URL;
 import java.util.List;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 
@@ -15,7 +14,7 @@ class CodeRepo {
 
   CodeRepo(
       String latest_commit,
-      URL repo_url,
+      String repo_url,
       String description,
       List<APIURL> authors,
       Coderun coderun) {

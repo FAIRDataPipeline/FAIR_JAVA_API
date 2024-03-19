@@ -1,15 +1,21 @@
 package org.fairdatapipeline.api;
 
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.fairdatapipeline.dataregistry.content.RegistryStorage_root;
 import org.fairdatapipeline.dataregistry.restclient.APIURL;
 import org.fairdatapipeline.dataregistry.restclient.RestClient;
 
 /** Retrieve or create the RegistryStorage_root with a given 'root'. */
 class Storage_root {
+  private static Pattern git_repo_url =
+      Pattern.compile("(\\w+://)(.+@)*([\\w\\d\\.]+)(:[\\d]+){0,1}/*(.*)");
+  private static Pattern git_repo_file = Pattern.compile("file://(.*)");
+  private static Pattern git_repo_ssh = Pattern.compile("(.+@)([\\w\\d\\.]+):(.*)");
   RegistryStorage_root registryStorage_root;
 
   /**
@@ -47,15 +53,27 @@ class Storage_root {
   }
 
   /**
-   * split the repository URL into a storage root (proto://authority/ part) and path (/xxx/xxx) part
+   * split the repository location into a storage root HTTPS: proto://authority/path/to/stuff
+   * becomes proto://authority AND /path/to/stuff SSH: git@epic.sruc.ac.uk:bboskamp/BTv.git becomes
+   * git@epic.sruc.ac.uk AND /bboskamp/BTv.git
    *
-   * @param url the URL to split up into scheme/authority and path.
+   * @param repo_location the repository location string to split up into scheme/authority and path.
    * @return string array of length 2.
    */
-  static String[] url_to_root(URL url) {
-    String path = url.getPath().substring(1);
-    String scheme_and_authority_part =
-        url.toString().substring(0, url.toString().length() - path.length());
-    return new String[] {scheme_and_authority_part, path};
+  static String[] gitrepo_to_root(String repo_location) {
+    Matcher m1 = git_repo_url.matcher(repo_location);
+    if (m1.find())
+      return new String[] {
+        Objects.toString(m1.group(1), "")
+            + Objects.toString(m1.group(2), "")
+            + Objects.toString(m1.group(3), "")
+            + Objects.toString(m1.group(4), ""),
+        m1.group(5)
+      };
+    m1 = git_repo_file.matcher(repo_location);
+    if (m1.find()) return new String[] {"file://", m1.group(1)};
+    m1 = git_repo_ssh.matcher(repo_location);
+    if (m1.find()) return new String[] {m1.group(1) + m1.group(2), m1.group(3)};
+    return new String[] {};
   }
 }

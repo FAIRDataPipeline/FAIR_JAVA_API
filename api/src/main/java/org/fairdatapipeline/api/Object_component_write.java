@@ -7,6 +7,9 @@ import org.fairdatapipeline.dataregistry.content.RegistryObject_component;
 import org.fairdatapipeline.distribution.Distribution;
 import org.fairdatapipeline.estimate.ImmutableEstimate;
 import org.fairdatapipeline.file.CleanableFileChannel;
+import org.fairdatapipeline.parameters.BoolList;
+import org.fairdatapipeline.parameters.NumberList;
+import org.fairdatapipeline.parameters.StringList;
 import org.fairdatapipeline.samples.Samples;
 
 /**
@@ -64,6 +67,9 @@ public class Object_component_write extends Object_component {
    * @param estimateNumber the number to write.
    */
   public void writeEstimate(Number estimateNumber) {
+    if (this.been_used) {
+      throw (new RuntimeException("obj component already written"));
+    }
     var estimate =
         ImmutableEstimate.builder().internalValue(estimateNumber).rng(this.dp.coderun.rng).build();
 
@@ -72,6 +78,7 @@ public class Object_component_write extends Object_component {
     } catch (IOException e) {
       throw (new RuntimeException("writeEstimate() -- IOException trying to write to file.", e));
     }
+    this.been_used = true;
   }
 
   /**
@@ -80,12 +87,67 @@ public class Object_component_write extends Object_component {
    * @param distribution the Distribution to write
    */
   public void writeDistribution(Distribution distribution) {
+    if (this.been_used) {
+      throw (new RuntimeException("obj component already written"));
+    }
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, distribution);
     } catch (IOException e) {
       throw (new RuntimeException(
           "writeDistribution() -- IOException trying to write to file.", e));
     }
+    this.been_used = true;
+  }
+
+  /**
+   * write a BoolList, as this named component in the data product.
+   *
+   * @param bools the Booleans to write
+   */
+  public void writeBools(BoolList bools) {
+    if (this.been_used) {
+      throw (new RuntimeException("obj component already written"));
+    }
+    try (CleanableFileChannel fileChannel = this.getFileChannel()) {
+      this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, bools);
+    } catch (IOException e) {
+      throw (new RuntimeException("writeBools() -- IOException trying to write to file.", e));
+    }
+    this.been_used = true;
+  }
+
+  /**
+   * write a StringList, as this named component in the data product.
+   *
+   * @param strings the Strings to write
+   */
+  public void writeStrings(StringList strings) {
+    if (this.been_used) {
+      throw (new RuntimeException("obj component already written"));
+    }
+    try (CleanableFileChannel fileChannel = this.getFileChannel()) {
+      this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, strings);
+    } catch (IOException e) {
+      throw (new RuntimeException("writeStrings() -- IOException trying to write to file.", e));
+    }
+    this.been_used = true;
+  }
+
+  /**
+   * write NumberList, as this named component in the data product.
+   *
+   * @param numbers the Numbers to write
+   */
+  public void writeNumbers(NumberList numbers) {
+    if (this.been_used) {
+      throw (new RuntimeException("obj component already written"));
+    }
+    try (CleanableFileChannel fileChannel = this.getFileChannel()) {
+      this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, numbers);
+    } catch (IOException e) {
+      throw (new RuntimeException("writeStrings() -- IOException trying to write to file.", e));
+    }
+    this.been_used = true;
   }
 
   /**
@@ -94,11 +156,15 @@ public class Object_component_write extends Object_component {
    * @param samples a Samples object containing the samples
    */
   public void writeSamples(Samples samples) {
+    if (this.been_used) {
+      throw (new RuntimeException("obj component already written"));
+    }
     try (CleanableFileChannel fileChannel = this.getFileChannel()) {
       this.dp.coderun.parameterDataWriter.write(fileChannel, this.component_name, samples);
     } catch (IOException e) {
       throw (new RuntimeException("writeSamples() -- IOException trying to write to file.", e));
     }
+    this.been_used = true;
   }
 
   void register_me_in_code_run() {
